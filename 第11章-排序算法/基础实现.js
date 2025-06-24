@@ -85,6 +85,7 @@ function bubbleSort(arr, compareFn = (a, b) => a - b) {
     for (let i = 0; i < n - 1; i++) {
         let swapped = false; // 优化：记录本轮是否有交换
 
+
         // 每轮将未排序部分的最大元素冒泡到末尾
         for (let j = 0; j < n - 1 - i; j++) {
             if (compareFn(result[j], result[j + 1]) > 0) {
