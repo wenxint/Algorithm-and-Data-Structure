@@ -7,18 +7,54 @@
   </head>
   <body></body>
   <script>
-    let arr = [1, 2, [888, 555],[666,888], 111];
-    function test(arr) {
-      let a = [];
-      for (let i = 0; i < arr.length; i++) {
-        if (Array.isArray(arr[i])) {
-         a=[...a,...test(arr[i])]
-        } else {
-          a.push(arr[i]);
-        }
+    // let arr = [1, 2, [888, 555],[666,888], 111];
+    // function test(arr) {
+    //   let a = [];
+    //   for (let i = 0; i < arr.length; i++) {
+    //     if (Array.isArray(arr[i])) {
+    //      a=[...a,...test(arr[i])]
+    //     } else {
+    //       a.push(arr[i]);
+    //     }
+    //   }
+    //   return a
+    // }
+    // console.log(test(arr));
+    // function add(a,b,c) {
+    //   return a+b+c
+    // }
+    // function c(
+    //   fn
+    // ){
+    //   const inner = function(...args) {
+    //     if(args.length>=fn.length) {
+    //       return fn(...args)
+    //     }else{
+    //       return (...next)=>inner(...args, ...next)
+    //     }
+    //   }
+    //   return inner
+    // }
+    // console.log(c(add)(1)(2)(3))
+    // console.log(c(add(1,2,3))()()())
+    // let arr = [1, 2, 2, 3, 2, 4];
+    // const copyArr = [...arr]; // 创建原数组的副本
+
+    // for (let i = 0; i < copyArr.length; i++) {
+    //   if (copyArr[i] === 2) {
+    //     arr.splice(i, 1); // 操作原数组，副本索引保持不变
+    //     // 无需调整i，因为副本数组的索引不会变化
+    //     i=i-1
+    //   }
+    // }
+    // console.log(arr); // [1, 3, 4]（所有2都被正确删除）
+    const arr = [2, 2, 3, 4];
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] === 2) {
+        arr.splice(i, 1);
+        i--; // 关键：删除后索引回退一位
       }
-      return a
     }
-    console.log(test(arr));
+    console.log(arr); // [3, 4]（正确）
   </script>
 </html>
