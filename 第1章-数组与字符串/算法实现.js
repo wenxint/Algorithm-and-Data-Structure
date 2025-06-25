@@ -47,6 +47,10 @@ function reverseArray(arr) {
     return arr;
 }
 
+// 测试用例
+console.log('反转数组 [1,2,3,4,5]:', reverseArray([1,2,3,4,5])); // 预期输出: [5,4,3,2,1]
+
+
 /**
  * 移除数组中的指定元素（快慢指针）
  *
@@ -82,6 +86,10 @@ function removeElement(nums, val) {
 
     return slow; // 返回新数组的长度
 }
+
+// 测试用例
+console.log('移除元素3后数组长度:', removeElement([3,2,2,3], 3)); // 预期输出: 2
+
 
 /**
  * 合并两个有序数组
@@ -131,6 +139,12 @@ function merge(nums1, m, nums2, n) {
     }
 }
 
+// 测试用例
+const nums1 = [1,2,3,0,0,0];
+merge(nums1, 3, [2,5,6], 3);
+console.log('合并后数组 [1,2,3] 和 [2,5,6]:', nums1); // 预期输出: [1,2,2,3,5,6]
+
+
 /**
  * 判断回文字符串（双指针）
  *
@@ -171,6 +185,10 @@ function isPalindromeAdvanced(s) {
 
     return true; // 所有字符都匹配，是回文字符串
 }
+
+// 测试用例
+console.log('判断回文 "A man a plan a canal Panama":', isPalindromeAdvanced("A man a plan a canal Panama")); // 预期输出: true
+
 
 // ==================== 滑动窗口算法 ====================
 
@@ -252,6 +270,10 @@ function minWindow(s, t) {
     return len === Infinity ? "" : s.substr(start, len);
 }
 
+// 测试用例
+console.log('最小覆盖子串 "ADOBECODEBANC", "ABC":', minWindow("ADOBECODEBANC", "ABC")); // 预期输出: "BANC"
+
+
 /**
  * 长度最小的子数组（滑动窗口）
  *
@@ -295,6 +317,10 @@ function minSubArrayLen(target, nums) {
     // 如果没找到满足条件的子数组，返回0
     return minLen === Infinity ? 0 : minLen;
 }
+
+// 测试用例
+console.log('最小子数组长度 target=7, [2,3,1,2,4,3]:', minSubArrayLen(7, [2,3,1,2,4,3])); // 预期输出: 2
+
 
 /**
  * 水果成篮（最多包含两种类型的最长子数组）
@@ -345,6 +371,10 @@ function totalFruit(fruits) {
     return maxFruits;
 }
 
+// 测试用例
+console.log('水果成篮 [1,2,1,3,3,2,2]:', totalFruit([1,2,1,3,3,2,2])); // 预期输出: 4
+
+
 // ==================== 前缀和算法 ====================
 
 /**
@@ -376,6 +406,13 @@ function buildPrefixSum(arr) {
     return prefixSum;
 }
 
+// 测试用例
+const testArr = [1, 2, 3, 4, 5];
+const prefixSumArr = buildPrefixSum(testArr);
+console.log('原数组:', testArr); // 预期输出: [1, 2, 3, 4, 5]
+console.log('前缀和数组:', prefixSumArr); // 预期输出: [0, 1, 3, 6, 10, 15]
+
+
 /**
  * 查询区间和（使用预构建的前缀和数组）
  *
@@ -389,6 +426,10 @@ function rangeSum(prefixSum, left, right) {
     // 区间[left, right]的和 = prefixSum[right + 1] - prefixSum[left]
     return prefixSum[right + 1] - prefixSum[left];
 }
+
+// 测试用例
+console.log('区间[1,3]的和:', rangeSum(prefixSumArr, 1, 3)); // 2+3+4 = 9
+
 
 /**
  * 子数组和等于K的个数
@@ -432,6 +473,10 @@ function subarraySum(nums, k) {
 
     return count;
 }
+
+// 测试用例
+console.log('子数组和为k=2的个数 [1,1,1]:', subarraySum([1,1,1], 2)); // 预期输出: 2
+
 
 /**
  * 二维区域和检索
@@ -492,6 +537,12 @@ class NumMatrix {
             + this.prefixSum[row1][col1];             // 加回重复减去的左上角区域
     }
 }
+
+// 测试用例
+const matrix = [[3, 0, 1], [5, 6, 3], [1, 2, 0]];
+const numMatrix = new NumMatrix(matrix);
+console.log('二维区域和 (0,0) 到 (2,2):', numMatrix.sumRegion(0, 0, 2, 2)); // 预期输出: 20
+
 
 // ==================== 字符串匹配算法 ====================
 
@@ -566,6 +617,14 @@ function strStr(haystack, needle) {
 
     return -1; // 未找到匹配
 }
+
+// 测试用例
+console.log('Rabin-Karp查找 "world" 在 "hello world" 中的位置:', strStrRabinKarp("hello world", "world")); // 预期输出: 6
+
+
+// 测试用例
+console.log('KMP查找 "hello" 在 "hello world" 中的位置:', strStr("hello world", "hello")); // 预期输出: 0
+
 
 /**
  * Rabin-Karp字符串匹配算法
@@ -685,6 +744,12 @@ function nextPermutation(nums) {
     }
 }
 
+// 测试用例
+const nums = [1,2,3];
+nextPermutation(nums);
+console.log('下一个排列 [1,2,3]:', nums); // 预期输出: [1,3,2]
+
+
 /**
  * 旋转数组
  *
@@ -724,34 +789,25 @@ function rotate(nums, k) {
     reverse(nums, k, nums.length - 1);  // 反转后n-k个元素
 }
 
+// 测试用例
+const rotateNums = [1,2,3,4,5,6,7];
+rotate(rotateNums, 3);
+console.log('旋转数组 [1,2,3,4,5,6,7] 3步:', rotateNums); // 预期输出: [5,6,7,1,2,3,4]
+
+
 // ==================== 测试用例 ====================
 
 console.log('=== 算法实现测试 ===');
 
 // 测试双指针算法
-console.log('\n--- 双指针算法测试 ---');
-console.log('反转数组 [1,2,3,4,5]:', reverseArray([1,2,3,4,5]));
-console.log('移除元素3后数组长度:', removeElement([3,2,2,3], 3));
-console.log('判断回文 "A man a plan a canal Panama":', isPalindromeAdvanced("A man a plan a canal Panama"));
+
 
 // 测试滑动窗口算法
 console.log('\n--- 滑动窗口算法测试 ---');
-console.log('最小覆盖子串 "ADOBECODEBANC", "ABC":', minWindow("ADOBECODEBANC", "ABC"));
-console.log('最小子数组长度 target=7, [2,3,1,2,4,3]:', minSubArrayLen(7, [2,3,1,2,4,3]));
 
 // 测试前缀和算法
 console.log('\n--- 前缀和算法测试 ---');
-const testArr = [1, 2, 3, 4, 5];
-const prefixSumArr = buildPrefixSum(testArr);
-console.log('原数组:', testArr);
-console.log('前缀和数组:', prefixSumArr);
-console.log('区间[1,3]的和:', rangeSum(prefixSumArr, 1, 3)); // 2+3+4 = 9
-console.log('子数组和为k=2的个数 [1,1,1]:', subarraySum([1,1,1], 2));
 
-// 测试字符串匹配
-console.log('\n--- 字符串匹配测试 ---');
-console.log('KMP查找 "hello" 在 "hello world" 中的位置:', strStr("hello world", "hello"));
-console.log('Rabin-Karp查找 "world" 在 "hello world" 中的位置:', strStrRabinKarp("hello world", "world"));
 
 // 导出所有函数
 if (typeof module !== 'undefined' && module.exports) {
