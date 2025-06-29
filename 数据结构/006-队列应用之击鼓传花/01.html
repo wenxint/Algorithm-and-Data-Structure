@@ -1,5 +1,7 @@
 <!--
  * @作者: kerwin
+ * @文件: 队列应用详解 - 击鼓传花游戏
+ * @描述: 演示队列数据结构在击鼓传花游戏中的实际应用
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -7,78 +9,624 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>队列应用 - 击鼓传花游戏详解</title>
 </head>
 
 <body>
     <script>
-        class Queue{
-            #items = {}
-            #lowCount = 0
-            #count = 0
-            
+        /**
+         * 队列数据结构类
+         *
+         * 核心思想：
+         * 队列是一种先进先出（FIFO - First In First Out）的数据结构
+         * 就像排队买票，先来的人先被服务
+         *
+         * 主要特点：
+         * - 先进先出：最先添加的元素最先被移除
+         * - 两端操作：一端入队（rear），一端出队（front）
+         * - 有序处理：保证元素按照加入顺序被处理
+         *
+         * 应用场景：
+         * - 任务调度：操作系统的进程调度
+         * - 缓冲区：键盘输入缓冲、打印队列
+         * - 广度优先搜索：BFS算法实现
+         * - 击鼓传花：循环淘汰游戏
+         * - 消息队列：异步通信系统
+         */
+        class Queue {
+            #items = {}      // 使用对象存储队列元素，提高性能
+            #lowCount = 0    // 队列前端指针，指向第一个元素
+            #count = 0       // 队列后端指针，指向下一个插入位置
 
-            dequeue(){
-               if(this.isEmpty()){
-                   return undefined
-               }
-               let res = this.#items[this.#lowCount]
-               delete this.#items[this.#lowCount]
-               this.#lowCount++
-               return res
+            /**
+             * 出队操作 - 移除并返回队列前端元素
+             *
+             * 核心思想：
+             * 从队列前端移除元素，体现FIFO特性
+             * 使用对象存储避免数组shift操作的O(n)复杂度
+             *
+             * @returns {*} 队列前端元素，如果队列为空则返回undefined
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            dequeue() {
+                if (this.isEmpty()) {
+                    return undefined
+                }
+
+                // 获取前端元素
+                let res = this.#items[this.#lowCount]
+
+                // 删除前端元素并移动指针
+                delete this.#items[this.#lowCount]
+                this.#lowCount++
+
+                return res
             }
 
-            enqueue(data){
-               this.#items[this.#count] = data
-               this.#count++
+            /**
+             * 入队操作 - 向队列后端添加元素
+             *
+             * 核心思想：
+             * 在队列后端添加新元素，保持FIFO顺序
+             *
+             * @param {*} data - 要添加的元素
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            enqueue(data) {
+                this.#items[this.#count] = data
+                this.#count++
             }
 
-            front(){
+            /**
+             * 查看队列前端元素 - 返回但不移除前端元素
+             *
+             * @returns {*} 队列前端元素
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            front() {
                 return this.#items[this.#lowCount]
             }
 
-            isEmpty(){
-                return this.size()===0
+            /**
+             * 检查队列是否为空
+             *
+             * @returns {boolean} 队列是否为空
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            isEmpty() {
+                return this.size() === 0
             }
 
-            size(){
+            /**
+             * 获取队列的大小
+             *
+             * @returns {number} 队列中元素的数量
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            size() {
                 return this.#count - this.#lowCount
             }
 
-            clear(){
+            /**
+             * 清空队列
+             *
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            clear() {
                 this.#items = {}
                 this.#count = 0
                 this.#lowCount = 0
             }
 
-            toString(){
+            /**
+             * 将队列转换为字符串表示
+             *
+             * @returns {string} 队列的字符串表示
+             * @time O(n) - 线性时间复杂度
+             * @space O(n) - 线性空间复杂度
+             */
+            toString() {
                 let str = ""
-                for(let i=this.#lowCount;i<this.#count;i++){
-                    str+=`${this.#items[i]} `
+                for (let i = this.#lowCount; i < this.#count; i++) {
+                    str += `${this.#items[i]} `
                 }
-                return str 
+                return str
+            }
+
+            /**
+             * 获取队列的数组表示（用于调试）
+             *
+             * @returns {Array} 队列元素的数组
+             * @time O(n) - 线性时间复杂度
+             * @space O(n) - 线性空间复杂度
+             */
+            toArray() {
+                let arr = []
+                for (let i = this.#lowCount; i < this.#count; i++) {
+                    arr.push(this.#items[i])
+                }
+                return arr
             }
         }
 
-        function game(list,num){
+        console.log('=== 队列应用 - 击鼓传花游戏详解 ===\n');
+
+        // ==================== 1. 击鼓传花游戏算法 ====================
+        console.log('1. 击鼓传花游戏算法演示');
+
+        /**
+         * 击鼓传花游戏
+         *
+         * 核心思想：
+         * 使用队列模拟循环淘汰过程
+         * 1. 所有玩家入队
+         * 2. 按指定步数循环传递（出队再入队）
+         * 3. 到达指定步数时淘汰当前玩家（出队不入队）
+         * 4. 重复步骤2-3直到只剩一个玩家
+         *
+         * 为什么使用队列：
+         * - FIFO特性保证了循环传递的顺序
+         * - 出队再入队模拟了圆形传递
+         * - 最终出队操作实现了淘汰机制
+         *
+         * @param {Array} list - 参与游戏的玩家列表
+         * @param {number} num - 传递的步数
+         * @returns {*} 最后的获胜者
+         * @time O(n*m) - n为玩家数量，m为传递步数
+         * @space O(n) - 需要存储所有玩家
+         */
+        function game(list, num) {
+            console.log(`\n--- 击鼓传花游戏开始 ---`);
+            console.log(`参与者: [${list.join(', ')}]`);
+            console.log(`传递步数: ${num}`);
+            console.log(`游戏规则: 每传递${num}步，当前持花者被淘汰\n`);
+
+            // 创建队列并将所有玩家入队
             let queue = new Queue()
-            for(let i=0;i<list.length;i++){
+            for (let i = 0; i < list.length; i++) {
                 queue.enqueue(list[i])
             }
 
-            while(queue.size()>1){
-                for(let i=0;i<num;i++){
-                    queue.enqueue(queue.dequeue())
+            console.log(`初始队列: [${queue.toArray().join(', ')}]\n`);
+
+            let round = 1;  // 轮次计数
+
+            // 当队列中还有多个玩家时继续游戏
+            while (queue.size() > 1) {
+                console.log(`--- 第${round}轮 ---`);
+                console.log(`当前队列: [${queue.toArray().join(', ')}] (${queue.size()}人)`);
+
+                // 传递花朵（出队再入队）
+                console.log(`开始传递${num}步:`);
+                for (let i = 0; i < num; i++) {
+                    let player = queue.dequeue();  // 出队
+                    queue.enqueue(player);         // 再入队
+                    console.log(`  步骤${i + 1}: ${player} 传递花朵`);
                 }
 
-                console.log(queue.dequeue(),"淘汰了")
+                // 淘汰当前持花者
+                let eliminated = queue.dequeue();
+                console.log(`💥 ${eliminated} 被淘汰了！`);
+                console.log(`剩余玩家: [${queue.toArray().join(', ')}]\n`);
+
+                round++;
             }
 
-            return queue.dequeue()
+            // 获取最后的获胜者
+            let winner = queue.dequeue();
+            console.log(`🎉 游戏结束！获胜者是: ${winner}`);
+
+            return winner;
         }
 
+        // ==================== 2. 基础游戏演示 ====================
+        console.log('2. 基础游戏演示');
 
-       
+        // 演示经典的击鼓传花游戏
+        let players1 = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
+        let winner1 = game(players1, 3);
+
+        // 演示不同步数的游戏
+        console.log('\n' + '='.repeat(50));
+        let players2 = ['张三', '李四', '王五', '赵六', '孙七', '周八'];
+        let winner2 = game(players2, 2);
+
+        // ==================== 3. 游戏变种演示 ====================
+        console.log('\n\n3. 游戏变种演示');
+
+        /**
+         * 多轮击鼓传花游戏
+         * 每轮使用不同的传递步数
+         *
+         * @param {Array} list - 参与游戏的玩家列表
+         * @param {Array} steps - 每轮的传递步数数组
+         * @returns {*} 最后的获胜者
+         */
+        function multiRoundGame(list, steps) {
+            console.log(`\n--- 多轮击鼓传花游戏 ---`);
+            console.log(`参与者: [${list.join(', ')}]`);
+            console.log(`每轮步数: [${steps.join(', ')}]`);
+
+            let queue = new Queue();
+            for (let player of list) {
+                queue.enqueue(player);
+            }
+
+            let stepIndex = 0;
+            let round = 1;
+
+            while (queue.size() > 1) {
+                let currentSteps = steps[stepIndex % steps.length];
+                console.log(`\n--- 第${round}轮 (步数: ${currentSteps}) ---`);
+                console.log(`当前队列: [${queue.toArray().join(', ')}]`);
+
+                // 传递指定步数
+                for (let i = 0; i < currentSteps; i++) {
+                    let player = queue.dequeue();
+                    queue.enqueue(player);
+                }
+
+                // 淘汰当前玩家
+                let eliminated = queue.dequeue();
+                console.log(`💥 ${eliminated} 被淘汰了！`);
+
+                stepIndex++;
+                round++;
+            }
+
+            let winner = queue.dequeue();
+            console.log(`\n🎉 多轮游戏获胜者: ${winner}`);
+            return winner;
+        }
+
+        // 演示多轮游戏
+        let players3 = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+        let steps = [2, 3, 4, 5];
+        multiRoundGame(players3, steps);
+
+        // ==================== 4. 游戏统计分析 ====================
+        console.log('\n\n4. 游戏统计分析');
+
+        /**
+         * 游戏统计分析器
+         * 分析不同参数下的游戏结果
+         *
+         * @param {Array} players - 玩家列表
+         * @param {number} steps - 传递步数
+         * @param {number} simulations - 模拟次数
+         */
+        function gameStatistics(players, steps, simulations) {
+            console.log(`\n--- 游戏统计分析 ---`);
+            console.log(`玩家数量: ${players.length}`);
+            console.log(`传递步数: ${steps}`);
+            console.log(`模拟次数: ${simulations}`);
+
+            let winnerCount = {};
+            let eliminationOrder = {};
+
+            // 初始化统计数据
+            for (let player of players) {
+                winnerCount[player] = 0;
+                eliminationOrder[player] = [];
+            }
+
+            // 进行多次模拟
+            for (let sim = 0; sim < simulations; sim++) {
+                let queue = new Queue();
+                let currentPlayers = [...players];
+
+                // 随机打乱玩家顺序
+                for (let i = currentPlayers.length - 1; i > 0; i--) {
+                    let j = Math.floor(Math.random() * (i + 1));
+                    [currentPlayers[i], currentPlayers[j]] = [currentPlayers[j], currentPlayers[i]];
+                }
+
+                // 玩家入队
+                for (let player of currentPlayers) {
+                    queue.enqueue(player);
+                }
+
+                let eliminationRound = 1;
+
+                // 游戏进行
+                while (queue.size() > 1) {
+                    // 传递
+                    for (let i = 0; i < steps; i++) {
+                        let player = queue.dequeue();
+                        queue.enqueue(player);
+                    }
+
+                    // 淘汰
+                    let eliminated = queue.dequeue();
+                    eliminationOrder[eliminated].push(eliminationRound);
+                    eliminationRound++;
+                }
+
+                // 记录获胜者
+                let winner = queue.dequeue();
+                winnerCount[winner]++;
+            }
+
+            // 输出统计结果
+            console.log('\n获胜统计:');
+            for (let player of players) {
+                let winRate = (winnerCount[player] / simulations * 100).toFixed(1);
+                console.log(`${player}: ${winnerCount[player]}次 (${winRate}%)`);
+            }
+
+            console.log('\n平均淘汰轮次:');
+            for (let player of players) {
+                if (eliminationOrder[player].length > 0) {
+                    let avgRound = eliminationOrder[player].reduce((a, b) => a + b, 0) / eliminationOrder[player].length;
+                    console.log(`${player}: 第${avgRound.toFixed(1)}轮`);
+                } else {
+                    console.log(`${player}: 从未被淘汰`);
+                }
+            }
+        }
+
+        // 进行统计分析
+        gameStatistics(['A', 'B', 'C', 'D', 'E'], 3, 1000);
+
+        // ==================== 5. 实际应用场景 ====================
+        console.log('\n\n5. 队列的实际应用场景');
+
+        /**
+         * 任务调度器
+         * 模拟操作系统的任务调度
+         */
+        class TaskScheduler {
+            constructor() {
+                this.taskQueue = new Queue();
+                this.currentTime = 0;
+            }
+
+            /**
+             * 添加任务
+             * @param {string} taskName - 任务名称
+             * @param {number} duration - 任务持续时间
+             * @param {number} priority - 任务优先级
+             */
+            addTask(taskName, duration, priority = 1) {
+                let task = {
+                    name: taskName,
+                    duration: duration,
+                    priority: priority,
+                    arrivalTime: this.currentTime
+                };
+
+                this.taskQueue.enqueue(task);
+                console.log(`任务 "${taskName}" 已加入队列 (持续时间: ${duration}ms, 优先级: ${priority})`);
+            }
+
+            /**
+             * 执行任务
+             */
+            executeTasks() {
+                console.log('\n--- 开始执行任务 ---');
+
+                while (!this.taskQueue.isEmpty()) {
+                    let task = this.taskQueue.dequeue();
+                    console.log(`\n执行任务: ${task.name}`);
+                    console.log(`  到达时间: ${task.arrivalTime}ms`);
+                    console.log(`  开始时间: ${this.currentTime}ms`);
+                    console.log(`  持续时间: ${task.duration}ms`);
+
+                    // 模拟任务执行
+                    this.currentTime += task.duration;
+
+                    console.log(`  完成时间: ${this.currentTime}ms`);
+                    console.log(`  等待时间: ${this.currentTime - task.arrivalTime - task.duration}ms`);
+                }
+
+                console.log(`\n所有任务执行完毕，总耗时: ${this.currentTime}ms`);
+            }
+
+            /**
+             * 显示当前队列状态
+             */
+            showQueue() {
+                console.log('\n当前任务队列:');
+                let tasks = this.taskQueue.toArray();
+                if (tasks.length === 0) {
+                    console.log('  队列为空');
+                } else {
+                    tasks.forEach((task, index) => {
+                        console.log(`  ${index + 1}. ${task.name} (${task.duration}ms)`);
+                    });
+                }
+            }
+        }
+
+        // 演示任务调度器
+        console.log('\n--- 任务调度器演示 ---');
+        let scheduler = new TaskScheduler();
+
+        scheduler.addTask('读取文件', 100);
+        scheduler.addTask('数据处理', 200);
+        scheduler.addTask('网络请求', 150);
+        scheduler.addTask('渲染界面', 80);
+        scheduler.addTask('保存数据', 120);
+
+        scheduler.showQueue();
+        scheduler.executeTasks();
+
+        /**
+         * 缓冲区模拟器
+         * 模拟键盘输入缓冲区
+         */
+        class InputBuffer {
+            constructor(maxSize = 10) {
+                this.buffer = new Queue();
+                this.maxSize = maxSize;
+                this.processed = [];
+            }
+
+            /**
+             * 添加输入字符
+             * @param {string} char - 输入字符
+             */
+            addInput(char) {
+                if (this.buffer.size() >= this.maxSize) {
+                    console.log(`❌ 缓冲区已满，丢弃字符: ${char}`);
+                    return false;
+                }
+
+                this.buffer.enqueue(char);
+                console.log(`输入字符: ${char}, 缓冲区: [${this.buffer.toArray().join('')}]`);
+                return true;
+            }
+
+            /**
+             * 处理缓冲区中的字符
+             * @param {number} count - 处理的字符数量
+             */
+            processInput(count = 1) {
+                console.log(`\n处理 ${count} 个字符:`);
+
+                for (let i = 0; i < count && !this.buffer.isEmpty(); i++) {
+                    let char = this.buffer.dequeue();
+                    this.processed.push(char);
+                    console.log(`  处理字符: ${char}`);
+                }
+
+                console.log(`处理完成，剩余缓冲区: [${this.buffer.toArray().join('')}]`);
+                console.log(`已处理字符: ${this.processed.join('')}`);
+            }
+
+            /**
+             * 获取缓冲区状态
+             */
+            getStatus() {
+                return {
+                    bufferSize: this.buffer.size(),
+                    maxSize: this.maxSize,
+                    processed: this.processed.join(''),
+                    pending: this.buffer.toArray().join('')
+                };
+            }
+        }
+
+        // 演示输入缓冲区
+        console.log('\n--- 输入缓冲区演示 ---');
+        let inputBuffer = new InputBuffer(5);
+
+        // 模拟快速输入
+        let input = "Hello World!";
+        for (let char of input) {
+            inputBuffer.addInput(char);
+        }
+
+        // 模拟处理过程
+        inputBuffer.processInput(3);
+        inputBuffer.processInput(2);
+        inputBuffer.processInput(10);
+
+        console.log('\n最终状态:', inputBuffer.getStatus());
+
+        // ==================== 6. 性能测试 ====================
+        console.log('\n\n6. 队列操作性能测试');
+
+        /**
+         * 队列性能测试
+         */
+        function performanceTest() {
+            console.log('\n--- 队列性能测试 ---');
+
+            let queue = new Queue();
+            let testSize = 100000;
+
+            // 测试入队性能
+            console.log(`\n测试 ${testSize} 次入队操作...`);
+            let startTime = performance.now();
+
+            for (let i = 0; i < testSize; i++) {
+                queue.enqueue(i);
+            }
+
+            let endTime = performance.now();
+            console.log(`入队完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+            console.log(`队列大小: ${queue.size()}`);
+
+            // 测试出队性能
+            console.log(`\n测试 ${testSize} 次出队操作...`);
+            startTime = performance.now();
+
+            while (!queue.isEmpty()) {
+                queue.dequeue();
+            }
+
+            endTime = performance.now();
+            console.log(`出队完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+            console.log(`队列大小: ${queue.size()}`);
+
+            // 测试混合操作
+            console.log(`\n测试混合操作...`);
+            startTime = performance.now();
+
+            for (let i = 0; i < testSize / 2; i++) {
+                queue.enqueue(i);
+                if (i % 3 === 0 && !queue.isEmpty()) {
+                    queue.dequeue();
+                }
+            }
+
+            endTime = performance.now();
+            console.log(`混合操作完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+            console.log(`最终队列大小: ${queue.size()}`);
+        }
+
+        performanceTest();
+
+        // ==================== 7. 算法分析总结 ====================
+        console.log('\n\n7. 队列数据结构算法分析总结');
+
+        console.log('\n时间复杂度分析:');
+        console.log('- 入队 enqueue(): O(1) - 常数时间');
+        console.log('- 出队 dequeue(): O(1) - 常数时间');
+        console.log('- 查看队首 front(): O(1) - 常数时间');
+        console.log('- 检查是否为空 isEmpty(): O(1) - 常数时间');
+        console.log('- 获取大小 size(): O(1) - 常数时间');
+        console.log('- 清空队列 clear(): O(1) - 常数时间');
+
+        console.log('\n空间复杂度: O(n) - 需要存储n个元素');
+
+        console.log('\n队列的优势:');
+        console.log('- 公平性：先来先服务，保证顺序');
+        console.log('- 效率高：所有基本操作都是O(1)');
+        console.log('- 缓冲作用：平衡生产者和消费者速度');
+        console.log('- 异步处理：支持任务的异步执行');
+        console.log('- 资源管理：合理分配系统资源');
+
+        console.log('\n队列的应用场景:');
+        console.log('- 任务调度：操作系统进程调度');
+        console.log('- 缓冲区：I/O操作缓冲');
+        console.log('- 消息队列：系统间异步通信');
+        console.log('- 广度优先搜索：BFS算法实现');
+        console.log('- 打印队列：打印任务管理');
+        console.log('- 网络数据包：数据包传输队列');
+        console.log('- 游戏开发：击鼓传花等循环游戏');
+
+        console.log('\n击鼓传花算法特点:');
+        console.log('- 核心思想：循环传递，定时淘汰');
+        console.log('- 为什么用队列：FIFO保证传递顺序');
+        console.log('- 时间复杂度：O(n*m) - n为人数，m为传递步数');
+        console.log('- 空间复杂度：O(n) - 存储所有参与者');
+        console.log('- 实际应用：游戏开发、资源轮询分配');
+
+        console.log('\n队列 vs 栈的区别:');
+        console.log('- 队列：FIFO，两端操作，适合排队场景');
+        console.log('- 栈：LIFO，一端操作，适合递归场景');
+        console.log('- 队列：保持顺序，公平处理');
+        console.log('- 栈：逆序处理，后进先出');
+
+        console.log('\n=== 队列应用演示完毕 ===');
     </script>
 </body>
 
