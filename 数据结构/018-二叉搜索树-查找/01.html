@@ -1,0 +1,118 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+       const Compare = {
+           less:-1,
+           bigger:1,
+           equ:0
+       }
+       class Node{
+           constructor(key){
+            this.key = key
+            this.left = null
+            this.right = null
+           }
+       }
+
+       class BST {
+           constructor(){
+               this.root = null
+           }
+
+           insert(key){
+                if(this.root==null){
+                    this.root = new Node(key)
+                }else{
+                    this.insertNode(this.root,key)
+                }
+           }
+
+           compareFn(a,b){
+               if(a===b){
+                   return Compare.equ
+               }
+               return a<b?Compare.less:Compare.bigger
+           }
+           insertNode(node,key){
+            if(this.compareFn(key,node.key)===Compare.less){
+                if(node.left==null){
+                    node.left = new Node(key)
+                }else{
+                    this.insertNode(node.left,key)
+                }
+            }else{
+                if(node.right==null){
+                    node.right = new Node(key)
+                }else{
+                    this.insertNode(node.right,key)
+                }
+            }
+           }
+
+
+           //中序遍历
+           inOrderMap(callback){
+             this.inOrderMapNode(this.root,callback)
+           }
+
+           inOrderMapNode(node,callback){
+             if(node!=null){
+                 this.inOrderMapNode(node.left,callback)
+                 callback(node.key)
+                 this.inOrderMapNode(node.right,callback)
+             }
+           }
+           //先序遍历
+           preOrderMap(callback){
+             this.preOrderMapNode(this.root,callback)
+           }
+
+           preOrderMapNode(node,callback){
+             if(node!=null){
+                 callback(node.key)
+                 this.preOrderMapNode(node.left,callback)
+                 this.preOrderMapNode(node.right,callback)
+             }
+           }
+
+           //后序遍历
+           postOrderMap(callback){
+             this.postOrderMapNode(this.root,callback)
+           }
+
+           postOrderMapNode(node,callback){
+             if(node!=null){
+                 
+                 this.postOrderMapNode(node.left,callback)
+                 this.postOrderMapNode(node.right,callback)
+                 callback(node.key)
+             }
+           }
+       }
+
+       var mytree = new BST()
+
+       mytree.insert(100)
+       mytree.insert(80)
+       mytree.insert(70)
+       mytree.insert(90)
+       mytree.insert(110)
+
+       mytree.postOrderMap((value)=>{
+           console.log(value)
+       })
+    </script>
+</body>
+
+</html>

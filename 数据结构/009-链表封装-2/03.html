@@ -1,0 +1,185 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        class Node {
+            constructor(element){
+                this.element  =element;
+                this.next = null;
+            }
+        }
+
+        class LinkedList{
+            //#
+            constructor(){
+                this.count =0;
+                this.head = null
+            }
+
+            //push
+            push(element){
+                const node = new Node(element)
+                // console.log(node)
+
+                //header是空
+                if(this.head ===null){
+                    this.head = node
+                }else{
+                    let current = this.head
+
+                    while(current.next!==null){
+                        current = current.next
+                    }
+                    current.next = node
+
+                    // console.log()
+                }
+
+                this.count++
+            }
+            //指定位置删除
+            removeAt(index){
+                if(index>=0 && index<this.count){
+                    let current  =this.head
+                    if(index===0){
+                        this.head = this.head.next
+                    }else{
+                        let previous 
+                        
+                        for( let i=0;i<index;i++){
+                            previous = current
+                            current = current.next
+                        }
+
+                        previous.next = current.next
+                    }
+                    this.count--
+                    return current.element
+                }
+
+                return 
+            }
+
+            getNodeAt(index){
+                if(index>=0&& index<this.count){
+                    let node = this.head
+
+                    for(let i=0;i<index;i++){
+                        node = node.next
+                    }
+                    return node
+                }
+                return 
+            }
+
+            removeAt2(index){
+                if(index>=0 && index<this.count){
+                    let current  =this.head
+                    if(index===0){
+                        this.head = this.head.next
+                    }else{
+                        let previous = this.getNodeAt(index-1)
+                        current  = previous.next
+                        previous.next = current.next
+                    }
+                    this.count--
+                    return current.element
+                }
+                return 
+            }
+
+            equalFn(a,b){
+                // return a === b 
+                // 1. 判断是对象， 对象1[key] === 对象2[key]
+                // 2. 之前基础上， 写一个递归函数， 深度检查是否相等
+
+                return JSON.stringify(a) === JSON.stringify(b)
+
+                // imumutable （kerwin React视频）
+            }
+            
+            indexOf(element){
+                let current = this.head
+                for(let i =0; i<this.count;i++){
+                    if(this.equalFn(element,current.element)){
+                       return i 
+                    }
+                    current = current.next
+                }
+
+                return -1
+            }
+            remove(element){
+                // 根据数据 返回索引的方法
+                const index = this.indexOf(element)
+                return this.removeAt(index)
+            }
+
+            insert(element,index){
+                // 500 , 5
+                if(index>=0&& index<=this.count){
+                    const node = new Node(element)
+                    if(index===0){
+                        //this.head
+                        const current = this.head
+                        node.next = current
+                        this.head = node
+                    }else{
+                        const previous = this.getNodeAt(index-1)
+                        const current = previous.next
+
+                        node.next  = current
+                        previous.next = node
+                    }
+
+                    this.count++
+                    return true
+                }
+
+                return false
+            }
+
+            isEmpty(){
+                return this.size()===0
+            }
+
+            size(){
+                return this.count
+            }
+
+            getHead(){
+                return this.head
+            }
+        }
+
+        // var list = new LinkedList()
+    </script>
+
+    <script>
+        function game(list,num){
+            let queue = new LinkedList()
+            for(let i=0;i<list.length;i++){
+                queue.push(list[i])
+            }
+
+            while(queue.size()>1){
+                for(let i=0;i<num;i++){
+                    queue.push(queue.removeAt(0))
+                }
+
+                console.log(queue.removeAt(0),"淘汰了")
+            }
+
+            return queue.removeAt(0)
+        }
+    </script>
+</body>
+</html>

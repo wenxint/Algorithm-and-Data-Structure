@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速排序算法</title>
+</head>
+<body>
+    <script>
+        /**
+         * 快速排序算法实现（简化版）
+         *
+         * 核心思想：
+         * 快速排序是一种分治算法，通过选择一个基准元素，将数组分为两部分：
+         * - 左部分：所有元素都小于等于基准
+         * - 右部分：所有元素都大于基准
+         * 然后递归地对左右两部分进行同样的操作
+         *
+         * 算法步骤：
+         * 1. 选择基准元素（这里选择第一个元素）
+         * 2. 分区操作：将数组分为小于基准和大于基准的两部分
+         * 3. 递归排序左右两部分
+         * 4. 合并结果
+         *
+         * 注意：这是一个简化版本，使用了额外的数组空间
+         * 标准的快速排序是原地排序，不需要额外空间
+         *
+         * @param {number[]} arr - 待排序数组
+         * @returns {number[]} 排序后的数组
+         * @time O(n log n) 平均情况，O(n²) 最坏情况
+         * @space O(n) 这个实现使用了额外空间，标准实现为O(log n)
+         */
+        function quickSort(arr) {
+            console.log(`快速排序输入: [${arr.join(', ')}]`);
+
+            // 获取数组长度
+            const { length } = arr;
+
+            // 基础情况：如果数组长度小于2，直接返回
+            if (length < 2) {
+                console.log(`  数组长度 ${length} < 2，直接返回: [${arr.join(', ')}]`);
+                return arr;
+            }
+
+            // 选择基准元素（这里选择第一个元素）
+            let base = arr[0];
+            console.log(`  选择基准元素: ${base}`);
+
+            // 分区操作：将剩余元素分为两部分
+            // 小于等于基准的元素放入minArr
+            let minArr = arr.slice(1).filter(item => {
+                const isSmaller = item <= base;
+                console.log(`    ${item} ${isSmaller ? '<=' : '>'} ${base}`);
+                return isSmaller;
+            });
+
+            // 大于基准的元素放入maxArr
+            let maxArr = arr.slice(1).filter(item => {
+                const isLarger = item > base;
+                return isLarger;
+            });
+
+            console.log(`  分区结果:`);
+            console.log(`    小于等于基准的元素: [${minArr.join(', ')}]`);
+            console.log(`    基准元素: ${base}`);
+            console.log(`    大于基准的元素: [${maxArr.join(', ')}]`);
+
+            // 递归排序左右两部分，并合并结果
+            const sortedMinArr = quickSort(minArr);
+            const sortedMaxArr = quickSort(maxArr);
+
+            const result = sortedMinArr.concat(base).concat(sortedMaxArr);
+            console.log(`  合并结果: [${result.join(', ')}]`);
+
+            return result;
+        }
+
+        /**
+         * 标准快速排序算法实现（原地排序）
+         *
+         * 核心思想：
+         * 使用原地分区，不需要额外的数组空间
+         * 通过双指针技术实现分区操作
+         *
+         * @param {number[]} arr - 待排序数组
+         * @param {number} left - 左边界索引
+         * @param {number} right - 右边界索引
+         * @returns {number[]} 排序后的数组
+         * @time O(n log n) 平均情况，O(n²) 最坏情况
+         * @space O(log n) 递归栈空间
+         */
+        function quickSortStandard(arr, left = 0, right = arr.length - 1) {
+            console.log(`标准快速排序: 范围[${left}, ${right}], 子数组: [${arr.slice(left, right + 1).join(', ')}]`);
+
+            if (left < right) {
+                // 分区操作，返回基准元素的最终位置
+                const pivotIndex = partition(arr, left, right);
+                console.log(`  分区完成，基准位置: ${pivotIndex}, 基准值: ${arr[pivotIndex]}`);
+
+                // 递归排序左子数组
+                console.log(`  递归排序左子数组 [${left}, ${pivotIndex - 1}]`);
+                quickSortStandard(arr, left, pivotIndex - 1);
+
+                // 递归排序右子数组
+                console.log(`  递归排序右子数组 [${pivotIndex + 1}, ${right}]`);
+                quickSortStandard(arr, pivotIndex + 1, right);
+            }
+
+            return arr;
+        }
+
+        /**
+         * 分区操作 - 快速排序的核心
+         *
+         * 核心思想：
+         * 选择最后一个元素作为基准，使用双指针技术：
+         * 1. 维护一个指针i，指向小于基准的区域的边界
+         * 2. 用指针j遍历数组，找到小于基准的元素就与i位置交换
+         * 3. 最后将基准元素放到正确位置
+         *
+         * @param {number[]} arr - 数组
+         * @param {number} left - 左边界
+         * @param {number} right - 右边界
+         * @returns {number} 基准元素的最终位置
+         */
+        function partition(arr, left, right) {
+            // 选择最后一个元素作为基准
+            const pivot = arr[right];
+            console.log(`    分区操作: 基准元素 = ${pivot}`);
+
+            // i指向小于基准的区域的边界
+            let i = left - 1;
+
+            // 遍历数组，将小于基准的元素移到左边
+            for (let j = left; j < right; j++) {
+                console.log(`      比较 ${arr[j]} 与基准 ${pivot}`);
+
+                if (arr[j] <= pivot) {
+                    i++;
+                    console.log(`        ${arr[j]} <= ${pivot}，交换位置 ${i} 和 ${j}`);
+                    swap(arr, i, j);
+                    console.log(`        交换后: [${arr.join(', ')}]`);
+                }
+            }
+
+            // 将基准元素放到正确位置
+            swap(arr, i + 1, right);
+            console.log(`    将基准元素放到位置 ${i + 1}: [${arr.join(', ')}]`);
+
+            return i + 1;
+        }
+
+        /**
+         * 交换数组中两个位置的元素
+         *
+         * @param {Array} arr - 数组
+         * @param {number} i - 第一个位置
+         * @param {number} j - 第二个位置
+         */
+        function swap(arr, i, j) {
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+
+        /**
+         * 随机化快速排序
+         *
+         * 核心思想：
+         * 随机选择基准元素，避免最坏情况的发生
+         * 对于已排序或接近排序的数组有更好的性能
+         *
+         * @param {number[]} arr - 待排序数组
+         * @param {number} left - 左边界
+         * @param {number} right - 右边界
+         * @returns {number[]} 排序后的数组
+         */
+        function quickSortRandomized(arr, left = 0, right = arr.length - 1) {
+            if (left < right) {
+                // 随机选择基准元素
+                const randomIndex = Math.floor(Math.random() * (right - left + 1)) + left;
+                swap(arr, randomIndex, right); // 将随机选择的元素移到末尾
+
+                console.log(`随机选择基准: 位置 ${randomIndex}, 值 ${arr[right]}`);
+
+                const pivotIndex = partition(arr, left, right);
+                quickSortRandomized(arr, left, pivotIndex - 1);
+                quickSortRandomized(arr, pivotIndex + 1, right);
+            }
+            return arr;
+        }
+
+        /**
+         * 三路快速排序（处理重复元素优化）
+         *
+         * 核心思想：
+         * 将数组分为三部分：小于基准、等于基准、大于基准
+         * 对于有大量重复元素的数组有更好的性能
+         *
+         * @param {number[]} arr - 待排序数组
+         * @param {number} left - 左边界
+         * @param {number} right - 右边界
+         * @returns {number[]} 排序后的数组
+         */
+        function quickSort3Way(arr, left = 0, right = arr.length - 1) {
+            if (left >= right) return arr;
+
+            const pivot = arr[left];
+            let lt = left;      // arr[left+1...lt] < pivot
+            let gt = right + 1; // arr[gt...right] > pivot
+            let i = left + 1;   // arr[lt+1...i-1] == pivot
+
+            console.log(`三路快速排序: 基准 ${pivot}, 范围 [${left}, ${right}]`);
+
+            while (i < gt) {
+                if (arr[i] < pivot) {
+                    swap(arr, i, lt + 1);
+                    lt++;
+                    i++;
+                } else if (arr[i] > pivot) {
+                    swap(arr, i, gt - 1);
+                    gt--;
+                } else {
+                    i++;
+                }
+            }
+
+            swap(arr, left, lt);
+
+            console.log(`  三路分区结果: [${arr.slice(left, lt).join(', ')}] | [${arr.slice(lt, gt).join(', ')}] | [${arr.slice(gt, right + 1).join(', ')}]`);
+
+            quickSort3Way(arr, left, lt - 1);
+            quickSort3Way(arr, gt, right);
+
+            return arr;
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 快速排序算法 - 完整示例 ===\n');
+
+        // 1. 简化版快速排序测试
+        console.log('1. 简化版快速排序测试');
+        const testArray1 = [3, 4, 5, 2, 1];
+        console.log('原始数组:', testArray1);
+        const result1 = quickSort([...testArray1]);
+        console.log('排序结果:', result1);
+        console.log();
+
+        // 2. 标准快速排序测试
+        console.log('2. 标准快速排序测试');
+        const testArray2 = [3, 4, 5, 2, 1];
+        console.log('原始数组:', testArray2);
+        const result2 = quickSortStandard([...testArray2]);
+        console.log('排序结果:', result2);
+        console.log();
+
+        // 3. 随机化快速排序测试
+        console.log('3. 随机化快速排序测试');
+        const testArray3 = [1, 2, 3, 4, 5]; // 已排序数组（最坏情况）
+        console.log('原始数组（已排序）:', testArray3);
+        const result3 = quickSortRandomized([...testArray3]);
+        console.log('排序结果:', result3);
+        console.log();
+
+        // 4. 三路快速排序测试（处理重复元素）
+        console.log('4. 三路快速排序测试（处理重复元素）');
+        const testArray4 = [3, 1, 3, 2, 3, 1, 2, 3];
+        console.log('原始数组（含重复元素）:', testArray4);
+        const result4 = quickSort3Way([...testArray4]);
+        console.log('排序结果:', result4);
+        console.log();
+
+        // 5. 性能测试和比较
+        console.log('5. 性能测试和比较');
+
+        function performanceTest(sortFunction, array, name) {
+            const testArray = [...array];
+            const startTime = performance.now();
+            sortFunction(testArray);
+            const endTime = performance.now();
+            const duration = endTime - startTime;
+
+            console.log(`${name} 耗时: ${duration.toFixed(4)}ms`);
+            return duration;
+        }
+
+        // 创建不同类型的测试数据
+        const randomArray = Array.from({length: 1000}, () => Math.floor(Math.random() * 1000));
+        const sortedArray = Array.from({length: 1000}, (_, i) => i);
+        const reversedArray = Array.from({length: 1000}, (_, i) => 1000 - i);
+        const duplicateArray = Array.from({length: 1000}, () => Math.floor(Math.random() * 10));
+
+        console.log('\n随机数组性能测试 (1000个元素):');
+        performanceTest(arr => quickSortStandard(arr), randomArray, '标准快速排序');
+        performanceTest(arr => quickSortRandomized(arr), randomArray, '随机化快速排序');
+        performanceTest(arr => quickSort3Way(arr), randomArray, '三路快速排序');
+
+        console.log('\n已排序数组性能测试 (1000个元素):');
+        performanceTest(arr => quickSortRandomized(arr), sortedArray, '随机化快速排序');
+
+        console.log('\n重复元素数组性能测试 (1000个元素):');
+        performanceTest(arr => quickSort3Way(arr), duplicateArray, '三路快速排序');
+
+        // 6. 实际应用示例：学生成绩排序
+        console.log('\n6. 实际应用示例：学生成绩排序');
+
+        const students = [
+            { name: '张三', score: 85 },
+            { name: '李四', score: 92 },
+            { name: '王五', score: 78 },
+            { name: '赵六', score: 96 },
+            { name: '孙七', score: 88 },
+            { name: '周八', score: 82 },
+            { name: '吴九', score: 90 }
+        ];
+
+        console.log('原始学生成绩:');
+        students.forEach(student => {
+            console.log(`  ${student.name}: ${student.score}分`);
+        });
+
+        // 使用快速排序思想对学生成绩进行排序
+        function quickSortStudents(students, left = 0, right = students.length - 1) {
+            if (left < right) {
+                const pivotIndex = partitionStudents(students, left, right);
+                quickSortStudents(students, left, pivotIndex - 1);
+                quickSortStudents(students, pivotIndex + 1, right);
+            }
+            return students;
+        }
+
+        function partitionStudents(students, left, right) {
+            const pivot = students[right].score;
+            let i = left - 1;
+
+            for (let j = left; j < right; j++) {
+                if (students[j].score >= pivot) { // 降序排列
+                    i++;
+                    [students[i], students[j]] = [students[j], students[i]];
+                }
+            }
+
+            [students[i + 1], students[right]] = [students[right], students[i + 1]];
+            return i + 1;
+        }
+
+        const sortedStudents = quickSortStudents([...students]);
+        console.log('\n按成绩降序排列后:');
+        sortedStudents.forEach((student, index) => {
+            console.log(`  第${index + 1}名: ${student.name} - ${student.score}分`);
+        });
+
+        // 7. 算法分析总结
+        console.log('\n7. 快速排序算法分析总结');
+        console.log('时间复杂度分析:');
+        console.log('- 最好情况: O(n log n) - 每次分区都能平均分割');
+        console.log('- 平均情况: O(n log n) - 大多数情况下的性能');
+        console.log('- 最坏情况: O(n²) - 每次选择的基准都是最大或最小值');
+        console.log('\n空间复杂度:');
+        console.log('- 标准实现: O(log n) - 递归调用栈');
+        console.log('- 简化实现: O(n) - 使用了额外数组');
+        console.log('\n算法特点:');
+        console.log('- 不稳定排序: 相等元素的相对位置可能改变');
+        console.log('- 原地排序: 标准实现只需要O(log n)额外空间');
+        console.log('- 分治思想: 将大问题分解为小问题');
+        console.log('- 实际性能优秀: 平均情况下比其他O(n log n)算法快');
+        console.log('\n优化策略:');
+        console.log('- 随机化: 随机选择基准，避免最坏情况');
+        console.log('- 三路分区: 处理重复元素，提高性能');
+        console.log('- 小数组优化: 对小数组使用插入排序');
+        console.log('- 尾递归优化: 减少递归调用栈');
+        console.log('\n适用场景:');
+        console.log('- 大规模数据排序');
+        console.log('- 对性能要求高的场景');
+        console.log('- 内存受限的环境');
+        console.log('- 不需要稳定排序的场景');
+
+        console.log('\n=== 快速排序算法演示完毕 ===');
+    </script>
+</body>
+</html>

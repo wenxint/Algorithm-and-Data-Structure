@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>插入排序算法详解</title>
+</head>
+<body>
+    <script>
+        /**
+         * 插入排序算法（基础版本）
+         *
+         * 核心思想：
+         * 插入排序的工作原理类似于我们手中整理扑克牌的过程：
+         * 1. 从第二个元素开始，将当前元素与前面已排序的元素逐一比较
+         * 2. 找到合适的位置后，将当前元素插入到该位置
+         * 3. 重复这个过程，直到所有元素都被正确插入
+         *
+         * 算法步骤：
+         * 1. 从第一个元素开始，该元素可以认为已经被排序
+         * 2. 取出下一个元素，在已经排序的元素序列中从后向前扫描
+         * 3. 如果该元素（已排序）大于新元素，将该元素移到下一位置
+         * 4. 重复步骤3，直到找到已排序的元素小于或者等于新元素的位置
+         * 5. 将新元素插入到该位置后
+         * 6. 重复步骤2~5
+         *
+         * 特点：
+         * - 稳定排序：相同元素的相对位置不会改变
+         * - 原地排序：只需要O(1)的额外空间
+         * - 自适应性：对于基本有序的数组，性能接近O(n)
+         *
+         * @param {number[]} arr - 待排序数组
+         * @returns {number[]} 排序后的数组
+         * @time O(n²) - 最坏情况，O(n) - 最好情况（已排序）
+         * @space O(1) - 原地排序，只需要常数级额外空间
+         */
+        function insertionSort(arr) {
+            console.log('开始插入排序，原数组:', [...arr]);
+            const { length } = arr;
+            let comparisons = 0; // 比较次数统计
+            let shifts = 0;      // 移动次数统计
+
+            let temp; // 存储当前要插入的元素值
+
+            // 从第二个元素开始（索引为1），第一个元素认为已排序
+            for (let i = 1; i < length; i++) {
+                temp = arr[i]; // 保存当前要插入的元素
+                console.log(`\n第${i}轮插入：要插入的元素 = ${temp}`);
+                console.log(`  当前数组状态: [${arr.join(', ')}]`);
+                console.log(`  已排序部分: [${arr.slice(0, i).join(', ')}]`);
+
+                let j = i; // j指向当前要插入元素的位置
+
+                // 从右向左扫描已排序部分，寻找插入位置
+                while (j > 0) {
+                    comparisons++;
+                    console.log(`    比较 ${temp} 与 arr[${j-1}]=${arr[j-1]}`);
+
+                    if (arr[j - 1] > temp) {
+                        // 如果前一个元素大于要插入的元素，则向右移动
+                        console.log(`      ${arr[j-1]} > ${temp}，向右移动`);
+                        arr[j] = arr[j - 1]; // 将大的元素向右移动
+                        shifts++;
+                        j--; // 继续向左比较
+                        console.log(`      移动后: [${arr.join(', ')}]`);
+                    } else {
+                        // 找到了合适的插入位置
+                        console.log(`      ${arr[j-1]} <= ${temp}，找到插入位置: ${j}`);
+                        break;
+                    }
+                }
+
+                // 将元素插入到找到的位置
+                arr[j] = temp;
+                console.log(`  插入 ${temp} 到位置 ${j}`);
+                console.log(`  第${i}轮结果: [${arr.join(', ')}]`);
+            }
+
+            console.log(`\n排序完成！`);
+            console.log(`最终结果: [${arr.join(', ')}]`);
+            console.log(`统计信息: 比较${comparisons}次，移动${shifts}次`);
+
+            return arr;
+        }
+
+        /**
+         * 插入排序优化版本 - 二分查找插入排序
+         *
+         * 核心思想：
+         * 使用二分查找来寻找插入位置，减少比较次数
+         * 但移动次数仍然是O(n²)，所以整体时间复杂度不变
+         *
+         * @param {number[]} arr - 待排序数组
+         * @returns {number[]} 排序后的数组
+         * @time O(n²) - 移动次数仍然是O(n²)
+         * @space O(1) - 原地排序
+         */
+        function binaryInsertionSort(arr) {
+            console.log('\n=== 二分查找插入排序 ===');
+            console.log('原数组:', [...arr]);
+
+            const { length } = arr;
+            let comparisons = 0;
+            let shifts = 0;
+
+            for (let i = 1; i < length; i++) {
+                const current = arr[i];
+                console.log(`\n第${i}轮：插入元素 ${current}`);
+
+                // 使用二分查找找到插入位置
+                let left = 0;
+                let right = i - 1;
+
+                while (left <= right) {
+                    const mid = Math.floor((left + right) / 2);
+                    comparisons++;
+                    console.log(`    二分查找: 比较 ${current} 与 arr[${mid}]=${arr[mid]}`);
+
+                    if (arr[mid] > current) {
+                        right = mid - 1;
+                        console.log(`      ${current} < ${arr[mid]}，向左搜索`);
+                    } else {
+                        left = mid + 1;
+                        console.log(`      ${current} >= ${arr[mid]}，向右搜索`);
+                    }
+                }
+
+                const insertPos = left;
+                console.log(`  找到插入位置: ${insertPos}`);
+
+                // 将元素向右移动，为新元素腾出空间
+                for (let j = i; j > insertPos; j--) {
+                    arr[j] = arr[j - 1];
+                    shifts++;
+                }
+
+                // 插入元素
+                arr[insertPos] = current;
+                console.log(`  插入后: [${arr.join(', ')}]`);
+            }
+
+            console.log(`二分插入排序完成: [${arr.join(', ')}]`);
+            console.log(`统计信息: 比较${comparisons}次，移动${shifts}次`);
+            return arr;
+        }
+
+        /**
+         * 插入排序变种 - 希尔排序的插入子过程
+         *
+         * 核心思想：
+         * 对指定间隔的元素进行插入排序
+         * 这是希尔排序的核心组成部分
+         *
+         * @param {number[]} arr - 待排序数组
+         * @param {number} gap - 间隔大小
+         */
+        function insertionSortWithGap(arr, gap) {
+            console.log(`\n间隔为${gap}的插入排序:`);
+
+            for (let i = gap; i < arr.length; i++) {
+                const temp = arr[i];
+                let j = i;
+
+                console.log(`  插入元素 arr[${i}]=${temp}`);
+
+                while (j >= gap && arr[j - gap] > temp) {
+                    console.log(`    比较 ${temp} 与 arr[${j-gap}]=${arr[j-gap]}`);
+                    arr[j] = arr[j - gap];
+                    j -= gap;
+                }
+
+                arr[j] = temp;
+                console.log(`    插入后: [${arr.join(', ')}]`);
+            }
+        }
+
+        /**
+         * 可视化插入排序过程
+         *
+         * 核心思想：
+         * 通过字符串表示来可视化插入排序的过程
+         *
+         * @param {number[]} arr - 待排序数组
+         */
+        function visualInsertionSort(arr) {
+            console.log('\n=== 插入排序可视化 ===');
+            const { length } = arr;
+
+            console.log('初始状态:', arr.map((val, idx) => `${idx}:${val}`).join(' '));
+
+            for (let i = 1; i < length; i++) {
+                const current = arr[i];
+
+                // 显示当前状态
+                let visualization = arr.map((val, idx) => {
+                    if (idx < i) return `[${val}]`; // 已排序部分
+                    if (idx === i) return `(${val})`; // 当前要插入的元素
+                    return `${val}`; // 未排序部分
+                }).join(' ');
+
+                console.log(`\n第${i}轮 - 插入元素 ${current}:`);
+                console.log('插入前:', visualization);
+
+                // 执行插入
+                let j = i;
+                while (j > 0 && arr[j - 1] > current) {
+                    arr[j] = arr[j - 1];
+                    j--;
+                }
+                arr[j] = current;
+
+                // 显示插入后的状态
+                visualization = arr.map((val, idx) => {
+                    if (idx <= i) return `[${val}]`; // 已排序部分
+                    return `${val}`; // 未排序部分
+                }).join(' ');
+                console.log('插入后:', visualization);
+            }
+
+            console.log(`\n最终排序结果: [${arr.join(', ')}]`);
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 插入排序算法 - 完整演示 ===\n');
+
+        // 1. 基础插入排序演示
+        console.log('1. 基础插入排序演示');
+        let testArray1 = [4, 5, 3, 2, 1];
+        insertionSort([...testArray1]);
+
+        // 2. 二分查找插入排序演示
+        console.log('\n2. 二分查找插入排序演示');
+        let testArray2 = [4, 5, 3, 2, 1];
+        binaryInsertionSort([...testArray2]);
+
+        // 3. 可视化排序过程
+        console.log('\n3. 可视化排序过程');
+        let testArray3 = [6, 2, 8, 1, 5];
+        visualInsertionSort([...testArray3]);
+
+        // 4. 边界情况测试
+        console.log('\n4. 边界情况测试');
+
+        console.log('\n空数组:');
+        insertionSort([]);
+
+        console.log('\n单元素数组:');
+        insertionSort([42]);
+
+        console.log('\n两元素数组:');
+        insertionSort([3, 1]);
+
+        console.log('\n已排序数组:');
+        insertionSort([1, 2, 3, 4, 5]);
+
+        console.log('\n逆序数组:');
+        insertionSort([5, 4, 3, 2, 1]);
+
+        console.log('\n重复元素数组:');
+        insertionSort([3, 1, 4, 1, 5, 9, 2, 6, 5]);
+
+        // 5. 实际应用示例：扑克牌排序
+        console.log('\n5. 实际应用示例：扑克牌排序系统');
+
+        /**
+         * 扑克牌类
+         */
+        class Card {
+            constructor(suit, rank) {
+                this.suit = suit; // 花色：♠♥♦♣
+                this.rank = rank; // 点数：A,2-10,J,Q,K
+            }
+
+            /**
+             * 获取牌的数值（用于排序）
+             */
+            getValue() {
+                if (this.rank === 'A') return 1;
+                if (this.rank === 'J') return 11;
+                if (this.rank === 'Q') return 12;
+                if (this.rank === 'K') return 13;
+                return parseInt(this.rank);
+            }
+
+            /**
+             * 牌的字符串表示
+             */
+            toString() {
+                return `${this.suit}${this.rank}`;
+            }
+        }
+
+        /**
+         * 扑克牌排序器
+         * 使用插入排序对手牌进行排序
+         */
+        class CardSorter {
+            /**
+             * 使用插入排序对扑克牌进行排序
+             * @param {Card[]} cards - 扑克牌数组
+             */
+            static sortCards(cards) {
+                console.log('\n开始对扑克牌排序（使用插入排序）:');
+                console.log('排序前:', cards.map(card => card.toString()).join(' '));
+
+                for (let i = 1; i < cards.length; i++) {
+                    const currentCard = cards[i];
+                    console.log(`\n插入第${i+1}张牌: ${currentCard.toString()}`);
+
+                    let j = i;
+                    while (j > 0 && cards[j - 1].getValue() > currentCard.getValue()) {
+                        console.log(`  ${cards[j-1].toString()}(${cards[j-1].getValue()}) > ${currentCard.toString()}(${currentCard.getValue()})，向右移动`);
+                        cards[j] = cards[j - 1];
+                        j--;
+                    }
+
+                    cards[j] = currentCard;
+                    console.log(`  插入到位置${j}: [${cards.map(card => card.toString()).join(' ')}]`);
+                }
+
+                console.log('\n排序完成:', cards.map(card => card.toString()).join(' '));
+                return cards;
+            }
+        }
+
+        // 创建一手扑克牌
+        const hand = [
+            new Card('♠', 'K'),
+            new Card('♥', '3'),
+            new Card('♦', 'A'),
+            new Card('♣', '7'),
+            new Card('♠', '10'),
+            new Card('♥', 'J'),
+            new Card('♦', '5')
+        ];
+
+        // 排序扑克牌
+        CardSorter.sortCards([...hand]);
+
+        // 6. 不同数据特征的性能测试
+        console.log('\n6. 不同数据特征的性能测试');
+
+        function performanceTest() {
+            const testSize = 1000;
+
+            // 测试1：随机数组
+            console.log(`\n测试1：随机数组（大小：${testSize}）`);
+            const randomArray = Array.from({ length: testSize }, () =>
+                Math.floor(Math.random() * testSize * 10)
+            );
+
+            const randomStart = performance.now();
+            const randomResult = [...randomArray];
+            for (let i = 1; i < randomResult.length; i++) {
+                let temp = randomResult[i];
+                let j = i;
+                while (j > 0 && randomResult[j - 1] > temp) {
+                    randomResult[j] = randomResult[j - 1];
+                    j--;
+                }
+                randomResult[j] = temp;
+            }
+            const randomEnd = performance.now();
+            console.log(`随机数组插入排序耗时: ${(randomEnd - randomStart).toFixed(2)}ms`);
+
+            // 测试2：基本有序数组
+            console.log(`\n测试2：基本有序数组（大小：${testSize}）`);
+            const nearSortedArray = Array.from({ length: testSize }, (_, i) => i);
+            // 随机交换几个元素，制造基本有序的数组
+            for (let i = 0; i < testSize / 10; i++) {
+                const idx1 = Math.floor(Math.random() * testSize);
+                const idx2 = Math.floor(Math.random() * testSize);
+                [nearSortedArray[idx1], nearSortedArray[idx2]] = [nearSortedArray[idx2], nearSortedArray[idx1]];
+            }
+
+            const nearSortedStart = performance.now();
+            const nearSortedResult = [...nearSortedArray];
+            for (let i = 1; i < nearSortedResult.length; i++) {
+                let temp = nearSortedResult[i];
+                let j = i;
+                while (j > 0 && nearSortedResult[j - 1] > temp) {
+                    nearSortedResult[j] = nearSortedResult[j - 1];
+                    j--;
+                }
+                nearSortedResult[j] = temp;
+            }
+            const nearSortedEnd = performance.now();
+            console.log(`基本有序数组插入排序耗时: ${(nearSortedEnd - nearSortedStart).toFixed(2)}ms`);
+
+            // 测试3：已排序数组
+            console.log(`\n测试3：已排序数组（大小：${testSize}）`);
+            const sortedArray = Array.from({ length: testSize }, (_, i) => i);
+
+            const sortedStart = performance.now();
+            const sortedResult = [...sortedArray];
+            for (let i = 1; i < sortedResult.length; i++) {
+                let temp = sortedResult[i];
+                let j = i;
+                while (j > 0 && sortedResult[j - 1] > temp) {
+                    sortedResult[j] = sortedResult[j - 1];
+                    j--;
+                }
+                sortedResult[j] = temp;
+            }
+            const sortedEnd = performance.now();
+            console.log(`已排序数组插入排序耗时: ${(sortedEnd - sortedStart).toFixed(2)}ms`);
+
+            // 测试4：逆序数组
+            console.log(`\n测试4：逆序数组（大小：${testSize}）`);
+            const reverseArray = Array.from({ length: testSize }, (_, i) => testSize - i);
+
+            const reverseStart = performance.now();
+            const reverseResult = [...reverseArray];
+            for (let i = 1; i < reverseResult.length; i++) {
+                let temp = reverseResult[i];
+                let j = i;
+                while (j > 0 && reverseResult[j - 1] > temp) {
+                    reverseResult[j] = reverseResult[j - 1];
+                    j--;
+                }
+                reverseResult[j] = temp;
+            }
+            const reverseEnd = performance.now();
+            console.log(`逆序数组插入排序耗时: ${(reverseEnd - reverseStart).toFixed(2)}ms`);
+
+            // 与原生sort比较
+            console.log(`\n与原生sort比较:`);
+            const nativeStart = performance.now();
+            [...randomArray].sort((a, b) => a - b);
+            const nativeEnd = performance.now();
+            console.log(`原生sort排序耗时: ${(nativeEnd - nativeStart).toFixed(2)}ms`);
+
+            console.log(`\n性能分析:`);
+            console.log(`- 已排序数组: 接近O(n)性能，体现了插入排序的自适应性`);
+            console.log(`- 基本有序数组: 性能明显优于随机数组`);
+            console.log(`- 逆序数组: 最坏情况，接近O(n²)性能`);
+            console.log(`- 随机数组: 平均情况，约为O(n²)性能`);
+        }
+
+        performanceTest();
+
+        // 7. 算法分析总结
+        console.log('\n7. 插入排序算法分析总结');
+        console.log('时间复杂度分析:');
+        console.log('- 最好情况: O(n) - 数组已经排序，只需要n-1次比较');
+        console.log('- 平均情况: O(n²) - 需要进行约 n²/4 次比较和移动');
+        console.log('- 最坏情况: O(n²) - 逆序数组，需要进行 n(n-1)/2 次比较和移动');
+
+        console.log('\n空间复杂度: O(1) - 原地排序，只需要常数级额外空间');
+
+        console.log('\n插入排序的特点:');
+        console.log('优势:');
+        console.log('- 实现简单，代码量少');
+        console.log('- 稳定排序，相同元素相对位置不变');
+        console.log('- 原地排序，空间复杂度低');
+        console.log('- 自适应性强，对基本有序的数组效率很高');
+        console.log('- 在线算法，可以边接收数据边排序');
+        console.log('- 对小数组效率很高');
+
+        console.log('\n劣势:');
+        console.log('- 对大数组效率较低，时间复杂度为O(n²)');
+        console.log('- 需要大量的元素移动操作');
+
+        console.log('\n适用场景:');
+        console.log('- 小数组排序（n < 50）');
+        console.log('- 基本有序的数组');
+        console.log('- 作为复杂排序算法的子过程（如快排的优化）');
+        console.log('- 在线排序场景');
+        console.log('- 需要稳定排序的场景');
+
+        console.log('\n与其他排序算法比较:');
+        console.log('- vs 选择排序: 自适应性更强，稳定性更好');
+        console.log('- vs 冒泡排序: 移动次数更少，效率更高');
+        console.log('- vs 快速排序: 在小数组上可能更快，且稳定');
+        console.log('- vs 归并排序: 空间复杂度更优，但时间复杂度更差');
+
+        console.log('\n=== 插入排序算法演示完毕 ===');
+    </script>
+</body>
+</html>

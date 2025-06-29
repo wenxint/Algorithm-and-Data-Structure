@@ -1,0 +1,104 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+       class Dictionary{
+           table = {} // 设置私有#table
+
+           toStrFn(item){
+               if(item === null){
+                   return "NULL"
+               }else if(item===undefined){
+                   return "UNDEFINED"
+               }else if(typeof item==='string' || item instanceof String){
+                   return item
+               }
+               return JSON.stringify(item)
+           }
+
+           hasKey(key){
+             return this.table[this.toStrFn(key)] != null
+           }
+
+           set(key,value){
+            if(key!=null && value !=null){
+                const tablekey  = this.toStrFn(key)
+                this.table[tablekey] = new ValuePair(key,value)    // key+value
+                return true
+            }
+            return false
+           }
+
+           get(key){
+            const valuepair = this.table[this.toStrFn(key)]
+            return valuepair == null? undefined:valuepair.value
+           }
+
+           remove(key){
+               if(this.hasKey(key)){
+                delete this.table[this.toStrFn(key)]
+                return true
+               }
+               return false
+           }
+
+           keys(){
+            return this.keyValues().map(item=>item.key)
+           }
+
+           values(){
+            return this.keyValues().map(item=>item.value)
+           }
+
+           keyValues(){
+               return Object.values(this.table)
+           }
+
+           size(){
+            return Object.keys(this.table).length
+           }
+           isEmpty(){
+               return this.size()===0
+           }
+
+           clear(){
+            this.table = {}
+           }
+
+           forEach(cb){
+            const valuePair = this.keyValues()
+            for(let i=0;i<valuePair.length;i++){
+                cb(valuePair[i].key,valuePair[i].value)
+            }
+           }
+       }
+
+       class ValuePair{
+           constructor(key,value){
+            this.key = key
+            this.value = value
+           }
+       }
+
+       var mymap = new Dictionary()
+
+       mymap.set("name","kerwin")
+       mymap.set({a:1},"aaaa")
+
+       mymap.forEach((key,value)=>{
+        console.log(key,value)
+       })
+    </script>
+</body>
+
+</html>

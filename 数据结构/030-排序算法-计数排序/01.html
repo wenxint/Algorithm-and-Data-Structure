@@ -1,0 +1,39 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const arr = [35,2,26,2,5,8,34,1,56,99,33]
+
+        function radixSort(arr){
+            const base = 10
+            let divider  =1
+            // Math.floor(x/divider)%base
+            // divider*=base
+            let maxVal = Math.max(...arr)
+            while(divider<= maxVal){
+                //构建二维数组
+                const buckets = [...Array(10)].map(()=>[])
+                for(let val of arr){
+                    buckets[Math.floor(val/divider)%base].push(val)
+                }
+                console.log(buckets)
+                arr = [].concat(...buckets)
+                console.log(arr)
+                divider*=base
+            }
+            console.log(arr)
+            return arr
+        }
+        radixSort(arr)
+        
+    </script>
+</body>
+</html>

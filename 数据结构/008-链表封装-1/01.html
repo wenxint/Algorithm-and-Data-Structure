@@ -1,0 +1,596 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单向链表的封装</title>
+</head>
+
+<body>
+    <script>
+        /**
+         * 链表节点类
+         *
+         * 核心思想：
+         * 链表的基本组成单元，包含数据和指向下一个节点的指针
+         *
+         * @class Node
+         */
+        class Node {
+            /**
+             * 构造函数 - 创建一个新的链表节点
+             *
+             * @param {*} element - 节点存储的数据
+             */
+            constructor(element) {
+                this.element = element;  // 节点存储的数据
+                this.next = null;        // 指向下一个节点的指针，初始为null
+            }
+        }
+
+        /**
+         * 单向链表数据结构实现
+         *
+         * 核心思想：
+         * 链表是一种线性数据结构，元素在内存中不必连续存储
+         * 每个元素（节点）包含数据和指向下一个元素的指针
+         *
+         * 主要特点：
+         * 1. 动态大小：可以在运行时动态增长和缩小
+         * 2. 内存效率：只在需要时分配内存
+         * 3. 插入删除高效：在已知位置插入/删除元素的时间复杂度为O(1)
+         * 4. 顺序访问：只能从头节点开始顺序访问元素
+         *
+         * 与数组的比较：
+         * - 优势：动态大小，插入删除高效
+         * - 劣势：不支持随机访问，需要额外的指针存储空间
+         *
+         * 应用场景：
+         * - 频繁插入删除的场景
+         * - 大小不确定的数据集合
+         * - 实现其他数据结构（栈、队列等）
+         */
+        class LinkedList {
+            /**
+             * 构造函数 - 初始化空链表
+             */
+            constructor() {
+                this.count = 0;      // 链表中元素的数量
+                this.head = null;    // 指向第一个节点的指针
+            }
+
+            /**
+             * 向链表尾部添加元素
+             *
+             * 核心思想：
+             * 1. 创建新节点
+             * 2. 如果链表为空，新节点成为头节点
+             * 3. 如果链表不为空，遍历到最后一个节点，将其next指向新节点
+             *
+             * @param {*} element - 要添加的元素
+             * @time O(n) - 需要遍历到链表末尾
+             * @space O(1) - 只需要常数额外空间
+             */
+            push(element) {
+                console.log(`向链表添加元素: ${element}`);
+
+                // 创建新节点
+                const node = new Node(element);
+
+                // 如果链表为空，新节点成为头节点
+                if (this.head === null) {
+                    this.head = node;
+                    console.log(`  链表为空，${element} 成为头节点`);
+                } else {
+                    // 遍历到链表末尾
+                    let current = this.head;
+                    while (current.next !== null) {
+                        current = current.next;
+                    }
+                    // 将最后一个节点的next指向新节点
+                    current.next = node;
+                    console.log(`  ${element} 添加到链表末尾`);
+                }
+
+                this.count++;
+                console.log(`  当前链表长度: ${this.count}`);
+            }
+            /**
+         * 获取指定位置的节点
+         *
+         * 核心思想：
+         * 从头节点开始遍历，直到到达指定位置
+         *
+         * @param {number} index - 节点位置（从0开始）
+         * @returns {Node|undefined} 指定位置的节点，如果位置无效返回undefined
+         * @time O(n) - 需要遍历到指定位置
+         * @space O(1) - 只需要常数额外空间
+         */
+            getNodeAt(index) {
+                if (index >= 0 && index < this.count) {
+                    let node = this.head;
+
+                    // 遍历到指定位置
+                    for (let i = 0; i < index; i++) {
+                        node = node.next;
+                    }
+
+                    return node;
+                }
+                return undefined;
+            }
+
+            /**
+             * 在指定位置插入元素
+             *
+             * 核心思想：
+             * 1. 验证插入位置的有效性
+             * 2. 如果在头部插入，更新头指针
+             * 3. 否则找到插入位置的前一个节点，调整指针连接
+             *
+             * @param {*} element - 要插入的元素
+             * @param {number} index - 插入位置（从0开始）
+             * @returns {boolean} 插入是否成功
+             * @time O(n) - 最坏情况需要遍历到指定位置
+             * @space O(1) - 只需要常数额外空间
+             */
+            insert(element, index) {
+                console.log(`在位置 ${index} 插入元素: ${element}`);
+
+                // 验证插入位置的有效性
+                if (index >= 0 && index <= this.count) {
+                    const node = new Node(element);
+
+                    if (index === 0) {
+                        // 在头部插入
+                        node.next = this.head;
+                        this.head = node;
+                        console.log(`  ${element} 插入到头部`);
+                    } else {
+                        // 在中间或尾部插入
+                        const previous = this.getNodeAt(index - 1);
+                        node.next = previous.next;
+                        previous.next = node;
+                        console.log(`  ${element} 插入到位置 ${index}`);
+                    }
+
+                    this.count++;
+                    console.log(`  当前链表长度: ${this.count}`);
+                    return true;
+                } else {
+                    console.log(`  插入失败：位置 ${index} 无效（有效范围：0-${this.count}）`);
+                    return false;
+                }
+            }
+
+            /**
+             * 移除指定位置的元素
+             *
+             * 核心思想：
+             * 1. 验证位置的有效性
+             * 2. 如果删除头节点，更新头指针
+             * 3. 否则找到目标节点的前一个节点，跳过目标节点
+             *
+             * @param {number} index - 要删除的位置（从0开始）
+             * @returns {*} 被删除的元素，如果位置无效返回undefined
+             * @time O(n) - 最坏情况需要遍历到指定位置
+             * @space O(1) - 只需要常数额外空间
+             */
+            removeAt(index) {
+                console.log(`删除位置 ${index} 的元素`);
+
+                // 验证位置的有效性
+                if (index >= 0 && index < this.count) {
+                    let current = this.head;
+
+                    if (index === 0) {
+                        // 删除头节点
+                        this.head = this.head.next;
+                        console.log(`  删除头节点: ${current.element}`);
+                    } else {
+                        // 删除中间或尾部节点
+                        let previous;
+
+                        // 遍历到目标位置
+                        for (let i = 0; i < index; i++) {
+                            previous = current;
+                            current = current.next;
+                        }
+
+                        // 跳过当前节点
+                        previous.next = current.next;
+                        console.log(`  删除位置 ${index} 的元素: ${current.element}`);
+                    }
+
+                    this.count--;
+                    console.log(`  当前链表长度: ${this.count}`);
+                    return current.element;
+                } else {
+                    console.log(`  删除失败：位置 ${index} 无效（有效范围：0-${this.count - 1}）`);
+                    return undefined;
+                }
+            }
+
+
+
+            /**
+             * 获取指定位置的元素值
+             *
+             * @param {number} index - 元素位置（从0开始）
+             * @returns {*} 指定位置的元素值
+             * @time O(n) - 需要遍历到指定位置
+             * @space O(1) - 只需要常数额外空间
+             */
+            get(index) {
+                const node = this.getNodeAt(index);
+                return node ? node.element : undefined;
+            }
+
+            /**
+             * 元素比较函数
+             *
+             * 核心思想：
+             * 提供灵活的元素比较方式，支持基本类型和对象的比较
+             *
+             * @param {*} a - 第一个元素
+             * @param {*} b - 第二个元素
+             * @returns {boolean} 两个元素是否相等
+             */
+            equalFn(a, b) {
+                // 对于基本类型，直接比较
+                if (typeof a !== 'object' || typeof b !== 'object') {
+                    return a === b;
+                }
+
+                // 对于对象类型，使用JSON序列化比较（简单但有局限性）
+                // 注意：这种方式不能处理循环引用，且属性顺序会影响结果
+                // 实际项目中建议使用更严格的深度比较函数
+                return JSON.stringify(a) === JSON.stringify(b);
+            }
+
+            /**
+             * 查找元素在链表中的位置
+             *
+             * 核心思想：
+             * 从头节点开始遍历，逐个比较元素，直到找到匹配的元素
+             *
+             * @param {*} element - 要查找的元素
+             * @returns {number} 元素的位置，如果未找到返回-1
+             * @time O(n) - 最坏情况需要遍历整个链表
+             * @space O(1) - 只需要常数额外空间
+             */
+            indexOf(element) {
+                console.log(`查找元素: ${JSON.stringify(element)}`);
+
+                let current = this.head;
+                for (let i = 0; i < this.count; i++) {
+                    if (this.equalFn(element, current.element)) {
+                        console.log(`  找到元素，位置: ${i}`);
+                        return i;
+                    }
+                    current = current.next;
+                }
+
+                console.log(`  未找到元素`);
+                return -1;
+            }
+
+            /**
+             * 移除指定元素
+             *
+             * 核心思想：
+             * 先查找元素的位置，然后调用removeAt方法删除
+             *
+             * @param {*} element - 要删除的元素
+             * @returns {*} 被删除的元素，如果元素不存在返回undefined
+             * @time O(n) - 需要先查找再删除
+             * @space O(1) - 只需要常数额外空间
+             */
+            remove(element) {
+                console.log(`删除元素: ${JSON.stringify(element)}`);
+
+                const index = this.indexOf(element);
+                if (index !== -1) {
+                    return this.removeAt(index);
+                }
+
+                console.log(`  删除失败：元素不存在`);
+                return undefined;
+            }
+
+            /**
+             * 检查链表是否为空
+             *
+             * @returns {boolean} 链表是否为空
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            isEmpty() {
+                return this.count === 0;
+            }
+
+            /**
+             * 获取链表的大小
+             *
+             * @returns {number} 链表中元素的个数
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            size() {
+                return this.count;
+            }
+
+            /**
+             * 获取链表的头节点
+             *
+             * @returns {Node|null} 头节点
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            getHead() {
+                return this.head;
+            }
+
+            /**
+             * 清空链表
+             *
+             * 核心思想：
+             * 重置头指针和计数器，让垃圾回收器回收所有节点
+             *
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            clear() {
+                this.head = null;
+                this.count = 0;
+                console.log('链表已清空');
+            }
+
+            /**
+             * 将链表转换为数组
+             *
+             * @returns {Array} 包含链表所有元素的数组
+             * @time O(n) - 需要遍历整个链表
+             * @space O(n) - 需要创建新数组
+             */
+            toArray() {
+                const result = [];
+                let current = this.head;
+
+                while (current !== null) {
+                    result.push(current.element);
+                    current = current.next;
+                }
+
+                return result;
+            }
+
+            /**
+             * 将链表转换为字符串表示
+             *
+             * @returns {string} 链表的字符串表示
+             * @time O(n) - 需要遍历整个链表
+             * @space O(n) - 需要创建字符串
+             */
+            toString() {
+                if (this.isEmpty()) {
+                    return '空链表';
+                }
+
+                const elements = this.toArray();
+                return `链表内容: ${elements.join(' -> ')}`;
+            }
+
+            /**
+             * 获取链表的详细信息
+             *
+             * @returns {object} 包含链表详细信息的对象
+             */
+            getInfo() {
+                return {
+                    size: this.size(),
+                    isEmpty: this.isEmpty(),
+                    head: this.head ? this.head.element : null,
+                    content: this.toString()
+                };
+            }
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 单向链表的封装 - 完整示例 ===\n');
+
+        // 1. 创建链表实例
+        console.log('1. 创建链表实例');
+        const list = new LinkedList();
+        console.log('链表信息:', list.getInfo());
+        console.log();
+
+        // 2. 测试push操作
+        console.log('2. 测试push操作（向尾部添加元素）');
+        const elements = [10, 20, 30, 40, 50];
+        elements.forEach(element => {
+            list.push(element);
+        });
+        console.log('当前链表:', list.toString());
+        console.log();
+
+        // 3. 测试insert操作
+        console.log('3. 测试insert操作（在指定位置插入元素）');
+        list.insert(5, 0);    // 在头部插入
+        list.insert(25, 3);   // 在中间插入
+        list.insert(60, list.size()); // 在尾部插入
+        console.log('插入后的链表:', list.toString());
+        console.log();
+
+        // 4. 测试get操作
+        console.log('4. 测试get操作（获取指定位置的元素）');
+        for (let i = 0; i < list.size(); i++) {
+            console.log(`位置 ${i}: ${list.get(i)}`);
+        }
+        console.log();
+
+        // 5. 测试indexOf操作
+        console.log('5. 测试indexOf操作（查找元素位置）');
+        const searchElements = [5, 25, 50, 100];
+        searchElements.forEach(element => {
+            const index = list.indexOf(element);
+            console.log(`元素 ${element} 的位置: ${index}`);
+        });
+        console.log();
+
+        // 6. 测试remove操作
+        console.log('6. 测试remove操作（删除指定元素）');
+        const removeElements = [5, 25, 100];
+        removeElements.forEach(element => {
+            const removed = list.remove(element);
+            console.log(`删除结果: ${removed !== undefined ? `成功删除 ${removed}` : '删除失败'}`);
+            console.log('当前链表:', list.toString());
+        });
+        console.log();
+
+        // 7. 测试removeAt操作
+        console.log('7. 测试removeAt操作（删除指定位置的元素）');
+        const removePositions = [0, 2, list.size() - 1]; // 删除头部、中间、尾部
+        removePositions.forEach(position => {
+            if (position < list.size()) {
+                const removed = list.removeAt(position);
+                console.log(`删除位置 ${position} 的元素: ${removed}`);
+                console.log('当前链表:', list.toString());
+            }
+        });
+        console.log();
+
+        // 8. 实际应用示例：学生管理系统
+        console.log('8. 实际应用示例：学生管理系统');
+
+        const studentList = new LinkedList();
+
+        // 学生类
+        class Student {
+            constructor(id, name, grade) {
+                this.id = id;
+                this.name = name;
+                this.grade = grade;
+            }
+
+            toString() {
+                return `${this.name}(ID:${this.id}, 成绩:${this.grade})`;
+            }
+        }
+
+        // 添加学生
+        const students = [
+            new Student(1, '张三', 85),
+            new Student(2, '李四', 92),
+            new Student(3, '王五', 78),
+            new Student(4, '赵六', 96),
+            new Student(5, '孙七', 88)
+        ];
+
+        console.log('添加学生到链表:');
+        students.forEach(student => {
+            studentList.push(student);
+            console.log(`  添加学生: ${student.toString()}`);
+        });
+
+        console.log('\n当前学生列表:');
+        for (let i = 0; i < studentList.size(); i++) {
+            const student = studentList.get(i);
+            console.log(`  ${i + 1}. ${student.toString()}`);
+        }
+
+        // 查找学生
+        console.log('\n查找学生（按姓名）:');
+        const findStudent = (name) => {
+            for (let i = 0; i < studentList.size(); i++) {
+                const student = studentList.get(i);
+                if (student.name === name) {
+                    console.log(`  找到学生: ${student.toString()}，位置: ${i}`);
+                    return i;
+                }
+            }
+            console.log(`  未找到学生: ${name}`);
+            return -1;
+        };
+
+        findStudent('王五');
+        findStudent('陈八');
+
+        // 插入新学生
+        console.log('\n插入新学生到第2位:');
+        const newStudent = new Student(6, '陈八', 90);
+        studentList.insert(newStudent, 1);
+        console.log(`  插入学生: ${newStudent.toString()}`);
+
+        console.log('\n更新后的学生列表:');
+        for (let i = 0; i < studentList.size(); i++) {
+            const student = studentList.get(i);
+            console.log(`  ${i + 1}. ${student.toString()}`);
+        }
+
+        // 9. 性能测试
+        console.log('\n9. 性能测试');
+
+        function performanceTest() {
+            const testList = new LinkedList();
+            const testSize = 10000;
+
+            // 测试插入性能
+            console.log(`测试插入 ${testSize} 个元素的性能:`);
+            const insertStart = performance.now();
+            for (let i = 0; i < testSize; i++) {
+                testList.push(i);
+            }
+            const insertEnd = performance.now();
+            console.log(`  插入耗时: ${(insertEnd - insertStart).toFixed(2)}ms`);
+
+            // 测试查找性能
+            console.log(`测试查找性能:`);
+            const searchStart = performance.now();
+            const randomIndex = Math.floor(Math.random() * testSize);
+            const found = testList.get(randomIndex);
+            const searchEnd = performance.now();
+            console.log(`  查找位置 ${randomIndex} 的元素 ${found}，耗时: ${(searchEnd - searchStart).toFixed(4)}ms`);
+
+            // 测试删除性能
+            console.log(`测试删除性能:`);
+            const deleteStart = performance.now();
+            for (let i = 0; i < 1000; i++) {
+                testList.removeAt(0); // 删除头部元素
+            }
+            const deleteEnd = performance.now();
+            console.log(`  删除1000个头部元素，耗时: ${(deleteEnd - deleteStart).toFixed(2)}ms`);
+        }
+
+        performanceTest();
+
+        // 10. 算法分析总结
+        console.log('\n10. 链表算法分析总结');
+        console.log('时间复杂度分析:');
+        console.log('- 插入操作: O(1) 在头部，O(n) 在任意位置');
+        console.log('- 删除操作: O(1) 在头部，O(n) 在任意位置');
+        console.log('- 查找操作: O(n) 需要遍历');
+        console.log('- 访问操作: O(n) 需要遍历到指定位置');
+        console.log('\n空间复杂度: O(n) - 需要存储n个节点和指针');
+        console.log('\n与数组的比较:');
+        console.log('链表优势:');
+        console.log('- 动态大小，内存使用更灵活');
+        console.log('- 插入删除操作更高效（在已知位置）');
+        console.log('链表劣势:');
+        console.log('- 不支持随机访问，查找效率低');
+        console.log('- 需要额外的指针存储空间');
+        console.log('- 缓存局部性较差');
+        console.log('\n适用场景:');
+        console.log('- 频繁插入删除操作');
+        console.log('- 数据大小不确定');
+        console.log('- 实现其他数据结构（栈、队列等）');
+
+        console.log('\n=== 单向链表演示完毕 ===');
+    </script>
+</body>
+
+</html>

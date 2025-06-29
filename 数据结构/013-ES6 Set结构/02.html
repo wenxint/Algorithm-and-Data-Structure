@@ -1,0 +1,25 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        var mysetA = new Set([1,2,3])
+        var mysetB = new Set([2,3,4])
+        //并集
+        // var myset = new Set([...mysetA,...mysetB])
+        //交集
+        // var myset = new Set([...mysetA].filter(item=>mysetB.has(item)))
+
+        //差集
+        var myset = new Set([...mysetB].filter(item=>!mysetA.has(item)))
+        console.log(myset)
+    </script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冒泡排序算法</title>
+</head>
+
+<body>
+    <script>
+        /**
+         * 冒泡排序算法实现
+         *
+         * 核心思想：
+         * 冒泡排序是一种简单的交换排序算法，通过重复遍历待排序序列，
+         * 比较相邻元素并交换位置，使较大的元素像气泡一样"冒泡"到数组末尾
+         *
+         * 算法步骤：
+         * 1. 从数组第一个元素开始，比较相邻的两个元素
+         * 2. 如果前一个元素比后一个元素大，就交换它们的位置
+         * 3. 继续对每一对相邻元素进行比较和交换，直到数组末尾
+         * 4. 一轮遍历后，最大的元素会"冒泡"到数组末尾
+         * 5. 重复上述过程，每次减少一个比较元素，直到整个数组有序
+         *
+         * 算法特点：
+         * - 稳定排序：相等元素的相对位置不会改变
+         * - 原地排序：只需要O(1)的额外空间
+         * - 自适应性：对于已经部分有序的数组有一定优化空间
+         *
+         * @param {number[]} array - 待排序的数组
+         * @returns {number[]} 排序后的数组
+         * @time O(n²) - 平均和最坏情况时间复杂度，最好情况O(n)
+         * @space O(1) - 常数空间复杂度
+         */
+        function bubbleSort(array) {
+            // 获取数组长度，使用解构赋值的现代写法
+            const { length } = array;
+
+            console.log(`开始冒泡排序，数组长度: ${length}`);
+            console.log(`初始数组: [${array.join(', ')}]`);
+
+            // 外层循环：控制排序轮数
+            // 需要进行 length-1 轮排序，因为最后一个元素会自动就位
+            for (let i = 0; i < length - 1; i++) {
+                console.log(`\n第 ${i + 1} 轮排序开始:`);
+
+                let swapped = false; // 优化标志：记录本轮是否发生交换
+
+                // 内层循环：在每轮中比较相邻元素
+                // length-1-i 是因为每轮排序后，最大的元素已经"冒泡"到正确位置
+                for (let j = 0; j < length - 1 - i; j++) {
+                    console.log(`  比较 array[${j}]=${array[j]} 和 array[${j + 1}]=${array[j + 1]}`);
+
+                    // 如果前一个元素大于后一个元素，则交换位置
+                    if (array[j] > array[j + 1]) {
+                        console.log(`    需要交换: ${array[j]} > ${array[j + 1]}`);
+
+                        // 调用交换函数
+                        swap(array, j, j + 1);
+                        swapped = true;
+
+                        console.log(`    交换后: [${array.join(', ')}]`);
+                    } else {
+                        console.log(`    不需要交换: ${array[j]} <= ${array[j + 1]}`);
+                    }
+                }
+
+                console.log(`第 ${i + 1} 轮排序结束: [${array.join(', ')}]`);
+
+                // 优化：如果本轮没有发生任何交换，说明数组已经有序
+                if (!swapped) {
+                    console.log('数组已经有序，提前结束排序');
+                    break;
+                }
+            }
+
+            console.log(`\n冒泡排序完成: [${array.join(', ')}]`);
+            return array;
+        }
+
+        /**
+         * 交换数组中两个位置的元素
+         *
+         * 核心思想：
+         * 使用临时变量保存其中一个值，然后进行三步交换
+         *
+         * @param {Array} array - 数组
+         * @param {number} a - 第一个位置的索引
+         * @param {number} b - 第二个位置的索引
+         * @time O(1) - 常数时间复杂度
+         * @space O(1) - 常数空间复杂度
+         */
+        function swap(array, a, b) {
+            // 方法1：使用临时变量交换（传统方法，清晰易懂）
+            const temp = array[a];
+            array[a] = array[b];
+            array[b] = temp;
+
+            // 方法2：使用ES6解构赋值交换（现代写法，更简洁）
+            // [array[a], array[b]] = [array[b], array[a]];
+
+            console.log(`      交换位置 ${a} 和 ${b}`);
+        }
+
+        /**
+         * 优化版冒泡排序 - 双向冒泡排序（鸡尾酒排序）
+         *
+         * 核心思想：
+         * 在每一轮排序中，先从左到右找最大值放到右边，
+         * 再从右到左找最小值放到左边，这样可以减少排序轮数
+         *
+         * @param {number[]} array - 待排序的数组
+         * @returns {number[]} 排序后的数组
+         * @time O(n²) - 平均和最坏情况，但实际性能比普通冒泡排序好
+         * @space O(1) - 常数空间复杂度
+         */
+        function cocktailSort(array) {
+            const { length } = array;
+            let left = 0;
+            let right = length - 1;
+
+            console.log(`开始鸡尾酒排序（双向冒泡）: [${array.join(', ')}]`);
+
+            while (left < right) {
+                let swapped = false;
+
+                // 从左到右，把最大值冒泡到右边
+                console.log(`\n从左到右冒泡，范围: ${left} 到 ${right}`);
+                for (let i = left; i < right; i++) {
+                    if (array[i] > array[i + 1]) {
+                        swap(array, i, i + 1);
+                        swapped = true;
+                    }
+                }
+                right--; // 右边界向左移动
+
+                if (!swapped) break;
+
+                // 从右到左，把最小值冒泡到左边
+                console.log(`从右到左冒泡，范围: ${right} 到 ${left}`);
+                for (let i = right; i > left; i--) {
+                    if (array[i] < array[i - 1]) {
+                        swap(array, i, i - 1);
+                        swapped = true;
+                    }
+                }
+                left++; // 左边界向右移动
+
+                console.log(`当前状态: [${array.join(', ')}]`);
+
+                if (!swapped) break;
+            }
+
+            console.log(`鸡尾酒排序完成: [${array.join(', ')}]`);
+            return array;
+        }
+
+        /**
+         * 可视化冒泡排序过程
+         *
+         * @param {number[]} array - 待排序的数组
+         * @returns {Array} 排序过程的每一步
+         */
+        function visualBubbleSort(array) {
+            const steps = [];
+            const { length } = array;
+            const workArray = [...array]; // 创建副本，避免修改原数组
+
+            steps.push([...workArray]); // 记录初始状态
+
+            for (let i = 0; i < length - 1; i++) {
+                for (let j = 0; j < length - 1 - i; j++) {
+                    if (workArray[j] > workArray[j + 1]) {
+                        // 交换元素
+                        [workArray[j], workArray[j + 1]] = [workArray[j + 1], workArray[j]];
+                        steps.push([...workArray]); // 记录交换后的状态
+                    }
+                }
+            }
+
+            return steps;
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 冒泡排序算法 - 完整示例 ===\n');
+
+        // 1. 基本冒泡排序测试
+        console.log('1. 基本冒泡排序测试');
+        const testArray1 = [5, 3, 4, 2, 1];
+        console.log('测试数组:', testArray1);
+        bubbleSort([...testArray1]); // 使用副本，保留原数组
+        console.log();
+
+        // 2. 已排序数组测试（最好情况）
+        console.log('2. 已排序数组测试（最好情况）');
+        const sortedArray = [1, 2, 3, 4, 5];
+        console.log('已排序数组:', sortedArray);
+        bubbleSort([...sortedArray]);
+        console.log();
+
+        // 3. 逆序数组测试（最坏情况）
+        console.log('3. 逆序数组测试（最坏情况）');
+        const reversedArray = [5, 4, 3, 2, 1];
+        console.log('逆序数组:', reversedArray);
+        bubbleSort([...reversedArray]);
+        console.log();
+
+        // 4. 包含重复元素的数组测试
+        console.log('4. 包含重复元素的数组测试');
+        const duplicateArray = [3, 1, 4, 1, 5, 9, 2, 6, 5];
+        console.log('包含重复元素的数组:', duplicateArray);
+        bubbleSort([...duplicateArray]);
+        console.log();
+
+        // 5. 鸡尾酒排序测试
+        console.log('5. 鸡尾酒排序（双向冒泡）测试');
+        const cocktailArray = [8, 3, 5, 4, 7, 6, 1, 2];
+        console.log('测试数组:', cocktailArray);
+        cocktailSort([...cocktailArray]);
+        console.log();
+
+        // 6. 可视化排序过程
+        console.log('6. 可视化排序过程');
+        const visualArray = [4, 2, 7, 1, 3];
+        console.log('初始数组:', visualArray);
+        const sortingSteps = visualBubbleSort(visualArray);
+        console.log('排序过程：');
+        sortingSteps.forEach((step, index) => {
+            console.log(`步骤 ${index}: [${step.join(', ')}]`);
+        });
+        console.log();
+
+        // 7. 性能测试和比较
+        console.log('7. 性能测试');
+
+        function performanceTest(sortFunction, array, name) {
+            const testArray = [...array];
+            const startTime = performance.now();
+            sortFunction(testArray);
+            const endTime = performance.now();
+            const duration = endTime - startTime;
+
+            console.log(`${name} 耗时: ${duration.toFixed(4)}ms`);
+            return duration;
+        }
+
+        // 创建测试数据
+        const smallArray = Array.from({length: 100}, () => Math.floor(Math.random() * 100));
+        const mediumArray = Array.from({length: 1000}, () => Math.floor(Math.random() * 1000));
+
+        console.log('\n小数组性能测试 (100个元素):');
+        const bubbleTime1 = performanceTest(bubbleSort, smallArray, '普通冒泡排序');
+        const cocktailTime1 = performanceTest(cocktailSort, smallArray, '鸡尾酒排序');
+
+        console.log('\n中等数组性能测试 (1000个元素):');
+        const bubbleTime2 = performanceTest(bubbleSort, mediumArray, '普通冒泡排序');
+        const cocktailTime2 = performanceTest(cocktailSort, mediumArray, '鸡尾酒排序');
+
+        console.log('\n与原生sort方法比较:');
+        const nativeTime = performanceTest(arr => arr.sort((a, b) => a - b), mediumArray, '原生sort方法');
+
+        // 8. 算法分析总结
+        console.log('\n8. 冒泡排序算法分析总结');
+        console.log('时间复杂度分析:');
+        console.log('- 最好情况: O(n) - 数组已经有序，只需一轮遍历');
+        console.log('- 平均情况: O(n²) - 需要约 n²/2 次比较');
+        console.log('- 最坏情况: O(n²) - 数组完全逆序，需要 n(n-1)/2 次比较');
+        console.log('\n空间复杂度: O(1) - 只需要常数级别的额外空间');
+        console.log('\n算法特点:');
+        console.log('- 稳定排序: 相等元素的相对位置不变');
+        console.log('- 原地排序: 不需要额外的存储空间');
+        console.log('- 简单易懂: 算法逻辑清晰，容易实现');
+        console.log('- 效率较低: 对于大数据集性能较差');
+        console.log('\n适用场景:');
+        console.log('- 小规模数据排序');
+        console.log('- 教学演示');
+        console.log('- 对稳定性有要求的场景');
+        console.log('- 数据基本有序的情况');
+
+        // 9. 实际应用示例
+        console.log('\n9. 实际应用示例：学生成绩排序');
+
+        const students = [
+            { name: '张三', score: 85 },
+            { name: '李四', score: 92 },
+            { name: '王五', score: 78 },
+            { name: '赵六', score: 96 },
+            { name: '孙七', score: 88 }
+        ];
+
+        console.log('原始学生成绩:');
+        students.forEach(student => {
+            console.log(`${student.name}: ${student.score}分`);
+        });
+
+        // 使用冒泡排序的思想对学生成绩进行排序
+        function bubbleSortStudents(students) {
+            const { length } = students;
+
+            for (let i = 0; i < length - 1; i++) {
+                for (let j = 0; j < length - 1 - i; j++) {
+                    if (students[j].score < students[j + 1].score) { // 降序排列
+                        [students[j], students[j + 1]] = [students[j + 1], students[j]];
+                    }
+                }
+            }
+
+            return students;
+        }
+
+        const sortedStudents = bubbleSortStudents([...students]);
+        console.log('\n按成绩降序排列后:');
+        sortedStudents.forEach((student, index) => {
+            console.log(`第${index + 1}名: ${student.name} - ${student.score}分`);
+        });
+
+        console.log('\n=== 冒泡排序算法演示完毕 ===');
+    </script>
+</body>
+
+</html>
