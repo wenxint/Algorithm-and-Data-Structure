@@ -1,0 +1,670 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二叉堆（最小堆）数据结构详解</title>
+</head>
+
+<body>
+    <script>
+        /**
+         * 比较结果常量定义
+         * 用于标准化比较操作的返回值
+         */
+        const Compare = {
+            less: -1,    // 小于
+            bigger: 1,   // 大于
+            equ: 0       // 等于
+        };
+
+        /**
+         * 最小堆数据结构实现
+         *
+         * 核心思想：
+         * 二叉堆是一种特殊的完全二叉树，具有以下性质：
+         * 1. 最小堆：父节点的值总是小于或等于其子节点的值
+         * 2. 完全二叉树：除了最后一层，其他层都是满的，最后一层从左到右填充
+         * 3. 使用数组存储：可以通过数组索引快速计算父子关系
+         *
+         * 数组索引关系：
+         * - 父节点索引：Math.floor((i-1)/2)
+         * - 左子节点索引：2*i + 1
+         * - 右子节点索引：2*i + 2
+         *
+         * 主要特点：
+         * - 插入和删除的时间复杂度：O(log n)
+         * - 查找最小值：O(1)
+         * - 空间复杂度：O(n)
+         *
+         * 应用场景：
+         * - 优先队列的实现
+         * - 堆排序算法
+         * - 任务调度系统
+         * - Dijkstra最短路径算法
+         * - 哈夫曼编码
+         *
+         * @class MinHeap
+         */
+        class MinHeap {
+            /**
+             * 构造函数 - 初始化空的最小堆
+             */
+            constructor() {
+                this.heap = []; // 使用数组存储堆元素
+            }
+
+            /**
+             * 比较函数 - 比较两个元素的大小关系
+             *
+             * 核心思想：
+             * 提供标准化的比较接口，支持不同类型的元素比较
+             *
+             * @param {*} a - 第一个元素
+             * @param {*} b - 第二个元素
+             * @returns {number} 比较结果（-1: a<b, 0: a=b, 1: a>b）
+             */
+            compareFn(a, b) {
+                if (a === b) {
+                    return Compare.equ;
+                }
+                return a < b ? Compare.less : Compare.bigger;
+            }
+
+            /**
+             * 获取左子节点的索引
+             *
+             * @param {number} index - 父节点索引
+             * @returns {number} 左子节点索引
+             */
+            getLeftIndex(index) {
+                return 2 * index + 1;
+            }
+
+            /**
+             * 获取右子节点的索引
+             *
+             * @param {number} index - 父节点索引
+             * @returns {number} 右子节点索引
+             */
+            getRightIndex(index) {
+                return 2 * index + 2;
+            }
+
+            /**
+             * 获取父节点的索引
+             *
+             * @param {number} index - 子节点索引
+             * @returns {number} 父节点索引
+             */
+            getParentIndex(index) {
+                if (index === 0) {
+                    return undefined;
+                }
+                return Math.floor((index - 1) / 2);
+            }
+
+            /**
+             * 交换堆中两个位置的元素
+             *
+             * @param {number} a - 第一个位置的索引
+             * @param {number} b - 第二个位置的索引
+             */
+            swap(a, b) {
+                const temp = this.heap[a];
+                this.heap[a] = this.heap[b];
+                this.heap[b] = temp;
+                console.log(`    交换位置 ${a}(${this.heap[a]}) 和位置 ${b}(${this.heap[b]})`);
+            }
+
+            /**
+             * 向上调整（上浮）操作
+             *
+             * 核心思想：
+             * 当新插入元素或某个元素值变小时，需要向上调整以维护堆性质：
+             * 1. 比较当前节点与其父节点
+             * 2. 如果当前节点更小，则交换
+             * 3. 继续向上比较，直到满足堆性质或到达根节点
+             *
+             * @param {number} index - 需要向上调整的节点索引
+             * @time O(log n) - 最多需要调整到根节点
+             */
+            siftUp(index) {
+                console.log(`  向上调整节点 ${index}(${this.heap[index]})`);
+
+                let parent = this.getParentIndex(index);
+
+                while (index > 0 && this.compareFn(this.heap[parent], this.heap[index]) === Compare.bigger) {
+                    console.log(`    父节点 ${parent}(${this.heap[parent]}) > 当前节点 ${index}(${this.heap[index]})`);
+                    this.swap(parent, index);
+                    index = parent;
+                    parent = this.getParentIndex(index);
+                }
+
+                console.log(`  向上调整完成，最终位置: ${index}`);
+            }
+
+            /**
+             * 向下调整（下沉）操作
+             *
+             * 核心思想：
+             * 当删除根节点或某个元素值变大时，需要向下调整以维护堆性质：
+             * 1. 找到当前节点和其子节点中的最小值
+             * 2. 如果最小值不是当前节点，则交换
+             * 3. 继续向下比较，直到满足堆性质或到达叶子节点
+             *
+             * @param {number} index - 需要向下调整的节点索引
+             * @time O(log n) - 最多需要调整到叶子节点
+             */
+            siftDown(index) {
+                console.log(`  向下调整节点 ${index}(${this.heap[index]})`);
+
+                let element = index;
+                const size = this.size();
+                const left = this.getLeftIndex(index);
+                const right = this.getRightIndex(index);
+
+                // 找到当前节点和其子节点中的最小值
+                if (left < size && this.compareFn(this.heap[element], this.heap[left]) === Compare.bigger) {
+                    element = left;
+                    console.log(`    左子节点 ${left}(${this.heap[left]}) 更小`);
+                }
+
+                if (right < size && this.compareFn(this.heap[element], this.heap[right]) === Compare.bigger) {
+                    element = right;
+                    console.log(`    右子节点 ${right}(${this.heap[right]}) 更小`);
+                }
+
+                // 如果最小值不是当前节点，则交换并继续向下调整
+                if (index !== element) {
+                    this.swap(index, element);
+                    this.siftDown(element);
+                } else {
+                    console.log(`  向下调整完成，节点 ${index} 已在正确位置`);
+                }
+            }
+
+            /**
+             * 向堆中插入新元素
+             *
+             * 核心思想：
+             * 1. 将新元素添加到数组末尾（完全二叉树的最后位置）
+             * 2. 向上调整新元素的位置，直到满足堆性质
+             *
+             * @param {*} value - 要插入的值
+             * @time O(log n) - 向上调整的时间复杂度
+             * @space O(1) - 只需要常数级额外空间
+             */
+            insert(value) {
+                console.log(`\n插入元素: ${value}`);
+                console.log(`插入前堆状态: [${this.heap.join(', ')}]`);
+
+                if (value != null) {
+                    // 将新元素添加到数组末尾
+                    this.heap.push(value);
+                    const newIndex = this.heap.length - 1;
+                    console.log(`  元素 ${value} 添加到位置 ${newIndex}`);
+
+                    // 向上调整新元素的位置
+                    this.siftUp(newIndex);
+
+                    console.log(`插入后堆状态: [${this.heap.join(', ')}]`);
+                    this.printHeapStructure();
+                    return true;
+                }
+                return false;
+            }
+
+            /**
+             * 获取堆的大小
+             *
+             * @returns {number} 堆中元素的数量
+             */
+            size() {
+                return this.heap.length;
+            }
+
+            /**
+             * 检查堆是否为空
+             *
+             * @returns {boolean} 是否为空
+             */
+            isEmpty() {
+                return this.size() === 0;
+            }
+
+            /**
+             * 查看堆顶元素（最小值）
+             *
+             * 核心思想：
+             * 在最小堆中，根节点（索引0）总是最小值
+             *
+             * @returns {*} 堆顶元素，如果堆为空返回undefined
+             * @time O(1) - 直接访问数组第一个元素
+             */
+            findMinimum() {
+                return this.isEmpty() ? undefined : this.heap[0];
+            }
+
+            /**
+             * 删除并返回堆顶元素（最小值）
+             *
+             * 核心思想：
+             * 1. 保存根节点的值（要返回的最小值）
+             * 2. 将最后一个元素移到根位置
+             * 3. 删除最后一个元素
+             * 4. 对新根节点进行向下调整
+             *
+             * @returns {*} 被删除的最小值，如果堆为空返回undefined
+             * @time O(log n) - 向下调整的时间复杂度
+             */
+            extract() {
+                console.log(`\n删除堆顶元素（最小值）`);
+                console.log(`删除前堆状态: [${this.heap.join(', ')}]`);
+
+                if (this.isEmpty()) {
+                    console.log('堆为空，无法删除');
+                    return undefined;
+                }
+
+                if (this.size() === 1) {
+                    const min = this.heap.pop();
+                    console.log(`堆中只有一个元素 ${min}，直接删除`);
+                    return min;
+                }
+
+                // 保存要返回的最小值
+                const removedValue = this.heap[0];
+                console.log(`要删除的最小值: ${removedValue}`);
+
+                // 将最后一个元素移到根位置
+                const lastElement = this.heap.pop();
+                this.heap[0] = lastElement;
+                console.log(`将最后一个元素 ${lastElement} 移到根位置`);
+
+                // 对新根节点进行向下调整
+                this.siftDown(0);
+
+                console.log(`删除后堆状态: [${this.heap.join(', ')}]`);
+                this.printHeapStructure();
+
+                return removedValue;
+            }
+
+            /**
+             * 获取堆的数组表示
+             *
+             * @returns {Array} 堆的数组副本
+             */
+            getAsArray() {
+                return [...this.heap];
+            }
+
+            /**
+             * 打印堆的树形结构
+             */
+            printHeapStructure() {
+                if (this.isEmpty()) {
+                    console.log('  堆结构: 空堆');
+                    return;
+                }
+
+                console.log('  堆结构:');
+                const levels = Math.floor(Math.log2(this.size())) + 1;
+
+                for (let level = 0; level < levels; level++) {
+                    const start = Math.pow(2, level) - 1;
+                    const end = Math.min(Math.pow(2, level + 1) - 1, this.size());
+
+                    let levelStr = `    第${level}层: `;
+                    for (let i = start; i < end; i++) {
+                        if (i < this.size()) {
+                            levelStr += `${this.heap[i]} `;
+                        }
+                    }
+                    console.log(levelStr);
+                }
+            }
+
+            /**
+             * 验证堆的性质
+             *
+             * @returns {boolean} 是否满足最小堆性质
+             */
+            isValidHeap() {
+                for (let i = 0; i < this.size(); i++) {
+                    const left = this.getLeftIndex(i);
+                    const right = this.getRightIndex(i);
+
+                    if (left < this.size() && this.heap[i] > this.heap[left]) {
+                        return false;
+                    }
+
+                    if (right < this.size() && this.heap[i] > this.heap[right]) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            /**
+             * 清空堆
+             */
+            clear() {
+                this.heap = [];
+                console.log('堆已清空');
+            }
+
+            /**
+             * 获取堆的详细信息
+             *
+             * @returns {object} 包含堆详细信息的对象
+             */
+            getInfo() {
+                return {
+                    size: this.size(),
+                    isEmpty: this.isEmpty(),
+                    minimum: this.findMinimum(),
+                    array: this.getAsArray(),
+                    isValid: this.isValidHeap()
+                };
+            }
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 二叉堆（最小堆）数据结构 - 完整演示 ===\n');
+
+        // 1. 创建最小堆实例
+        console.log('1. 创建最小堆实例');
+        const minHeap = new MinHeap();
+        console.log('初始堆信息:', minHeap.getInfo());
+
+        // 2. 测试插入操作
+        console.log('\n2. 测试插入操作');
+        const values = [10, 5, 20, 3, 8, 15, 30, 1, 7];
+        console.log(`将要插入的值: [${values.join(', ')}]`);
+
+        values.forEach(value => {
+            minHeap.insert(value);
+        });
+
+        console.log('\n所有元素插入后的堆信息:', minHeap.getInfo());
+
+        // 3. 测试查看最小值
+        console.log('\n3. 测试查看最小值');
+        console.log(`当前最小值: ${minHeap.findMinimum()}`);
+
+        // 4. 测试删除操作
+        console.log('\n4. 测试删除操作');
+        console.log('依次删除最小值:');
+
+        while (!minHeap.isEmpty()) {
+            const min = minHeap.extract();
+            console.log(`删除的最小值: ${min}`);
+            console.log(`剩余堆大小: ${minHeap.size()}`);
+
+            if (!minHeap.isEmpty()) {
+                console.log(`新的最小值: ${minHeap.findMinimum()}`);
+            }
+        }
+
+        // 5. 实际应用示例：任务调度系统
+        console.log('\n5. 实际应用示例：任务调度系统');
+
+        /**
+         * 任务类
+         */
+        class Task {
+            constructor(id, name, priority, estimatedTime) {
+                this.id = id;
+                this.name = name;
+                this.priority = priority; // 优先级，数值越小优先级越高
+                this.estimatedTime = estimatedTime; // 预估执行时间（分钟）
+                this.createdAt = Date.now();
+            }
+
+            toString() {
+                return `Task${this.id}(${this.name}, P${this.priority}, ${this.estimatedTime}min)`;
+            }
+        }
+
+        /**
+         * 任务调度器
+         * 使用最小堆实现优先级队列，优先级数值越小越优先
+         */
+        class TaskScheduler {
+            constructor() {
+                this.taskHeap = new MinHeap();
+                this.completedTasks = [];
+                this.taskIdCounter = 1;
+            }
+
+            /**
+             * 重写比较函数以支持Task对象
+             */
+            setupTaskComparison() {
+                this.taskHeap.compareFn = (a, b) => {
+                    // 首先按优先级比较
+                    if (a.priority !== b.priority) {
+                        return a.priority < b.priority ? Compare.less : Compare.bigger;
+                    }
+                    // 优先级相同时，按创建时间比较（先创建的优先）
+                    return a.createdAt < b.createdAt ? Compare.less : Compare.bigger;
+                };
+            }
+
+            /**
+             * 添加任务
+             * @param {string} name - 任务名称
+             * @param {number} priority - 优先级（1-10，数值越小优先级越高）
+             * @param {number} estimatedTime - 预估执行时间
+             */
+            addTask(name, priority, estimatedTime) {
+                const task = new Task(this.taskIdCounter++, name, priority, estimatedTime);
+
+                // 设置任务比较函数
+                this.setupTaskComparison();
+
+                console.log(`添加任务: ${task.toString()}`);
+                this.taskHeap.insert(task);
+
+                console.log(`当前队列中有 ${this.taskHeap.size()} 个任务`);
+                if (!this.taskHeap.isEmpty()) {
+                    const nextTask = this.taskHeap.findMinimum();
+                    console.log(`下一个要执行的任务: ${nextTask.toString()}`);
+                }
+            }
+
+            /**
+             * 执行下一个任务
+             * @returns {Task|null} 执行的任务
+             */
+            executeNextTask() {
+                if (this.taskHeap.isEmpty()) {
+                    console.log('没有待执行的任务');
+                    return null;
+                }
+
+                // 设置任务比较函数
+                this.setupTaskComparison();
+
+                const task = this.taskHeap.extract();
+                console.log(`开始执行任务: ${task.toString()}`);
+
+                // 模拟任务执行
+                const executionTime = Math.round(task.estimatedTime * (0.8 + Math.random() * 0.4)); // 实际时间在预估时间的80%-120%之间
+                task.actualTime = executionTime;
+                task.completedAt = Date.now();
+
+                this.completedTasks.push(task);
+                console.log(`任务执行完成，实际耗时: ${executionTime}分钟`);
+
+                return task;
+            }
+
+            /**
+             * 显示当前任务队列状态
+             */
+            showQueueStatus() {
+                console.log('\n当前任务队列状态:');
+                console.log(`待执行任务数: ${this.taskHeap.size()}`);
+                console.log(`已完成任务数: ${this.completedTasks.length}`);
+
+                if (!this.taskHeap.isEmpty()) {
+                    console.log('\n待执行任务列表（按优先级排序）:');
+                    const tasks = this.taskHeap.getAsArray();
+                    tasks.forEach((task, index) => {
+                        console.log(`  ${index + 1}. ${task.toString()}`);
+                    });
+                }
+
+                if (this.completedTasks.length > 0) {
+                    console.log('\n已完成任务:');
+                    this.completedTasks.forEach((task, index) => {
+                        console.log(`  ${index + 1}. ${task.toString()} - 实际耗时: ${task.actualTime}分钟`);
+                    });
+                }
+            }
+
+            /**
+             * 获取统计信息
+             */
+            getStatistics() {
+                const totalEstimated = this.completedTasks.reduce((sum, task) => sum + task.estimatedTime, 0);
+                const totalActual = this.completedTasks.reduce((sum, task) => sum + task.actualTime, 0);
+
+                return {
+                    totalTasks: this.taskIdCounter - 1,
+                    completedTasks: this.completedTasks.length,
+                    pendingTasks: this.taskHeap.size(),
+                    totalEstimatedTime: totalEstimated,
+                    totalActualTime: totalActual,
+                    averageAccuracy: this.completedTasks.length > 0 ?
+                        (totalEstimated / totalActual * 100).toFixed(1) + '%' : 'N/A'
+                };
+            }
+        }
+
+        // 创建任务调度器
+        const scheduler = new TaskScheduler();
+
+        // 添加各种优先级的任务
+        console.log('\n创建任务调度系统:');
+        scheduler.addTask('系统安全更新', 1, 30);      // 最高优先级
+        scheduler.addTask('数据库备份', 2, 45);        // 高优先级
+        scheduler.addTask('日志清理', 5, 15);          // 中等优先级
+        scheduler.addTask('性能监控报告', 3, 20);       // 较高优先级
+        scheduler.addTask('用户反馈处理', 4, 25);       // 中等优先级
+        scheduler.addTask('文档更新', 6, 60);          // 较低优先级
+        scheduler.addTask('紧急Bug修复', 1, 40);       // 最高优先级
+        scheduler.addTask('代码审查', 5, 35);          // 中等优先级
+
+        // 显示初始队列状态
+        scheduler.showQueueStatus();
+
+        // 模拟任务执行
+        console.log('\n开始执行任务:');
+        for (let i = 0; i < 5; i++) {
+            console.log(`\n--- 执行第 ${i + 1} 个任务 ---`);
+            scheduler.executeNextTask();
+        }
+
+        // 显示执行后的状态
+        scheduler.showQueueStatus();
+
+        // 显示统计信息
+        console.log('\n任务执行统计:');
+        const stats = scheduler.getStatistics();
+        Object.entries(stats).forEach(([key, value]) => {
+            console.log(`${key}: ${value}`);
+        });
+
+        // 6. 性能测试
+        console.log('\n6. 性能测试');
+
+        function performanceTest() {
+            const testSize = 10000;
+            console.log(`测试数据大小: ${testSize}`);
+
+            const heap = new MinHeap();
+
+            // 测试插入性能
+            console.log('\n测试插入性能:');
+            const insertStart = performance.now();
+            for (let i = 0; i < testSize; i++) {
+                const randomValue = Math.floor(Math.random() * testSize * 10);
+                heap.insert(randomValue);
+            }
+            const insertEnd = performance.now();
+            console.log(`  ${testSize}次插入耗时: ${(insertEnd - insertStart).toFixed(2)}ms`);
+            console.log(`  平均插入时间: ${((insertEnd - insertStart) / testSize).toFixed(4)}ms`);
+
+            // 验证堆性质
+            console.log(`  堆性质验证: ${heap.isValidHeap() ? '✓' : '✗'}`);
+            console.log(`  最小值: ${heap.findMinimum()}`);
+
+            // 测试删除性能
+            console.log('\n测试删除性能:');
+            const deleteCount = Math.min(1000, heap.size());
+            const deleteStart = performance.now();
+
+            for (let i = 0; i < deleteCount; i++) {
+                heap.extract();
+            }
+
+            const deleteEnd = performance.now();
+            console.log(`  ${deleteCount}次删除耗时: ${(deleteEnd - deleteStart).toFixed(2)}ms`);
+            console.log(`  平均删除时间: ${((deleteEnd - deleteStart) / deleteCount).toFixed(4)}ms`);
+
+            console.log(`  剩余堆大小: ${heap.size()}`);
+            console.log(`  堆性质验证: ${heap.isValidHeap() ? '✓' : '✗'}`);
+        }
+
+        performanceTest();
+
+        // 7. 算法分析总结
+        console.log('\n7. 二叉堆算法分析总结');
+        console.log('时间复杂度分析:');
+        console.log('- 插入操作: O(log n) - 最多需要向上调整到根节点');
+        console.log('- 删除最小值: O(log n) - 最多需要向下调整到叶子节点');
+        console.log('- 查看最小值: O(1) - 直接访问根节点');
+        console.log('- 构建堆: O(n log n) - 逐个插入，或O(n) - 使用heapify');
+
+        console.log('\n空间复杂度: O(n) - 需要存储n个元素');
+
+        console.log('\n二叉堆的优势:');
+        console.log('- 高效的优先队列实现');
+        console.log('- 插入和删除操作都是O(log n)');
+        console.log('- 可以快速访问最小（或最大）值');
+        console.log('- 使用数组存储，内存利用率高');
+        console.log('- 实现相对简单');
+
+        console.log('\n二叉堆的劣势:');
+        console.log('- 不支持高效的随机访问');
+        console.log('- 查找任意元素需要O(n)时间');
+        console.log('- 不支持高效的合并操作');
+
+        console.log('\n适用场景:');
+        console.log('- 优先队列的实现');
+        console.log('- 堆排序算法');
+        console.log('- 任务调度系统');
+        console.log('- 最短路径算法（Dijkstra）');
+        console.log('- 哈夫曼编码');
+        console.log('- 操作系统进程调度');
+        console.log('- 事件驱动模拟');
+
+        console.log('\n堆的变种:');
+        console.log('- 最大堆：父节点大于子节点');
+        console.log('- 二项堆：支持高效合并');
+        console.log('- 斐波那契堆：摊还分析下更优的性能');
+        console.log('- 配对堆：实现简单的高效堆');
+
+        console.log('\n=== 二叉堆数据结构演示完毕 ===');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,702 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>散列表（哈希表）数据结构详解</title>
+</head>
+
+<body>
+    <script>
+        /**
+         * 键值对类
+         *
+         * 核心思想：
+         * 用于存储散列表中的键值对，便于管理和访问
+         *
+         * @class ValuePair
+         */
+        class ValuePair {
+            /**
+             * 构造函数 - 创建一个键值对
+             *
+             * @param {*} key - 键
+             * @param {*} value - 值
+             */
+            constructor(key, value) {
+                this.key = key;     // 键
+                this.value = value; // 值
+            }
+
+            /**
+             * 键值对的字符串表示
+             *
+             * @returns {string} 字符串表示
+             */
+            toString() {
+                return `[${this.key}: ${this.value}]`;
+            }
+        }
+
+        /**
+         * 散列表（哈希表）数据结构实现
+         *
+         * 核心思想：
+         * 散列表是一种通过散列函数将键映射到数组索引的数据结构：
+         * 1. 使用散列函数将键转换为数组索引
+         * 2. 将键值对存储在对应的数组位置
+         * 3. 通过键可以快速定位到对应的值
+         *
+         * 主要特点：
+         * - 平均时间复杂度：O(1)的查找、插入、删除
+         * - 空间换时间：使用额外空间换取时间效率
+         * - 散列冲突：不同的键可能映射到相同的索引
+         *
+         * 散列函数设计原则：
+         * - 确定性：相同输入总是产生相同输出
+         * - 高效性：计算速度快
+         * - 均匀分布：尽可能均匀地分布到所有索引
+         * - 雪崩效应：输入的微小变化导致输出的巨大变化
+         *
+         * 应用场景：
+         * - 数据库索引
+         * - 缓存系统
+         * - 编译器符号表
+         * - 快速查找和去重
+         * - JavaScript对象的底层实现
+         *
+         * @class HashTable
+         */
+        class HashTable {
+            /**
+             * 构造函数 - 初始化散列表
+             */
+            constructor() {
+                this.table = {}; // 使用对象作为底层存储结构
+            }
+
+            /**
+             * 将任意类型的值转换为字符串
+             *
+             * 核心思想：
+             * 为了统一处理不同类型的键，需要将所有类型转换为字符串
+             * 这样可以确保散列函数的输入类型一致
+             *
+             * @param {*} item - 要转换的值
+             * @returns {string} 转换后的字符串
+             */
+            toStrFn(item) {
+                if (item === null) {
+                    return "NULL";
+                } else if (item === undefined) {
+                    return "UNDEFINED";
+                } else if (typeof item === 'string' || item instanceof String) {
+                    return item;
+                }
+                return JSON.stringify(item);
+            }
+
+            /**
+             * 散列函数（使用djb2算法）
+             *
+             * 核心思想：
+             * djb2是一个简单而有效的散列函数：
+             * 1. 初始化hash值为5381（一个质数）
+             * 2. 对字符串的每个字符：hash = hash * 33 + charCode
+             * 3. 使用模运算限制结果范围
+             *
+             * 算法特点：
+             * - 快速计算
+             * - 良好的分布特性
+             * - 低冲突率
+             * - 广泛应用于各种散列表实现
+             *
+             * @param {*} key - 要散列的键
+             * @returns {number} 散列值（数组索引）
+             */
+            hashCode(key) {
+                const tableKey = this.toStrFn(key);
+                let hash = 5381; // 初始值（质数）
+
+                console.log(`计算散列值: "${tableKey}"`);
+
+                // djb2算法核心循环
+                for (let i = 0; i < tableKey.length; i++) {
+                    const charCode = tableKey.charCodeAt(i);
+                    hash = (hash * 33) + charCode; // 乘以33（质数）并加上字符码
+                    console.log(`  字符 '${tableKey[i]}' (${charCode}): hash = ${hash}`);
+                }
+
+                // 使用模运算限制范围
+                const finalHash = hash % 1013; // 1013是一个质数
+                console.log(`  最终散列值: ${finalHash}`);
+                return finalHash;
+            }
+
+            /**
+             * 向散列表中添加键值对
+             *
+             * 核心思想：
+             * 1. 检查键和值的有效性
+             * 2. 计算键的散列值作为存储位置
+             * 3. 将键值对存储到对应位置
+             *
+             * @param {*} key - 键
+             * @param {*} value - 值
+             * @returns {boolean} 是否添加成功
+             * @time O(1) - 平均情况，散列函数计算时间为常数
+             * @space O(1) - 只需要存储一个键值对
+             */
+            set(key, value) {
+                if (key != null && value != null) {
+                    console.log(`添加键值对: ${key} => ${value}`);
+
+                    const position = this.hashCode(key);
+                    this.table[position] = new ValuePair(key, value);
+
+                    console.log(`  存储在位置 ${position}: ${this.table[position].toString()}`);
+                    return true;
+                }
+
+                console.log('添加失败: 键或值为null/undefined');
+                return false;
+            }
+
+            /**
+             * 从散列表中获取值
+             *
+             * 核心思想：
+             * 1. 计算键的散列值
+             * 2. 从对应位置获取键值对
+             * 3. 返回对应的值
+             *
+             * @param {*} key - 要查找的键
+             * @returns {*} 对应的值，如果不存在返回undefined
+             * @time O(1) - 平均情况
+             * @space O(1) - 不需要额外空间
+             */
+            get(key) {
+                console.log(`查找键: ${key}`);
+
+                const position = this.hashCode(key);
+                const valuePair = this.table[position];
+
+                if (valuePair != null) {
+                    console.log(`  找到值: ${valuePair.value}`);
+                    return valuePair.value;
+                } else {
+                    console.log(`  未找到键: ${key}`);
+                    return undefined;
+                }
+            }
+
+            /**
+             * 从散列表中删除键值对
+             *
+             * 核心思想：
+             * 1. 计算键的散列值
+             * 2. 检查对应位置是否存在键值对
+             * 3. 如果存在则删除，并返回成功标志
+             *
+             * @param {*} key - 要删除的键
+             * @returns {boolean} 是否删除成功
+             * @time O(1) - 平均情况
+             * @space O(1) - 不需要额外空间
+             */
+            remove(key) {
+                console.log(`删除键: ${key}`);
+
+                const hash = this.hashCode(key);
+                const valuePair = this.table[hash];
+
+                if (valuePair != null) {
+                    delete this.table[hash];
+                    console.log(`  删除成功: ${valuePair.toString()}`);
+                    return true;
+                } else {
+                    console.log(`  删除失败: 键 ${key} 不存在`);
+                    return false;
+                }
+            }
+
+            /**
+             * 检查散列表是否为空
+             *
+             * @returns {boolean} 是否为空
+             */
+            isEmpty() {
+                return this.size() === 0;
+            }
+
+            /**
+             * 获取散列表中键值对的数量
+             *
+             * @returns {number} 键值对数量
+             */
+            size() {
+                return Object.keys(this.table).length;
+            }
+
+            /**
+             * 清空散列表
+             */
+            clear() {
+                this.table = {};
+                console.log('散列表已清空');
+            }
+
+            /**
+             * 获取所有键
+             *
+             * @returns {Array} 所有键的数组
+             */
+            keys() {
+                const keys = [];
+                for (const position in this.table) {
+                    if (this.table[position]) {
+                        keys.push(this.table[position].key);
+                    }
+                }
+                return keys;
+            }
+
+            /**
+             * 获取所有值
+             *
+             * @returns {Array} 所有值的数组
+             */
+            values() {
+                const values = [];
+                for (const position in this.table) {
+                    if (this.table[position]) {
+                        values.push(this.table[position].value);
+                    }
+                }
+                return values;
+            }
+
+            /**
+             * 获取所有键值对
+             *
+             * @returns {Array} 所有键值对的数组
+             */
+            keyValues() {
+                const pairs = [];
+                for (const position in this.table) {
+                    if (this.table[position]) {
+                        pairs.push(this.table[position]);
+                    }
+                }
+                return pairs;
+            }
+
+            /**
+             * 遍历散列表
+             *
+             * @param {Function} callbackFn - 回调函数
+             */
+            forEach(callbackFn) {
+                const pairs = this.keyValues();
+                for (let i = 0; i < pairs.length; i++) {
+                    const result = callbackFn(pairs[i].key, pairs[i].value);
+                    if (result === false) {
+                        break; // 如果回调返回false，停止遍历
+                    }
+                }
+            }
+
+            /**
+             * 散列表的字符串表示
+             *
+             * @returns {string} 字符串表示
+             */
+            toString() {
+                if (this.isEmpty()) {
+                    return '{}';
+                }
+
+                const pairs = this.keyValues();
+                let objString = '{';
+
+                for (let i = 0; i < pairs.length; i++) {
+                    objString += `${pairs[i].key}: ${pairs[i].value}`;
+                    if (i < pairs.length - 1) {
+                        objString += ', ';
+                    }
+                }
+
+                objString += '}';
+                return objString;
+            }
+
+            /**
+             * 获取散列表的详细信息
+             *
+             * @returns {object} 包含散列表详细信息的对象
+             */
+            getInfo() {
+                return {
+                    size: this.size(),
+                    isEmpty: this.isEmpty(),
+                    keys: this.keys(),
+                    values: this.values(),
+                    toString: this.toString(),
+                    loadFactor: this.size() / 1013 // 负载因子
+                };
+            }
+
+            /**
+             * 分析散列分布情况
+             */
+            analyzeDistribution() {
+                console.log('\n散列分布分析:');
+                const positions = Object.keys(this.table).map(Number).sort((a, b) => a - b);
+
+                console.log(`使用的位置: [${positions.join(', ')}]`);
+                console.log(`总位置数: 1013`);
+                console.log(`使用位置数: ${positions.length}`);
+                console.log(`负载因子: ${(positions.length / 1013 * 100).toFixed(2)}%`);
+
+                // 检查冲突情况（在这个简单实现中，冲突会导致覆盖）
+                const allKeys = this.keys();
+                const uniquePositions = new Set();
+
+                allKeys.forEach(key => {
+                    const pos = this.hashCode(key);
+                    uniquePositions.add(pos);
+                });
+
+                if (uniquePositions.size < allKeys.length) {
+                    console.log(`警告: 检测到散列冲突！`);
+                    console.log(`键的数量: ${allKeys.length}, 唯一位置数: ${uniquePositions.size}`);
+                }
+            }
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 散列表（哈希表）数据结构 - 完整演示 ===\n');
+
+        // 1. 创建散列表实例
+        console.log('1. 创建散列表实例');
+        const mymap = new HashTable();
+        console.log('初始散列表信息:', mymap.getInfo());
+        console.log();
+
+        // 2. 测试基本操作
+        console.log('2. 测试基本操作');
+
+        // 添加键值对
+        mymap.set('name', 'Alice');
+        mymap.set('age', 25);
+        mymap.set('city', 'Beijing');
+        mymap.set('job', 'Engineer');
+
+        console.log('\n添加键值对后:', mymap.getInfo());
+        console.log();
+
+        // 查找值
+        console.log('3. 测试查找操作');
+        console.log(`查找 'name': ${mymap.get('name')}`);
+        console.log(`查找 'age': ${mymap.get('age')}`);
+        console.log(`查找 'country': ${mymap.get('country')}`);
+        console.log();
+
+        // 4. 测试不同类型的键
+        console.log('4. 测试不同类型的键');
+        mymap.set(123, 'number key');
+        mymap.set(true, 'boolean key');
+        mymap.set({id: 1}, 'object key');
+        mymap.set([1, 2, 3], 'array key');
+
+        console.log('添加不同类型键后:', mymap.getInfo());
+        console.log();
+
+        // 5. 测试遍历操作
+        console.log('5. 测试遍历操作');
+        console.log('使用forEach遍历:');
+        mymap.forEach((key, value) => {
+            console.log(`  ${key} => ${value}`);
+        });
+        console.log();
+
+        // 6. 测试删除操作
+        console.log('6. 测试删除操作');
+        mymap.remove('age');
+        mymap.remove('nonexistent');
+
+        console.log('删除操作后:', mymap.getInfo());
+        console.log();
+
+        // 7. 分析散列分布
+        console.log('7. 散列分布分析');
+        mymap.analyzeDistribution();
+
+        // 8. 实际应用示例：用户会话管理
+        console.log('\n8. 实际应用示例：用户会话管理系统');
+
+        /**
+         * 用户会话管理器
+         * 使用散列表存储和管理用户会话信息
+         */
+        class SessionManager {
+            constructor() {
+                this.sessions = new HashTable();
+                this.sessionTimeout = 30 * 60 * 1000; // 30分钟超时
+            }
+
+            /**
+             * 创建用户会话
+             * @param {string} userId - 用户ID
+             * @param {object} userInfo - 用户信息
+             * @returns {string} 会话ID
+             */
+            createSession(userId, userInfo) {
+                const sessionId = this.generateSessionId();
+                const sessionData = {
+                    userId: userId,
+                    userInfo: userInfo,
+                    createdAt: Date.now(),
+                    lastAccessed: Date.now(),
+                    isActive: true
+                };
+
+                this.sessions.set(sessionId, sessionData);
+                console.log(`创建会话: ${sessionId} for user ${userId}`);
+                return sessionId;
+            }
+
+            /**
+             * 获取会话信息
+             * @param {string} sessionId - 会话ID
+             * @returns {object|null} 会话数据
+             */
+            getSession(sessionId) {
+                const sessionData = this.sessions.get(sessionId);
+
+                if (sessionData && this.isSessionValid(sessionData)) {
+                    // 更新最后访问时间
+                    sessionData.lastAccessed = Date.now();
+                    this.sessions.set(sessionId, sessionData);
+                    console.log(`获取有效会话: ${sessionId}`);
+                    return sessionData;
+                } else if (sessionData) {
+                    // 会话过期，删除它
+                    this.sessions.remove(sessionId);
+                    console.log(`会话已过期并删除: ${sessionId}`);
+                }
+
+                console.log(`会话不存在或已过期: ${sessionId}`);
+                return null;
+            }
+
+            /**
+             * 删除会话
+             * @param {string} sessionId - 会话ID
+             * @returns {boolean} 是否删除成功
+             */
+            destroySession(sessionId) {
+                const success = this.sessions.remove(sessionId);
+                if (success) {
+                    console.log(`销毁会话: ${sessionId}`);
+                }
+                return success;
+            }
+
+            /**
+             * 清理过期会话
+             */
+            cleanupExpiredSessions() {
+                console.log('\n开始清理过期会话:');
+                const allSessions = this.sessions.keyValues();
+                let cleanedCount = 0;
+
+                allSessions.forEach(pair => {
+                    if (!this.isSessionValid(pair.value)) {
+                        this.sessions.remove(pair.key);
+                        cleanedCount++;
+                        console.log(`  清理过期会话: ${pair.key}`);
+                    }
+                });
+
+                console.log(`清理完成，共清理 ${cleanedCount} 个过期会话`);
+            }
+
+            /**
+             * 检查会话是否有效
+             * @param {object} sessionData - 会话数据
+             * @returns {boolean} 是否有效
+             */
+            isSessionValid(sessionData) {
+                if (!sessionData || !sessionData.isActive) {
+                    return false;
+                }
+
+                const now = Date.now();
+                const timeSinceLastAccess = now - sessionData.lastAccessed;
+                return timeSinceLastAccess < this.sessionTimeout;
+            }
+
+            /**
+             * 生成会话ID
+             * @returns {string} 会话ID
+             */
+            generateSessionId() {
+                return 'sess_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            }
+
+            /**
+             * 获取活跃会话统计
+             */
+            getStats() {
+                const allSessions = this.sessions.keyValues();
+                const activeSessions = allSessions.filter(pair =>
+                    this.isSessionValid(pair.value)
+                );
+
+                return {
+                    total: allSessions.length,
+                    active: activeSessions.length,
+                    expired: allSessions.length - activeSessions.length
+                };
+            }
+
+            /**
+             * 显示所有会话信息
+             */
+            showAllSessions() {
+                console.log('\n当前所有会话:');
+                this.sessions.forEach((sessionId, sessionData) => {
+                    const status = this.isSessionValid(sessionData) ? '有效' : '过期';
+                    const duration = Date.now() - sessionData.createdAt;
+                    console.log(`  ${sessionId}: 用户${sessionData.userId} (${status}, 持续${Math.round(duration/1000)}秒)`);
+                });
+            }
+        }
+
+        // 创建会话管理器实例
+        const sessionManager = new SessionManager();
+
+        // 模拟用户登录和会话管理
+        console.log('\n模拟用户会话管理:');
+
+        const session1 = sessionManager.createSession('user001', {name: '张三', role: 'admin'});
+        const session2 = sessionManager.createSession('user002', {name: '李四', role: 'user'});
+        const session3 = sessionManager.createSession('user003', {name: '王五', role: 'user'});
+
+        // 显示会话统计
+        console.log('\n会话统计:', sessionManager.getStats());
+        sessionManager.showAllSessions();
+
+        // 模拟会话访问
+        console.log('\n模拟会话访问:');
+        sessionManager.getSession(session1);
+        sessionManager.getSession('invalid_session');
+
+        // 销毁会话
+        console.log('\n销毁会话:');
+        sessionManager.destroySession(session2);
+        console.log('销毁后统计:', sessionManager.getStats());
+
+        // 9. 性能测试
+        console.log('\n9. 性能测试');
+
+        function performanceTest() {
+            const testSize = 10000;
+            console.log(`测试数据大小: ${testSize}`);
+
+            const hashTable = new HashTable();
+
+            // 测试插入性能
+            console.log('\n测试插入性能:');
+            const insertStart = performance.now();
+            for (let i = 0; i < testSize; i++) {
+                hashTable.set(`key${i}`, `value${i}`);
+            }
+            const insertEnd = performance.now();
+            console.log(`  ${testSize}次插入耗时: ${(insertEnd - insertStart).toFixed(2)}ms`);
+
+            // 测试查找性能
+            console.log('\n测试查找性能:');
+            const searchStart = performance.now();
+            for (let i = 0; i < testSize; i++) {
+                hashTable.get(`key${i}`);
+            }
+            const searchEnd = performance.now();
+            console.log(`  ${testSize}次查找耗时: ${(searchEnd - searchStart).toFixed(2)}ms`);
+
+            // 测试删除性能
+            console.log('\n测试删除性能:');
+            const deleteStart = performance.now();
+            for (let i = 0; i < testSize / 2; i++) {
+                hashTable.remove(`key${i}`);
+            }
+            const deleteEnd = performance.now();
+            console.log(`  ${testSize/2}次删除耗时: ${(deleteEnd - deleteStart).toFixed(2)}ms`);
+
+            console.log(`\n最终散列表大小: ${hashTable.size()}`);
+
+            // 分析性能
+            console.log('\n性能分析:');
+            console.log(`平均插入时间: ${((insertEnd - insertStart) / testSize).toFixed(4)}ms`);
+            console.log(`平均查找时间: ${((searchEnd - searchStart) / testSize).toFixed(4)}ms`);
+            console.log(`平均删除时间: ${((deleteEnd - deleteStart) / (testSize/2)).toFixed(4)}ms`);
+        }
+
+        performanceTest();
+
+        // 10. 算法分析总结
+        console.log('\n10. 散列表算法分析总结');
+        console.log('时间复杂度分析:');
+        console.log('- 平均情况:');
+        console.log('  * 插入: O(1)');
+        console.log('  * 查找: O(1)');
+        console.log('  * 删除: O(1)');
+        console.log('- 最坏情况（所有键映射到同一位置）:');
+        console.log('  * 插入: O(n)');
+        console.log('  * 查找: O(n)');
+        console.log('  * 删除: O(n)');
+
+        console.log('\n空间复杂度: O(n) - 需要存储n个键值对');
+
+        console.log('\n散列表的优势:');
+        console.log('- 平均情况下O(1)的操作时间');
+        console.log('- 支持快速的插入、查找、删除');
+        console.log('- 适合大数据量的快速访问');
+        console.log('- 实现简单，应用广泛');
+
+        console.log('\n散列表的劣势:');
+        console.log('- 需要设计好的散列函数');
+        console.log('- 可能存在散列冲突');
+        console.log('- 最坏情况下性能退化');
+        console.log('- 内存使用可能不够紧凑');
+        console.log('- 不保持元素的插入顺序');
+
+        console.log('\n适用场景:');
+        console.log('- 需要快速查找的场景');
+        console.log('- 数据库索引实现');
+        console.log('- 缓存系统');
+        console.log('- 去重操作');
+        console.log('- 计数和统计');
+        console.log('- 会话管理');
+
+        console.log('\n散列函数设计要点:');
+        console.log('- 计算快速');
+        console.log('- 分布均匀');
+        console.log('- 确定性（相同输入产生相同输出）');
+        console.log('- 雪崩效应（输入微小变化导致输出巨大变化）');
+
+        console.log('\n冲突解决方法:');
+        console.log('- 链地址法（拉链法）');
+        console.log('- 开放地址法（线性探测、二次探测）');
+        console.log('- 双散列法');
+        console.log('- 建立公共溢出区');
+
+        console.log('\n=== 散列表数据结构演示完毕 ===');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,794 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双向链表数据结构详解</title>
+</head>
+<body>
+    <script>
+        /**
+         * 单向链表节点类
+         *
+         * 核心思想：
+         * 链表节点是链表的基本组成单元，包含数据和指向下一个节点的指针
+         *
+         * @class Node
+         */
+        class Node {
+            /**
+             * 构造函数 - 创建一个新的链表节点
+             *
+             * @param {*} element - 节点存储的数据
+             */
+            constructor(element) {
+                this.element = element; // 节点存储的数据
+                this.next = null;       // 指向下一个节点的指针
+            }
+        }
+
+        /**
+         * 单向链表类（作为双向链表的基类）
+         *
+         * 核心思想：
+         * 链表是一种线性数据结构，元素在内存中不是连续存储的
+         * 通过指针将各个节点连接起来，形成一个链式结构
+         *
+         * @class LinkedList
+         */
+        class LinkedList {
+            /**
+             * 构造函数 - 初始化空链表
+             */
+            constructor() {
+                this.count = 0;    // 链表中元素的数量
+                this.head = null;  // 指向第一个节点的指针
+            }
+
+            /**
+             * 向链表末尾添加元素
+             *
+             * 核心思想：
+             * 1. 创建新节点
+             * 2. 如果链表为空，新节点成为头节点
+             * 3. 否则遍历到最后一个节点，将其next指向新节点
+             *
+             * @param {*} element - 要添加的元素
+             * @time O(n) - 需要遍历到链表末尾
+             * @space O(1) - 只需要常数级额外空间
+             */
+            push(element) {
+                const node = new Node(element);
+
+                // 如果链表为空，新节点成为头节点
+                if (this.head === null) {
+                    this.head = node;
+                } else {
+                    // 遍历到最后一个节点
+                    let current = this.head;
+                    while (current.next !== null) {
+                        current = current.next;
+                    }
+                    // 将最后一个节点的next指向新节点
+                    current.next = node;
+                }
+
+                this.count++;
+            }
+
+            /**
+             * 删除指定位置的元素
+             *
+             * 核心思想：
+             * 1. 检查索引有效性
+             * 2. 如果删除头节点，直接更新head指针
+             * 3. 否则找到前一个节点，修改其next指针跳过要删除的节点
+             *
+             * @param {number} index - 要删除元素的索引
+             * @returns {*} 被删除的元素，如果索引无效返回undefined
+             * @time O(n) - 需要遍历到指定位置
+             * @space O(1) - 只需要常数级额外空间
+             */
+            removeAt(index) {
+                if (index >= 0 && index < this.count) {
+                    let current = this.head;
+
+                    if (index === 0) {
+                        // 删除头节点
+                        this.head = this.head.next;
+                    } else {
+                        // 找到要删除节点的前一个节点
+                        let previous;
+                        for (let i = 0; i < index; i++) {
+                            previous = current;
+                            current = current.next;
+                        }
+                        // 跳过要删除的节点
+                        previous.next = current.next;
+                    }
+
+                    this.count--;
+                    return current.element;
+                }
+                return undefined;
+            }
+
+            /**
+             * 获取指定位置的节点
+             *
+             * @param {number} index - 节点索引
+             * @returns {Node} 指定位置的节点
+             * @time O(n) - 需要遍历到指定位置
+             */
+            getNodeAt(index) {
+                if (index >= 0 && index < this.count) {
+                    let node = this.head;
+                    for (let i = 0; i < index; i++) {
+                        node = node.next;
+                    }
+                    return node;
+                }
+                return undefined;
+            }
+
+            /**
+             * 元素比较函数
+             *
+             * 核心思想：
+             * 提供统一的元素比较方法，支持基本类型和对象的比较
+             *
+             * @param {*} a - 第一个元素
+             * @param {*} b - 第二个元素
+             * @returns {boolean} 是否相等
+             */
+            equalFn(a, b) {
+                // 简单的JSON序列化比较（实际项目中可能需要更复杂的比较逻辑）
+                return JSON.stringify(a) === JSON.stringify(b);
+            }
+
+            /**
+             * 查找元素的索引
+             *
+             * @param {*} element - 要查找的元素
+             * @returns {number} 元素的索引，未找到返回-1
+             * @time O(n) - 需要遍历链表
+             */
+            indexOf(element) {
+                let current = this.head;
+                for (let i = 0; i < this.count; i++) {
+                    if (this.equalFn(element, current.element)) {
+                        return i;
+                    }
+                    current = current.next;
+                }
+                return -1;
+            }
+
+            /**
+             * 删除指定元素
+             *
+             * @param {*} element - 要删除的元素
+             * @returns {*} 被删除的元素
+             */
+            remove(element) {
+                const index = this.indexOf(element);
+                return this.removeAt(index);
+            }
+
+            /**
+             * 在指定位置插入元素
+             *
+             * @param {*} element - 要插入的元素
+             * @param {number} index - 插入位置
+             * @returns {boolean} 是否插入成功
+             * @time O(n) - 需要遍历到指定位置
+             */
+            insert(element, index) {
+                if (index >= 0 && index <= this.count) {
+                    const node = new Node(element);
+
+                    if (index === 0) {
+                        // 在头部插入
+                        const current = this.head;
+                        node.next = current;
+                        this.head = node;
+                    } else {
+                        // 在中间或尾部插入
+                        const previous = this.getNodeAt(index - 1);
+                        const current = previous.next;
+
+                        node.next = current;
+                        previous.next = node;
+                    }
+
+                    this.count++;
+                    return true;
+                }
+                return false;
+            }
+
+            /**
+             * 检查链表是否为空
+             *
+             * @returns {boolean} 是否为空
+             */
+            isEmpty() {
+                return this.size() === 0;
+            }
+
+            /**
+             * 获取链表大小
+             *
+             * @returns {number} 链表中元素的数量
+             */
+            size() {
+                return this.count;
+            }
+
+            /**
+             * 获取头节点
+             *
+             * @returns {Node} 头节点
+             */
+            getHead() {
+                return this.head;
+            }
+        }
+    </script>
+
+    <script>
+        /**
+         * 双向链表节点类
+         *
+         * 核心思想：
+         * 双向链表节点不仅有指向下一个节点的指针，还有指向前一个节点的指针
+         * 这样可以实现双向遍历，提高某些操作的效率
+         *
+         * @class DoublyNode
+         * @extends Node
+         */
+        class DoublyNode extends Node {
+            /**
+             * 构造函数 - 创建一个新的双向链表节点
+             *
+             * @param {*} element - 节点存储的数据
+             */
+            constructor(element) {
+                super(element);     // 调用父类构造函数
+                this.prev = null;   // 指向前一个节点的指针
+            }
+        }
+
+        /**
+         * 双向链表类
+         *
+         * 核心思想：
+         * 双向链表是链表的一种改进形式，每个节点都有两个指针：
+         * 1. next指针：指向下一个节点
+         * 2. prev指针：指向前一个节点
+         *
+         * 主要优势：
+         * - 可以双向遍历
+         * - 删除已知节点时不需要遍历找前驱节点
+         * - 在某些操作上比单向链表更高效
+         *
+         * 主要劣势：
+         * - 需要额外的内存存储prev指针
+         * - 插入和删除操作需要维护更多的指针关系
+         *
+         * 应用场景：
+         * - 浏览器的前进后退历史
+         * - 音乐播放器的上一首下一首
+         * - 文本编辑器的撤销重做功能
+         * - LRU缓存的实现
+         *
+         * @class DoublyLinkedList
+         * @extends LinkedList
+         */
+        class DoublyLinkedList extends LinkedList {
+            /**
+             * 构造函数 - 初始化空的双向链表
+             */
+            constructor() {
+                super();           // 调用父类构造函数
+                this.tail = null;  // 指向最后一个节点的指针
+            }
+
+            /**
+             * 向双向链表末尾添加元素
+             *
+             * 核心思想：
+             * 1. 创建新的双向节点
+             * 2. 如果链表为空，新节点既是头节点也是尾节点
+             * 3. 否则将新节点添加到尾部，并更新prev和next指针
+             *
+             * @param {*} element - 要添加的元素
+             * @time O(1) - 由于有tail指针，可以直接在尾部插入
+             * @space O(1) - 只需要常数级额外空间
+             */
+            push(element) {
+                const node = new DoublyNode(element);
+
+                console.log(`向双向链表添加元素: ${element}`);
+
+                if (this.head === null) {
+                    // 链表为空，新节点既是头节点也是尾节点
+                    this.head = node;
+                    this.tail = node;
+                    console.log(`  链表为空，${element} 成为头节点和尾节点`);
+                } else {
+                    // 在尾部添加新节点
+                    this.tail.next = node;  // 原尾节点的next指向新节点
+                    node.prev = this.tail;  // 新节点的prev指向原尾节点
+                    this.tail = node;       // 更新尾指针
+                    console.log(`  在尾部添加 ${element}`);
+                }
+
+                this.count++;
+                console.log(`  当前链表大小: ${this.count}`);
+            }
+
+            /**
+             * 在指定位置插入元素
+             *
+             * 核心思想：
+             * 根据插入位置的不同，分为三种情况：
+             * 1. 在头部插入：更新head指针和相关的prev/next关系
+             * 2. 在尾部插入：更新tail指针和相关的prev/next关系
+             * 3. 在中间插入：维护四个指针关系（前驱、后继、新节点的prev和next）
+             *
+             * @param {*} element - 要插入的元素
+             * @param {number} index - 插入位置
+             * @returns {boolean} 是否插入成功
+             * @time O(n) - 最坏情况需要遍历到指定位置
+             * @space O(1) - 只需要常数级额外空间
+             */
+            insert(element, index) {
+                if (index >= 0 && index <= this.count) {
+                    const node = new DoublyNode(element);
+                    let current = this.head;
+
+                    console.log(`在位置 ${index} 插入元素: ${element}`);
+
+                    if (index === 0) {
+                        // 在头部插入
+                        console.log(`  在头部插入`);
+                        if (this.head === null) {
+                            // 链表为空
+                            this.head = node;
+                            this.tail = node;
+                            console.log(`    链表为空，${element} 成为头节点和尾节点`);
+                        } else {
+                            // 链表不为空
+                            node.next = this.head;
+                            this.head.prev = node;
+                            this.head = node;
+                            console.log(`    更新头节点为 ${element}`);
+                        }
+                    } else if (index === this.count) {
+                        // 在尾部插入（等同于push操作）
+                        console.log(`  在尾部插入`);
+                        current = this.tail;
+                        current.next = node;
+                        node.prev = current;
+                        this.tail = node;
+                        console.log(`    更新尾节点为 ${element}`);
+                    } else {
+                        // 在中间插入
+                        console.log(`  在中间位置插入`);
+                        const previous = this.getNodeAt(index - 1);
+                        current = previous.next;
+
+                        // 维护四个指针关系
+                        node.next = current;      // 新节点的next指向当前节点
+                        current.prev = node;      // 当前节点的prev指向新节点
+                        previous.next = node;     // 前一个节点的next指向新节点
+                        node.prev = previous;     // 新节点的prev指向前一个节点
+
+                        console.log(`    在 ${previous.element} 和 ${current.element} 之间插入 ${element}`);
+                    }
+
+                    this.count++;
+                    console.log(`  插入成功，当前链表大小: ${this.count}`);
+                    return true;
+                }
+
+                console.log(`插入失败：索引 ${index} 超出范围 [0, ${this.count}]`);
+                return false;
+            }
+
+            /**
+             * 删除指定位置的元素
+             *
+             * 核心思想：
+             * 根据删除位置的不同，分为三种情况：
+             * 1. 删除头节点：更新head指针，如果链表只有一个元素还要更新tail
+             * 2. 删除尾节点：更新tail指针
+             * 3. 删除中间节点：维护前驱和后继节点的指针关系
+             *
+             * @param {number} index - 要删除元素的索引
+             * @returns {*} 被删除的元素，如果索引无效返回undefined
+             * @time O(n) - 最坏情况需要遍历到指定位置
+             * @space O(1) - 只需要常数级额外空间
+             */
+            removeAt(index) {
+                if (index >= 0 && index < this.count) {
+                    let current = this.head;
+
+                    console.log(`删除位置 ${index} 的元素`);
+
+                    if (index === 0) {
+                        // 删除头节点
+                        console.log(`  删除头节点: ${current.element}`);
+                        this.head = current.next;
+
+                        if (this.count === 1) {
+                            // 链表只有一个元素
+                            this.tail = null;
+                            console.log(`    链表变为空`);
+                        } else {
+                            // 链表有多个元素
+                            this.head.prev = null;
+                            console.log(`    新头节点: ${this.head.element}`);
+                        }
+                    } else if (index === this.count - 1) {
+                        // 删除尾节点
+                        current = this.tail;
+                        console.log(`  删除尾节点: ${current.element}`);
+                        this.tail = current.prev;
+                        this.tail.next = null;
+                        console.log(`    新尾节点: ${this.tail.element}`);
+                    } else {
+                        // 删除中间节点
+                        const previous = this.getNodeAt(index - 1);
+                        current = previous.next;
+                        console.log(`  删除中间节点: ${current.element}`);
+
+                        // 维护前驱和后继的指针关系
+                        previous.next = current.next;
+                        current.next.prev = previous;
+
+                        console.log(`    连接 ${previous.element} 和 ${current.next.element}`);
+                    }
+
+                    this.count--;
+                    console.log(`  删除成功，当前链表大小: ${this.count}`);
+                    return current.element;
+                }
+
+                console.log(`删除失败：索引 ${index} 超出范围 [0, ${this.count - 1}]`);
+                return undefined;
+            }
+
+            /**
+             * 获取尾节点
+             *
+             * @returns {DoublyNode} 尾节点
+             */
+            getTail() {
+                return this.tail;
+            }
+
+            /**
+             * 从头到尾遍历链表
+             *
+             * @param {Function} callback - 遍历时的回调函数
+             */
+            forwardTraversal(callback) {
+                console.log('从头到尾遍历:');
+                let current = this.head;
+                let index = 0;
+
+                while (current !== null) {
+                    callback(current.element, index);
+                    current = current.next;
+                    index++;
+                }
+            }
+
+            /**
+             * 从尾到头遍历链表
+             *
+             * @param {Function} callback - 遍历时的回调函数
+             */
+            backwardTraversal(callback) {
+                console.log('从尾到头遍历:');
+                let current = this.tail;
+                let index = this.count - 1;
+
+                while (current !== null) {
+                    callback(current.element, index);
+                    current = current.prev;
+                    index--;
+                }
+            }
+
+            /**
+             * 获取链表的字符串表示
+             *
+             * @returns {string} 链表的字符串表示
+             */
+            toString() {
+                if (this.head === null) {
+                    return '空链表';
+                }
+
+                const elements = [];
+                let current = this.head;
+
+                while (current !== null) {
+                    elements.push(current.element);
+                    current = current.next;
+                }
+
+                return `[${elements.join(' <-> ')}]`;
+            }
+
+            /**
+             * 获取链表的详细信息
+             *
+             * @returns {object} 包含链表详细信息的对象
+             */
+            getInfo() {
+                return {
+                    size: this.count,
+                    head: this.head ? this.head.element : null,
+                    tail: this.tail ? this.tail.element : null,
+                    isEmpty: this.isEmpty(),
+                    toString: this.toString()
+                };
+            }
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 双向链表数据结构 - 完整演示 ===\n');
+
+        // 1. 创建双向链表实例
+        console.log('1. 创建双向链表实例');
+        const list = new DoublyLinkedList();
+        console.log('初始链表信息:', list.getInfo());
+        console.log();
+
+        // 2. 测试添加元素
+        console.log('2. 测试添加元素');
+        list.push('A');
+        list.push('B');
+        list.push('C');
+        list.push('D');
+        console.log('添加元素后:', list.getInfo());
+        console.log();
+
+        // 3. 测试插入操作
+        console.log('3. 测试插入操作');
+        list.insert('X', 0);  // 在头部插入
+        list.insert('Y', 3);  // 在中间插入
+        list.insert('Z', list.size()); // 在尾部插入
+        console.log('插入操作后:', list.getInfo());
+        console.log();
+
+        // 4. 测试遍历操作
+        console.log('4. 测试遍历操作');
+        list.forwardTraversal((element, index) => {
+            console.log(`  位置 ${index}: ${element}`);
+        });
+
+        console.log();
+        list.backwardTraversal((element, index) => {
+            console.log(`  位置 ${index}: ${element}`);
+        });
+        console.log();
+
+        // 5. 测试删除操作
+        console.log('5. 测试删除操作');
+        const deletedHead = list.removeAt(0);  // 删除头节点
+        console.log(`删除头节点: ${deletedHead}`);
+
+        const deletedTail = list.removeAt(list.size() - 1);  // 删除尾节点
+        console.log(`删除尾节点: ${deletedTail}`);
+
+        const deletedMiddle = list.removeAt(2);  // 删除中间节点
+        console.log(`删除中间节点: ${deletedMiddle}`);
+
+        console.log('删除操作后:', list.getInfo());
+        console.log();
+
+        // 6. 测试查找操作
+        console.log('6. 测试查找操作');
+        console.log(`查找元素 'B' 的索引: ${list.indexOf('B')}`);
+        console.log(`查找元素 'Z' 的索引: ${list.indexOf('Z')}`);
+        console.log();
+
+        // 7. 实际应用示例：浏览器历史记录
+        console.log('7. 实际应用示例：浏览器历史记录');
+
+        /**
+         * 浏览器历史记录管理器
+         * 使用双向链表实现前进后退功能
+         */
+        class BrowserHistory {
+            constructor() {
+                this.history = new DoublyLinkedList();
+                this.currentIndex = -1;
+            }
+
+            /**
+             * 访问新页面
+             * @param {string} url - 页面URL
+             */
+            visit(url) {
+                console.log(`访问新页面: ${url}`);
+
+                // 如果当前不在历史记录的末尾，删除后面的记录
+                while (this.currentIndex < this.history.size() - 1) {
+                    this.history.removeAt(this.history.size() - 1);
+                }
+
+                // 添加新页面到历史记录
+                this.history.push(url);
+                this.currentIndex = this.history.size() - 1;
+
+                console.log(`  当前页面: ${url}`);
+                console.log(`  历史记录: ${this.history.toString()}`);
+            }
+
+            /**
+             * 后退到上一页
+             * @returns {string} 上一页的URL
+             */
+            back() {
+                if (this.currentIndex > 0) {
+                    this.currentIndex--;
+                    const url = this.history.getNodeAt(this.currentIndex).element;
+                    console.log(`后退到: ${url}`);
+                    return url;
+                } else {
+                    console.log('已经是第一页，无法后退');
+                    return null;
+                }
+            }
+
+            /**
+             * 前进到下一页
+             * @returns {string} 下一页的URL
+             */
+            forward() {
+                if (this.currentIndex < this.history.size() - 1) {
+                    this.currentIndex++;
+                    const url = this.history.getNodeAt(this.currentIndex).element;
+                    console.log(`前进到: ${url}`);
+                    return url;
+                } else {
+                    console.log('已经是最后一页，无法前进');
+                    return null;
+                }
+            }
+
+            /**
+             * 获取当前页面
+             * @returns {string} 当前页面的URL
+             */
+            getCurrentPage() {
+                if (this.currentIndex >= 0) {
+                    return this.history.getNodeAt(this.currentIndex).element;
+                }
+                return null;
+            }
+
+            /**
+             * 显示历史记录状态
+             */
+            showStatus() {
+                console.log('浏览器历史记录状态:');
+                console.log(`  当前页面: ${this.getCurrentPage()}`);
+                console.log(`  历史记录: ${this.history.toString()}`);
+                console.log(`  当前位置: ${this.currentIndex + 1}/${this.history.size()}`);
+            }
+        }
+
+        // 创建浏览器历史记录管理器
+        const browser = new BrowserHistory();
+
+        // 模拟浏览器操作
+        browser.visit('https://www.google.com');
+        browser.visit('https://www.github.com');
+        browser.visit('https://www.stackoverflow.com');
+        browser.visit('https://www.mdn.mozilla.org');
+
+        console.log();
+        browser.showStatus();
+
+        console.log();
+        browser.back();
+        browser.back();
+        browser.showStatus();
+
+        console.log();
+        browser.forward();
+        browser.showStatus();
+
+        console.log();
+        browser.visit('https://www.npmjs.com');
+        browser.showStatus();
+
+        // 8. 性能测试
+        console.log('\n8. 性能测试');
+
+        function performanceTest() {
+            const testSize = 10000;
+            console.log(`测试数据大小: ${testSize}`);
+
+            // 测试双向链表的插入性能
+            const doublyList = new DoublyLinkedList();
+
+            console.log('\n测试双向链表尾部插入性能:');
+            const pushStart = performance.now();
+            for (let i = 0; i < testSize; i++) {
+                doublyList.push(i);
+            }
+            const pushEnd = performance.now();
+            console.log(`  ${testSize}次尾部插入耗时: ${(pushEnd - pushStart).toFixed(2)}ms`);
+
+            console.log('\n测试双向链表头部插入性能:');
+            const insertStart = performance.now();
+            for (let i = 0; i < 1000; i++) {
+                doublyList.insert(i, 0);
+            }
+            const insertEnd = performance.now();
+            console.log(`  1000次头部插入耗时: ${(insertEnd - insertStart).toFixed(2)}ms`);
+
+            console.log('\n测试双向链表删除性能:');
+            const removeStart = performance.now();
+            for (let i = 0; i < 1000; i++) {
+                doublyList.removeAt(0);
+            }
+            const removeEnd = performance.now();
+            console.log(`  1000次头部删除耗时: ${(removeEnd - removeStart).toFixed(2)}ms`);
+
+            console.log(`\n最终链表大小: ${doublyList.size()}`);
+        }
+
+        performanceTest();
+
+        // 9. 算法分析总结
+        console.log('\n9. 双向链表算法分析总结');
+        console.log('时间复杂度分析:');
+        console.log('- 头部插入: O(1)');
+        console.log('- 尾部插入: O(1) - 由于有tail指针');
+        console.log('- 中间插入: O(n) - 需要遍历到指定位置');
+        console.log('- 头部删除: O(1)');
+        console.log('- 尾部删除: O(1) - 由于有tail指针');
+        console.log('- 中间删除: O(n) - 需要遍历到指定位置');
+        console.log('- 查找元素: O(n) - 需要遍历链表');
+        console.log('- 随机访问: O(n) - 需要遍历到指定位置');
+
+        console.log('\n空间复杂度: O(n) - 每个节点需要额外的prev指针');
+
+        console.log('\n双向链表的优势:');
+        console.log('- 可以双向遍历，灵活性更高');
+        console.log('- 删除已知节点时效率高（O(1)）');
+        console.log('- 尾部操作效率高（O(1)）');
+        console.log('- 某些算法实现更简单（如LRU缓存）');
+
+        console.log('\n双向链表的劣势:');
+        console.log('- 每个节点需要额外的prev指针，内存开销更大');
+        console.log('- 插入删除操作需要维护更多指针关系');
+        console.log('- 随机访问效率低，不如数组');
+
+        console.log('\n适用场景:');
+        console.log('- 需要频繁的双向遍历');
+        console.log('- 需要在已知节点位置进行插入删除');
+        console.log('- 实现LRU缓存、浏览器历史等功能');
+        console.log('- 需要在头尾频繁操作的场景');
+
+        console.log('\n与其他数据结构比较:');
+        console.log('- vs 单向链表: 双向遍历能力更强，但内存开销更大');
+        console.log('- vs 数组: 插入删除更灵活，但随机访问效率更低');
+        console.log('- vs 双端队列: 功能相似，但链表更灵活');
+
+        console.log('\n=== 双向链表数据结构演示完毕 ===');
+    </script>
+</body>
+</html>

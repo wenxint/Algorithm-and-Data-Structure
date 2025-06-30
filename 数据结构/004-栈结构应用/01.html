@@ -1,0 +1,512 @@
+<!--
+ * @作者: kerwin
+ * @文件: 栈结构应用详解 - 进制转换算法
+ * @描述: 演示栈数据结构在进制转换中的实际应用
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>栈结构应用 - 进制转换详解</title>
+</head>
+
+<body>
+    <script>
+        /**
+         * 栈数据结构类
+         *
+         * 核心思想：
+         * 栈是一种后进先出（LIFO - Last In First Out）的数据结构
+         * 就像一摞盘子，只能从顶部添加或取出盘子
+         *
+         * 主要特点：
+         * - 后进先出：最后添加的元素最先被移除
+         * - 只能在一端操作：栈顶进行插入和删除
+         * - 受限的线性结构：相比数组操作更受限但更安全
+         *
+         * 应用场景：
+         * - 函数调用栈：管理函数调用和返回
+         * - 表达式求值：处理括号匹配和运算符优先级
+         * - 进制转换：逆序输出计算结果
+         * - 撤销操作：实现编辑器的撤销功能
+         * - 浏览器历史：管理页面访问历史
+         */
+        class Stack {
+            /**
+             * 栈构造函数
+             * 使用私有字段确保数据封装性
+             */
+            // constructor(){
+            //     this.items = []
+            // }
+            #items = []
+
+            /**
+             * 出栈操作 - 移除并返回栈顶元素
+             *
+             * 核心思想：
+             * 移除栈顶元素，体现LIFO特性
+             *
+             * @returns {*} 栈顶元素，如果栈为空则返回undefined
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            pop() {
+                return this.#items.pop()
+            }
+
+            /**
+             * 入栈操作 - 向栈顶添加元素
+             *
+             * 核心思想：
+             * 在栈顶添加新元素，新元素成为栈顶
+             *
+             * @param {*} data - 要添加的元素
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            push(data) {
+                this.#items.push(data)
+            }
+
+            /**
+             * 查看栈顶元素 - 返回但不移除栈顶元素
+             *
+             * @returns {*} 栈顶元素
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            peek() {
+                // return this.items[this.items.length-1]
+                return this.#items.at(-1)  // 使用ES2022的at方法，更简洁
+            }
+
+            /**
+             * 检查栈是否为空
+             *
+             * @returns {boolean} 栈是否为空
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            isEmpty() {
+                return this.#items.length === 0
+            }
+
+            /**
+             * 获取栈的大小
+             *
+             * @returns {number} 栈中元素的数量
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            size() {
+                return this.#items.length
+            }
+
+            /**
+             * 清空栈
+             *
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            clear() {
+                this.#items = []
+            }
+
+            /**
+             * 将栈转换为字符串表示
+             *
+             * @returns {string} 栈的字符串表示
+             * @time O(n) - 线性时间复杂度
+             * @space O(n) - 线性空间复杂度
+             */
+            toString() {
+                return this.#items.join(" ")
+            }
+        }
+
+        console.log('=== 栈结构应用 - 进制转换详解 ===\n');
+
+        // ==================== 1. 基础二进制转换 ====================
+        console.log('1. 基础二进制转换演示');
+
+        /**
+         * 十进制转二进制
+         *
+         * 核心思想：
+         * 利用栈的LIFO特性来逆序输出除法的余数
+         * 十进制转二进制的算法：
+         * 1. 用十进制数除以2，记录余数
+         * 2. 用商继续除以2，记录余数
+         * 3. 重复步骤2，直到商为0
+         * 4. 将所有余数逆序排列，就是二进制结果
+         *
+         * 为什么使用栈：
+         * - 余数产生的顺序是从低位到高位
+         * - 但二进制表示需要从高位到低位
+         * - 栈的LIFO特性正好实现了这种逆序
+         *
+         * @param {number} decNumber - 要转换的十进制数
+         * @returns {string} 二进制字符串
+         * @time O(log n) - 对数时间复杂度，n为输入数字
+         * @space O(log n) - 对数空间复杂度，栈存储余数
+         */
+        function convertToBinary(decNumber) {
+            console.log(`\n--- 转换 ${decNumber} 为二进制 ---`);
+
+            let remStack = new Stack()  // 存储余数的栈
+            let number = decNumber      // 当前要处理的数字
+            let string = ""            // 最终的二进制字符串
+
+            console.log('转换过程:');
+
+            // 持续除以2，直到商为0
+            while (number > 0) {
+                let remainder = number % 2;    // 计算余数
+                remStack.push(remainder);      // 余数入栈
+                console.log(`${number} ÷ 2 = ${Math.floor(number / 2)} ... 余数 ${remainder} (入栈)`);
+                number = Math.floor(number / 2);  // 更新商
+            }
+
+            console.log('\n出栈过程（构建二进制）:');
+
+            // 从栈中取出余数，构建二进制字符串
+            while (!(remStack.isEmpty())) {
+                let digit = remStack.pop();
+                string += digit;
+                console.log(`出栈: ${digit}, 当前二进制: ${string}`);
+            }
+
+            console.log(`\n最终结果: ${decNumber} (十进制) = ${string} (二进制)`);
+            return string;
+        }
+
+        // 演示二进制转换
+        convertToBinary(10);
+        convertToBinary(50);
+        convertToBinary(100);
+
+        // ==================== 2. 通用进制转换 ====================
+        console.log('\n\n2. 通用进制转换演示');
+
+        /**
+         * 十进制转任意进制
+         *
+         * 核心思想：
+         * 扩展二进制转换算法，支持任意进制（2-16进制）
+         * 对于大于9的数字，使用字母A-F表示（十六进制标准）
+         *
+         * 算法步骤：
+         * 1. 用十进制数除以目标进制，记录余数
+         * 2. 用商继续除以目标进制，记录余数
+         * 3. 重复直到商为0
+         * 4. 将余数逆序排列，对于>=10的余数用字母表示
+         *
+         * @param {number} decNumber - 要转换的十进制数
+         * @param {number} base - 目标进制（2-16）
+         * @returns {string} 目标进制的字符串表示
+         * @time O(log n) - 对数时间复杂度
+         * @space O(log n) - 对数空间复杂度
+         */
+        function convert(decNumber, base) {
+            console.log(`\n--- 转换 ${decNumber} 为 ${base} 进制 ---`);
+
+            // 输入验证
+            if (base < 2 || base > 16) {
+                console.log('错误: 进制必须在2-16之间');
+                return '';
+            }
+
+            if (decNumber === 0) {
+                console.log('特殊情况: 0在任何进制下都是0');
+                return '0';
+            }
+
+            let remStack = new Stack()  // 存储余数的栈
+            let number = decNumber      // 当前处理的数字
+            let string = ""            // 最终结果字符串
+
+            // 十六进制字符映射表：0-9用数字，10-15用字母A-F
+            let baseString = "0123456789ABCDEF"
+
+            console.log('转换过程:');
+
+            // 持续除以目标进制
+            while (number > 0) {
+                let remainder = number % base;           // 计算余数
+                remStack.push(remainder);               // 余数入栈
+                let remainderChar = baseString[remainder]; // 获取余数对应的字符
+                console.log(`${number} ÷ ${base} = ${Math.floor(number / base)} ... 余数 ${remainder} (${remainderChar}) (入栈)`);
+                number = Math.floor(number / base);     // 更新商
+            }
+
+            console.log('\n出栈过程（构建结果）:');
+
+            // 从栈中取出余数，构建最终字符串
+            while (!(remStack.isEmpty())) {
+                let digit = remStack.pop();
+                let digitChar = baseString[digit];
+                string += digitChar;
+                console.log(`出栈: ${digit} -> ${digitChar}, 当前结果: ${string}`);
+            }
+
+            console.log(`\n最终结果: ${decNumber} (十进制) = ${string} (${base}进制)`);
+            return string;
+        }
+
+        // 演示各种进制转换
+        convert(50, 2);   // 二进制
+        convert(50, 8);   // 八进制
+        convert(50, 16);  // 十六进制
+        convert(255, 16); // 十六进制
+        convert(1000, 16); // 十六进制
+
+        // ==================== 3. 进制转换验证 ====================
+        console.log('\n\n3. 进制转换结果验证');
+
+        /**
+         * 验证进制转换结果的正确性
+         * 使用JavaScript内置方法进行对比
+         *
+         * @param {number} decNumber - 十进制数
+         * @param {number} base - 目标进制
+         */
+        function validateConversion(decNumber, base) {
+            console.log(`\n--- 验证 ${decNumber} 转 ${base} 进制 ---`);
+
+            // 使用我们的算法
+            let ourResult = convert(decNumber, base);
+
+            // 使用JavaScript内置方法
+            let jsResult = decNumber.toString(base).toUpperCase();
+
+            console.log(`我们的算法结果: ${ourResult}`);
+            console.log(`JavaScript内置: ${jsResult}`);
+            console.log(`结果${ourResult === jsResult ? '✅ 正确' : '❌ 错误'}`);
+        }
+
+        // 验证多个转换结果
+        validateConversion(10, 2);
+        validateConversion(50, 16);
+        validateConversion(255, 16);
+        validateConversion(1000, 8);
+
+        // ==================== 4. 栈在其他场景中的应用 ====================
+        console.log('\n\n4. 栈的其他应用场景演示');
+
+        /**
+         * 括号匹配检查器
+         *
+         * 核心思想：
+         * 使用栈来检查括号是否正确匹配
+         * - 遇到左括号时入栈
+         * - 遇到右括号时出栈并检查是否匹配
+         * - 最后栈应该为空
+         *
+         * @param {string} expression - 要检查的表达式
+         * @returns {boolean} 括号是否匹配
+         */
+        function checkParentheses(expression) {
+            console.log(`\n--- 检查括号匹配: "${expression}" ---`);
+
+            let stack = new Stack();
+            let pairs = {
+                ')': '(',
+                ']': '[',
+                '}': '{'
+            };
+
+            for (let i = 0; i < expression.length; i++) {
+                let char = expression[i];
+
+                // 如果是左括号，入栈
+                if (char === '(' || char === '[' || char === '{') {
+                    stack.push(char);
+                    console.log(`字符 '${char}' 入栈，栈内容: ${stack.toString()}`);
+                }
+                // 如果是右括号，检查匹配
+                else if (char === ')' || char === ']' || char === '}') {
+                    if (stack.isEmpty()) {
+                        console.log(`❌ 错误: 遇到右括号 '${char}' 但栈为空`);
+                        return false;
+                    }
+
+                    let top = stack.pop();
+                    if (top !== pairs[char]) {
+                        console.log(`❌ 错误: 期望 '${pairs[char]}' 但得到 '${top}'`);
+                        return false;
+                    }
+                    console.log(`字符 '${char}' 匹配 '${top}'，出栈后栈内容: ${stack.toString()}`);
+                }
+            }
+
+            let isValid = stack.isEmpty();
+            console.log(`最终检查: 栈${isValid ? '为空' : '不为空'}，结果${isValid ? '✅ 匹配' : '❌ 不匹配'}`);
+            return isValid;
+        }
+
+        // 测试括号匹配
+        checkParentheses("()");
+        checkParentheses("()[]{}");
+        checkParentheses("([{}])");
+        checkParentheses("([)]");
+        checkParentheses("((()");
+
+        /**
+         * 简单计算器 - 后缀表达式求值
+         *
+         * 核心思想：
+         * 使用栈来计算后缀表达式（逆波兰表示法）
+         * - 遇到数字时入栈
+         * - 遇到运算符时出栈两个数字进行运算，结果入栈
+         *
+         * @param {string[]} tokens - 后缀表达式的token数组
+         * @returns {number} 计算结果
+         */
+        function evaluatePostfix(tokens) {
+            console.log(`\n--- 计算后缀表达式: [${tokens.join(', ')}] ---`);
+
+            let stack = new Stack();
+
+            for (let token of tokens) {
+                console.log(`\n处理token: ${token}`);
+
+                // 如果是数字，入栈
+                if (!isNaN(token)) {
+                    stack.push(Number(token));
+                    console.log(`数字 ${token} 入栈，栈内容: [${stack.toString()}]`);
+                }
+                // 如果是运算符，进行运算
+                else {
+                    if (stack.size() < 2) {
+                        console.log('❌ 错误: 运算符需要至少两个操作数');
+                        return NaN;
+                    }
+
+                    let b = stack.pop();  // 注意：后出栈的是第一个操作数
+                    let a = stack.pop();  // 先出栈的是第二个操作数
+                    let result;
+
+                    switch (token) {
+                        case '+':
+                            result = a + b;
+                            break;
+                        case '-':
+                            result = a - b;
+                            break;
+                        case '*':
+                            result = a * b;
+                            break;
+                        case '/':
+                            result = a / b;
+                            break;
+                        default:
+                            console.log(`❌ 错误: 未知运算符 ${token}`);
+                            return NaN;
+                    }
+
+                    console.log(`计算: ${a} ${token} ${b} = ${result}`);
+                    stack.push(result);
+                    console.log(`结果 ${result} 入栈，栈内容: [${stack.toString()}]`);
+                }
+            }
+
+            if (stack.size() !== 1) {
+                console.log('❌ 错误: 表达式不正确，栈中应该只剩一个结果');
+                return NaN;
+            }
+
+            let finalResult = stack.pop();
+            console.log(`\n✅ 最终结果: ${finalResult}`);
+            return finalResult;
+        }
+
+        // 测试后缀表达式计算
+        // "3 4 + 2 *" 相当于 (3 + 4) * 2 = 14
+        evaluatePostfix(['3', '4', '+', '2', '*']);
+
+        // "15 7 1 1 + - / 3 *" 相当于 ((15 / (7 - (1 + 1))) * 3) = 9
+        evaluatePostfix(['15', '7', '1', '1', '+', '-', '/', '3', '*']);
+
+        // ==================== 5. 性能测试 ====================
+        console.log('\n\n5. 栈操作性能测试');
+
+        /**
+         * 测试栈操作的性能
+         */
+        function performanceTest() {
+            console.log('\n--- 栈操作性能测试 ---');
+
+            let stack = new Stack();
+            let testSize = 100000;
+
+            // 测试入栈性能
+            console.log(`\n测试 ${testSize} 次入栈操作...`);
+            let startTime = performance.now();
+
+            for (let i = 0; i < testSize; i++) {
+                stack.push(i);
+            }
+
+            let endTime = performance.now();
+            console.log(`入栈完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+            console.log(`栈大小: ${stack.size()}`);
+
+            // 测试出栈性能
+            console.log(`\n测试 ${testSize} 次出栈操作...`);
+            startTime = performance.now();
+
+            while (!stack.isEmpty()) {
+                stack.pop();
+            }
+
+            endTime = performance.now();
+            console.log(`出栈完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+            console.log(`栈大小: ${stack.size()}`);
+        }
+
+        performanceTest();
+
+        // ==================== 6. 算法分析总结 ====================
+        console.log('\n\n6. 栈数据结构算法分析总结');
+
+        console.log('\n时间复杂度分析:');
+        console.log('- 入栈 push(): O(1) - 常数时间');
+        console.log('- 出栈 pop(): O(1) - 常数时间');
+        console.log('- 查看栈顶 peek(): O(1) - 常数时间');
+        console.log('- 检查是否为空 isEmpty(): O(1) - 常数时间');
+        console.log('- 获取大小 size(): O(1) - 常数时间');
+        console.log('- 清空栈 clear(): O(1) - 常数时间');
+
+        console.log('\n空间复杂度: O(n) - 需要存储n个元素');
+
+        console.log('\n栈的优势:');
+        console.log('- 操作简单：只需要关注栈顶');
+        console.log('- 效率高：所有操作都是O(1)');
+        console.log('- 内存安全：受限访问防止数据被意外修改');
+        console.log('- 天然递归：适合处理递归问题');
+        console.log('- 逆序处理：天然支持LIFO逆序操作');
+
+        console.log('\n栈的应用场景:');
+        console.log('- 函数调用管理：递归调用栈');
+        console.log('- 表达式求值：中缀转后缀、括号匹配');
+        console.log('- 进制转换：逆序输出余数');
+        console.log('- 撤销功能：编辑器的撤销/重做');
+        console.log('- 浏览器历史：页面访问历史管理');
+        console.log('- 语法分析：编译器中的语法检查');
+        console.log('- 深度优先搜索：DFS算法实现');
+
+        console.log('\n进制转换算法特点:');
+        console.log('- 核心思想：除法取余，逆序输出');
+        console.log('- 为什么用栈：余数产生顺序与输出顺序相反');
+        console.log('- 时间复杂度：O(log n) - 取决于输入数字的位数');
+        console.log('- 空间复杂度：O(log n) - 栈存储所有余数');
+        console.log('- 通用性强：支持2-36进制的任意转换');
+
+        console.log('\n=== 栈结构应用演示完毕 ===');
+    </script>
+</body>
+
+</html>

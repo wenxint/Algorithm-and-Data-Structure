@@ -1,0 +1,27 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        var mymap = new WeakMap()
+        var obj = {a:1}
+        // mymap.set("name","kerwin")
+        mymap.set(obj,"aaaaaaa")
+
+        obj = null
+        console.log(mymap)
+
+        //weakmap - 只能是对象为键
+    </script>
+</body>
+
+</html>

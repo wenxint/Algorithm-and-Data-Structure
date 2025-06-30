@@ -1,0 +1,498 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二叉搜索树-插入操作</title>
+</head>
+
+<body>
+    <script>
+        /**
+         * 比较结果常量定义
+         * 用于标准化比较操作的返回值
+         */
+        const Compare = {
+            less: -1,    // 小于
+            bigger: 1,   // 大于
+            equ: 0       // 等于
+        };
+
+        /**
+         * 二叉搜索树节点类
+         *
+         * 核心思想：
+         * 二叉搜索树的基本组成单元，包含键值和左右子节点指针
+         *
+         * @class Node
+         */
+        class Node {
+            /**
+             * 构造函数 - 创建一个新的二叉搜索树节点
+             *
+             * @param {*} key - 节点的键值
+             */
+            constructor(key) {
+                this.key = key;      // 节点存储的键值
+                this.left = null;    // 左子节点指针
+                this.right = null;   // 右子节点指针
+            }
+        }
+
+        /**
+         * 二叉搜索树（Binary Search Tree）数据结构实现
+         *
+         * 核心思想：
+         * 二叉搜索树是一种特殊的二叉树，具有以下性质：
+         * 1. 左子树中所有节点的值都小于根节点的值
+         * 2. 右子树中所有节点的值都大于根节点的值
+         * 3. 左右子树也都是二叉搜索树
+         *
+         * 主要特点：
+         * - 有序性：中序遍历可以得到有序序列
+         * - 高效查找：平均时间复杂度O(log n)
+         * - 动态结构：支持动态插入和删除
+         *
+         * 应用场景：
+         * - 数据库索引
+         * - 文件系统
+         * - 表达式解析
+         * - 优先级队列的实现
+         */
+        class BST {
+            /**
+             * 构造函数 - 初始化空的二叉搜索树
+             */
+            constructor() {
+                this.root = null;  // 根节点指针，初始为空
+            }
+
+            /**
+             * 向二叉搜索树插入新节点
+             *
+             * 核心思想：
+             * 1. 如果树为空，新节点成为根节点
+             * 2. 否则从根节点开始，递归地找到合适的插入位置
+             * 3. 根据BST性质：小于当前节点插入左子树，大于当前节点插入右子树
+             *
+             * @param {*} key - 要插入的键值
+             * @time O(log n) - 平均情况，O(n) - 最坏情况（退化为链表）
+             * @space O(log n) - 递归调用栈的空间复杂度
+             */
+            insert(key) {
+                console.log(`插入键值: ${key}`);
+
+                if (this.root === null) {
+                    // 树为空，新节点成为根节点
+                    this.root = new Node(key);
+                    console.log(`  ${key} 成为根节点`);
+                } else {
+                    // 树不为空，递归插入
+                    this.insertNode(this.root, key);
+                }
+
+                console.log(`  插入完成，当前树的结构:`);
+                this.printTree();
+            }
+
+            /**
+             * 比较函数 - 比较两个键值的大小关系
+             *
+             * 核心思想：
+             * 提供标准化的比较接口，支持不同类型的键值比较
+             *
+             * @param {*} a - 第一个键值
+             * @param {*} b - 第二个键值
+             * @returns {number} 比较结果（-1: a<b, 0: a=b, 1: a>b）
+             */
+            compareFn(a, b) {
+                if (a === b) {
+                    return Compare.equ;
+                }
+                return a < b ? Compare.less : Compare.bigger;
+            }
+
+            /**
+             * 递归插入节点的辅助方法
+             *
+             * 核心思想：
+             * 递归地在二叉搜索树中找到正确的插入位置
+             * 1. 如果新键值小于当前节点，插入左子树
+             * 2. 如果新键值大于等于当前节点，插入右子树
+             * 3. 如果到达叶子节点，创建新节点作为子节点
+             *
+             * @param {Node} node - 当前节点
+             * @param {*} key - 要插入的键值
+             */
+            insertNode(node, key) {
+                console.log(`  比较 ${key} 与节点 ${node.key}`);
+
+                if (this.compareFn(key, node.key) === Compare.less) {
+                    // 新键值小于当前节点，插入左子树
+                    console.log(`    ${key} < ${node.key}，向左子树插入`);
+
+                    if (node.left === null) {
+                        // 左子节点为空，直接插入
+                        node.left = new Node(key);
+                        console.log(`    ${key} 成为 ${node.key} 的左子节点`);
+                    } else {
+                        // 左子节点不为空，递归插入
+                        this.insertNode(node.left, key);
+                    }
+                } else {
+                    // 新键值大于等于当前节点，插入右子树
+                    console.log(`    ${key} >= ${node.key}，向右子树插入`);
+
+                    if (node.right === null) {
+                        // 右子节点为空，直接插入
+                        node.right = new Node(key);
+                        console.log(`    ${key} 成为 ${node.key} 的右子节点`);
+                    } else {
+                        // 右子节点不为空，递归插入
+                        this.insertNode(node.right, key);
+                    }
+                }
+            }
+
+            /**
+             * 中序遍历二叉搜索树
+             *
+             * 核心思想：
+             * 左子树 -> 根节点 -> 右子树的顺序遍历
+             * 对于二叉搜索树，中序遍历会得到有序序列
+             *
+             * @param {Node} node - 当前节点
+             * @param {Function} callback - 访问节点时的回调函数
+             */
+            inOrderTraverse(node = this.root, callback = (key) => console.log(key)) {
+                if (node !== null) {
+                    this.inOrderTraverse(node.left, callback);   // 遍历左子树
+                    callback(node.key);                          // 访问根节点
+                    this.inOrderTraverse(node.right, callback);  // 遍历右子树
+                }
+            }
+
+            /**
+             * 前序遍历二叉搜索树
+             *
+             * 核心思想：
+             * 根节点 -> 左子树 -> 右子树的顺序遍历
+             *
+             * @param {Node} node - 当前节点
+             * @param {Function} callback - 访问节点时的回调函数
+             */
+            preOrderTraverse(node = this.root, callback = (key) => console.log(key)) {
+                if (node !== null) {
+                    callback(node.key);                          // 访问根节点
+                    this.preOrderTraverse(node.left, callback);  // 遍历左子树
+                    this.preOrderTraverse(node.right, callback); // 遍历右子树
+                }
+            }
+
+            /**
+             * 后序遍历二叉搜索树
+             *
+             * 核心思想：
+             * 左子树 -> 右子树 -> 根节点的顺序遍历
+             *
+             * @param {Node} node - 当前节点
+             * @param {Function} callback - 访问节点时的回调函数
+             */
+            postOrderTraverse(node = this.root, callback = (key) => console.log(key)) {
+                if (node !== null) {
+                    this.postOrderTraverse(node.left, callback);  // 遍历左子树
+                    this.postOrderTraverse(node.right, callback); // 遍历右子树
+                    callback(node.key);                           // 访问根节点
+                }
+            }
+
+            /**
+             * 查找二叉搜索树中的最小值
+             *
+             * 核心思想：
+             * 在二叉搜索树中，最小值总是在最左边的节点
+             *
+             * @param {Node} node - 开始查找的节点
+             * @returns {*} 最小值
+             */
+            min(node = this.root) {
+                if (node === null) return null;
+
+                while (node.left !== null) {
+                    node = node.left;
+                }
+                return node.key;
+            }
+
+            /**
+             * 查找二叉搜索树中的最大值
+             *
+             * 核心思想：
+             * 在二叉搜索树中，最大值总是在最右边的节点
+             *
+             * @param {Node} node - 开始查找的节点
+             * @returns {*} 最大值
+             */
+            max(node = this.root) {
+                if (node === null) return null;
+
+                while (node.right !== null) {
+                    node = node.right;
+                }
+                return node.key;
+            }
+
+            /**
+             * 在二叉搜索树中查找指定键值
+             *
+             * 核心思想：
+             * 利用BST的性质，从根节点开始比较：
+             * - 如果目标值小于当前节点，搜索左子树
+             * - 如果目标值大于当前节点，搜索右子树
+             * - 如果相等，找到目标节点
+             *
+             * @param {*} key - 要查找的键值
+             * @returns {boolean} 是否找到
+             */
+            search(key) {
+                return this.searchNode(this.root, key);
+            }
+
+            /**
+             * 递归查找节点的辅助方法
+             *
+             * @param {Node} node - 当前节点
+             * @param {*} key - 要查找的键值
+             * @returns {boolean} 是否找到
+             */
+            searchNode(node, key) {
+                if (node === null) return false;
+
+                const compareResult = this.compareFn(key, node.key);
+
+                if (compareResult === Compare.less) {
+                    return this.searchNode(node.left, key);
+                } else if (compareResult === Compare.bigger) {
+                    return this.searchNode(node.right, key);
+                } else {
+                    return true; // 找到了
+                }
+            }
+
+            /**
+             * 打印树的结构（简单的可视化）
+             */
+            printTree() {
+                if (this.root === null) {
+                    console.log('    空树');
+                    return;
+                }
+
+                console.log('    树结构（中序遍历）:');
+                const values = [];
+                this.inOrderTraverse(this.root, (key) => values.push(key));
+                console.log(`    ${values.join(' -> ')}`);
+            }
+
+            /**
+             * 获取树的高度
+             *
+             * @param {Node} node - 当前节点
+             * @returns {number} 树的高度
+             */
+            getHeight(node = this.root) {
+                if (node === null) return 0;
+
+                const leftHeight = this.getHeight(node.left);
+                const rightHeight = this.getHeight(node.right);
+
+                return Math.max(leftHeight, rightHeight) + 1;
+            }
+
+            /**
+             * 获取树的详细信息
+             *
+             * @returns {object} 包含树详细信息的对象
+             */
+            getInfo() {
+                const values = [];
+                this.inOrderTraverse(this.root, (key) => values.push(key));
+
+                return {
+                    root: this.root ? this.root.key : null,
+                    height: this.getHeight(),
+                    min: this.min(),
+                    max: this.max(),
+                    inOrderValues: values,
+                    isEmpty: this.root === null
+                };
+            }
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 二叉搜索树插入操作 - 完整示例 ===\n');
+
+        // 1. 创建二叉搜索树实例
+        console.log('1. 创建二叉搜索树实例');
+        const mytree = new BST();
+        console.log('初始树信息:', mytree.getInfo());
+        console.log();
+
+        // 2. 测试插入操作
+        console.log('2. 测试插入操作');
+        const insertValues = [15, 10, 20, 8, 12, 17, 25, 6, 11, 13, 27];
+
+        console.log(`将要插入的值: [${insertValues.join(', ')}]`);
+        console.log('插入过程:');
+
+        insertValues.forEach(value => {
+            mytree.insert(value);
+            console.log();
+        });
+
+        // 3. 查看最终的树结构
+        console.log('3. 最终的树结构');
+        console.log('树信息:', mytree.getInfo());
+        console.log();
+
+        // 4. 测试各种遍历方式
+        console.log('4. 测试各种遍历方式');
+
+        console.log('中序遍历（应该是有序的）:');
+        const inOrderResult = [];
+        mytree.inOrderTraverse(mytree.root, (key) => inOrderResult.push(key));
+        console.log(`  结果: [${inOrderResult.join(', ')}]`);
+
+        console.log('前序遍历:');
+        const preOrderResult = [];
+        mytree.preOrderTraverse(mytree.root, (key) => preOrderResult.push(key));
+        console.log(`  结果: [${preOrderResult.join(', ')}]`);
+
+        console.log('后序遍历:');
+        const postOrderResult = [];
+        mytree.postOrderTraverse(mytree.root, (key) => postOrderResult.push(key));
+        console.log(`  结果: [${postOrderResult.join(', ')}]`);
+        console.log();
+
+        // 5. 测试查找操作
+        console.log('5. 测试查找操作');
+        const searchValues = [12, 18, 25, 30];
+
+        searchValues.forEach(value => {
+            const found = mytree.search(value);
+            console.log(`  查找 ${value}: ${found ? '找到' : '未找到'}`);
+        });
+        console.log();
+
+        // 6. 测试最值查找
+        console.log('6. 测试最值查找');
+        console.log(`最小值: ${mytree.min()}`);
+        console.log(`最大值: ${mytree.max()}`);
+        console.log(`树的高度: ${mytree.getHeight()}`);
+        console.log();
+
+        // 7. 实际应用示例：学生成绩管理系统
+        console.log('7. 实际应用示例：学生成绩管理系统');
+
+        // 创建基于成绩的二叉搜索树
+        const scoreTree = new BST();
+
+        const studentScores = [
+            { name: '张三', score: 85 },
+            { name: '李四', score: 92 },
+            { name: '王五', score: 78 },
+            { name: '赵六', score: 96 },
+            { name: '孙七', score: 88 },
+            { name: '周八', score: 82 },
+            { name: '吴九', score: 90 }
+        ];
+
+        console.log('添加学生成绩到二叉搜索树:');
+        studentScores.forEach(student => {
+            scoreTree.insert(student.score);
+            console.log(`  添加成绩: ${student.score} (${student.name})`);
+        });
+
+        console.log('\n按成绩排序的结果（中序遍历）:');
+        const sortedScores = [];
+        scoreTree.inOrderTraverse(scoreTree.root, (score) => sortedScores.push(score));
+        console.log(`  成绩排序: [${sortedScores.join(', ')}]`);
+
+        console.log(`\n成绩统计:`);
+        console.log(`  最低分: ${scoreTree.min()}`);
+        console.log(`  最高分: ${scoreTree.max()}`);
+        console.log(`  成绩分布高度: ${scoreTree.getHeight()}`);
+
+        // 8. 性能测试
+        console.log('\n8. 性能测试');
+
+        function performanceTest() {
+            const testTree = new BST();
+            const testSize = 10000;
+
+            // 测试插入性能
+            console.log(`测试插入 ${testSize} 个随机值:`);
+            const insertStart = performance.now();
+
+            for (let i = 0; i < testSize; i++) {
+                const randomValue = Math.floor(Math.random() * testSize * 10);
+                testTree.insert(randomValue);
+            }
+
+            const insertEnd = performance.now();
+            console.log(`  插入耗时: ${(insertEnd - insertStart).toFixed(2)}ms`);
+
+            // 测试查找性能
+            console.log(`测试查找性能:`);
+            const searchStart = performance.now();
+
+            for (let i = 0; i < 1000; i++) {
+                const randomValue = Math.floor(Math.random() * testSize * 10);
+                testTree.search(randomValue);
+            }
+
+            const searchEnd = performance.now();
+            console.log(`  1000次查找耗时: ${(searchEnd - searchStart).toFixed(2)}ms`);
+            console.log(`  平均查找耗时: ${((searchEnd - searchStart) / 1000).toFixed(4)}ms`);
+
+            console.log(`最终树的高度: ${testTree.getHeight()}`);
+        }
+
+        performanceTest();
+
+        // 9. 算法分析总结
+        console.log('\n9. 二叉搜索树算法分析总结');
+        console.log('时间复杂度分析:');
+        console.log('- 平均情况:');
+        console.log('  * 插入: O(log n)');
+        console.log('  * 查找: O(log n)');
+        console.log('  * 删除: O(log n)');
+        console.log('- 最坏情况（退化为链表）:');
+        console.log('  * 插入: O(n)');
+        console.log('  * 查找: O(n)');
+        console.log('  * 删除: O(n)');
+        console.log('\n空间复杂度: O(n) - 需要存储n个节点');
+        console.log('\n二叉搜索树的优势:');
+        console.log('- 查找效率高（平均O(log n)）');
+        console.log('- 有序性：中序遍历得到有序序列');
+        console.log('- 动态结构：支持动态插入删除');
+        console.log('- 范围查询：容易实现范围搜索');
+        console.log('\n二叉搜索树的劣势:');
+        console.log('- 可能退化为链表（最坏情况）');
+        console.log('- 不自平衡（需要AVL树或红黑树）');
+        console.log('- 对输入数据敏感');
+        console.log('\n适用场景:');
+        console.log('- 需要维护有序数据集合');
+        console.log('- 频繁的查找操作');
+        console.log('- 需要范围查询');
+        console.log('- 动态数据集合管理');
+
+        console.log('\n=== 二叉搜索树插入操作演示完毕 ===');
+    </script>
+</body>
+
+</html>

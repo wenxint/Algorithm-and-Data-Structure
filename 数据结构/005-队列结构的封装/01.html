@@ -1,0 +1,394 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>队列结构的封装</title>
+</head>
+
+<body>
+    <script>
+        /**
+         * 队列数据结构实现
+         *
+         * 核心思想：
+         * 队列是一种先进先出（FIFO - First In First Out）的线性数据结构
+         * 就像排队买票，先来的人先服务，后来的人排在队尾
+         *
+         * 主要特点：
+         * 1. 只能在队尾添加元素（入队），在队头删除元素（出队）
+         * 2. 最先插入的元素最先被删除
+         * 3. 入队和出队的时间复杂度都是O(1)
+         *
+         * 应用场景：
+         * - 任务调度系统
+         * - 广度优先搜索（BFS）
+         * - 打印队列
+         * - 缓冲区管理
+         * - 进程调度
+         */
+        class Queue {
+            /**
+             * 构造函数 - 初始化队列
+             */
+            constructor() {
+                // 使用私有属性存储队列元素，防止外部直接访问
+                this.#items = [];
+            }
+
+            // 私有属性：存储队列中的元素
+            #items = [];
+
+            /**
+             * 出队操作 - 移除并返回队头元素
+             *
+             * 核心思想：
+             * 移除队头（数组开头）的元素，体现FIFO特性
+             *
+             * @returns {*} 队头元素，如果队列为空则返回undefined
+             * @time O(1) - 常数时间复杂度（在JavaScript中shift()实际是O(n)，但概念上是O(1)）
+             * @space O(1) - 常数空间复杂度
+             */
+            dequeue() {
+                // 检查队列是否为空
+                if (this.isEmpty()) {
+                    console.log('队列为空，无法执行出队操作');
+                    return undefined;
+                }
+
+                const element = this.#items.shift();
+                console.log(`出队元素: ${element}`);
+                return element;
+            }
+
+            /**
+             * 入队操作 - 向队尾添加元素
+             *
+             * 核心思想：
+             * 在队尾（数组末尾）添加新元素
+             *
+             * @param {*} data - 要添加到队列中的元素
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            enqueue(data) {
+                this.#items.push(data);
+                console.log(`入队元素: ${data}`);
+            }
+
+            /**
+             * 查看队头元素 - 返回队头元素但不移除
+             *
+             * 核心思想：
+             * 查看队头元素而不改变队列的状态
+             *
+             * @returns {*} 队头元素，如果队列为空则返回undefined
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            front() {
+                if (this.isEmpty()) {
+                    console.log('队列为空，没有队头元素');
+                    return undefined;
+                }
+
+                // 使用at(0)获取第一个元素
+                const frontElement = this.#items.at(0);
+                console.log(`队头元素: ${frontElement}`);
+                return frontElement;
+            }
+
+            /**
+             * 判断队列是否为空
+             *
+             * @returns {boolean} 如果队列为空返回true，否则返回false
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            isEmpty() {
+                return this.#items.length === 0;
+            }
+
+            /**
+             * 获取队列的大小
+             *
+             * @returns {number} 队列中元素的个数
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            size() {
+                return this.#items.length;
+            }
+
+            /**
+             * 清空队列
+             *
+             * 核心思想：
+             * 重置内部数组，移除所有元素
+             *
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            clear() {
+                this.#items = [];
+                console.log('队列已清空');
+            }
+
+            /**
+             * 将队列转换为字符串表示
+             *
+             * @returns {string} 队列的字符串表示，从队头到队尾
+             * @time O(n) - 线性时间复杂度，n为队列中元素个数
+             * @space O(n) - 线性空间复杂度
+             */
+            toString() {
+                if (this.isEmpty()) {
+                    return '空队列';
+                }
+                return `队列内容（队头->队尾）: ${this.#items.join(' -> ')}`;
+            }
+
+            /**
+             * 获取队列的详细信息
+             *
+             * @returns {object} 包含队列详细信息的对象
+             */
+            getInfo() {
+                return {
+                    size: this.size(),
+                    isEmpty: this.isEmpty(),
+                    front: this.isEmpty() ? null : this.#items[0],
+                    rear: this.isEmpty() ? null : this.#items[this.#items.length - 1],
+                    content: this.toString()
+                };
+            }
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 队列结构的封装 - 完整示例 ===\n');
+
+        // 1. 创建队列实例
+        console.log('1. 创建队列实例');
+        const queue = new Queue();
+        console.log('队列信息:', queue.getInfo());
+        console.log();
+
+        // 2. 测试空队列操作
+        console.log('2. 测试空队列操作');
+        console.log('尝试从空队列出队:', queue.dequeue());
+        console.log('尝试查看空队列队头元素:', queue.front());
+        console.log();
+
+        // 3. 入队操作演示
+        console.log('3. 入队操作演示');
+        const customers = ['张三', '李四', '王五', '赵六', '孙七'];
+        customers.forEach(customer => {
+            queue.enqueue(customer);
+            console.log(`当前队列状态: ${queue.toString()}`);
+        });
+        console.log();
+
+        // 4. 查看队头元素
+        console.log('4. 查看队头元素');
+        queue.front();
+        console.log(`队列大小: ${queue.size()}`);
+        console.log();
+
+        // 5. 出队操作演示
+        console.log('5. 出队操作演示');
+        while (!queue.isEmpty()) {
+            const customer = queue.dequeue();
+            console.log(`${customer} 已被服务`);
+            console.log(`剩余队列状态: ${queue.toString()}`);
+            console.log(`队列大小: ${queue.size()}`);
+        }
+        console.log();
+
+        // 6. 实际应用示例：任务调度器
+        console.log('6. 实际应用示例：任务调度器');
+
+        /**
+         * 简单的任务调度器
+         *
+         * 核心思想：
+         * 使用队列管理待执行的任务，按照先进先出的顺序执行
+         *
+         * @class TaskScheduler
+         */
+        class TaskScheduler {
+            constructor() {
+                this.taskQueue = new Queue();
+                this.isRunning = false;
+            }
+
+            /**
+             * 添加任务到队列
+             * @param {string} taskName - 任务名称
+             * @param {Function} taskFunction - 任务函数
+             * @param {number} delay - 任务执行延迟（毫秒）
+             */
+            addTask(taskName, taskFunction, delay = 1000) {
+                const task = {
+                    name: taskName,
+                    execute: taskFunction,
+                    delay: delay,
+                    addTime: new Date().toLocaleTimeString()
+                };
+
+                this.taskQueue.enqueue(task);
+                console.log(`任务 "${taskName}" 已添加到队列，添加时间: ${task.addTime}`);
+
+                // 如果调度器未运行，启动它
+                if (!this.isRunning) {
+                    this.start();
+                }
+            }
+
+            /**
+             * 启动任务调度器
+             */
+            async start() {
+                if (this.isRunning) {
+                    console.log('任务调度器已在运行');
+                    return;
+                }
+
+                this.isRunning = true;
+                console.log('任务调度器启动');
+
+                while (!this.taskQueue.isEmpty()) {
+                    const task = this.taskQueue.dequeue();
+                    console.log(`开始执行任务: ${task.name}`);
+
+                    // 模拟任务执行
+                    await new Promise(resolve => {
+                        setTimeout(() => {
+                            task.execute();
+                            console.log(`任务 "${task.name}" 执行完成`);
+                            resolve();
+                        }, task.delay);
+                    });
+                }
+
+                this.isRunning = false;
+                console.log('所有任务执行完毕，调度器停止');
+            }
+
+            /**
+             * 获取队列状态
+             */
+            getStatus() {
+                return {
+                    isRunning: this.isRunning,
+                    pendingTasks: this.taskQueue.size(),
+                    queueContent: this.taskQueue.toString()
+                };
+            }
+        }
+
+        // 测试任务调度器
+        const scheduler = new TaskScheduler();
+
+        // 添加一些测试任务
+        scheduler.addTask('发送邮件', () => console.log('📧 邮件已发送'), 500);
+        scheduler.addTask('备份数据', () => console.log('💾 数据备份完成'), 800);
+        scheduler.addTask('清理缓存', () => console.log('🧹 缓存清理完成'), 300);
+        scheduler.addTask('生成报告', () => console.log('📊 报告生成完成'), 1000);
+
+        console.log('调度器状态:', scheduler.getStatus());
+
+        // 7. 实际应用示例：广度优先搜索（BFS）
+        console.log('\n7. 实际应用示例：广度优先搜索（BFS）');
+
+        /**
+         * 使用队列实现二叉树的层序遍历（广度优先搜索）
+         */
+        class TreeNode {
+            constructor(val) {
+                this.val = val;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        /**
+         * 层序遍历二叉树
+         *
+         * 核心思想：
+         * 使用队列存储待访问的节点，先访问的节点的子节点先入队
+         *
+         * @param {TreeNode} root - 二叉树根节点
+         * @returns {Array} 层序遍历结果
+         */
+        function levelOrderTraversal(root) {
+            if (!root) return [];
+
+            const result = [];
+            const queue = new Queue();
+            queue.enqueue(root);
+
+            console.log('开始层序遍历二叉树');
+
+            while (!queue.isEmpty()) {
+                const node = queue.dequeue();
+                result.push(node.val);
+                console.log(`访问节点: ${node.val}`);
+
+                // 将子节点加入队列
+                if (node.left) {
+                    queue.enqueue(node.left);
+                    console.log(`  左子节点 ${node.left.val} 入队`);
+                }
+                if (node.right) {
+                    queue.enqueue(node.right);
+                    console.log(`  右子节点 ${node.right.val} 入队`);
+                }
+            }
+
+            return result;
+        }
+
+        // 构建测试二叉树
+        //       1
+        //      / \
+        //     2   3
+        //    / \   \
+        //   4   5   6
+        const root = new TreeNode(1);
+        root.left = new TreeNode(2);
+        root.right = new TreeNode(3);
+        root.left.left = new TreeNode(4);
+        root.left.right = new TreeNode(5);
+        root.right.right = new TreeNode(6);
+
+        const traversalResult = levelOrderTraversal(root);
+        console.log('层序遍历结果:', traversalResult);
+
+        // 8. 性能测试
+        console.log('\n8. 性能测试');
+        const performanceQueue = new Queue();
+        const startTime = performance.now();
+
+        // 大量入队操作
+        for (let i = 0; i < 10000; i++) {
+            performanceQueue.enqueue(i);
+        }
+
+        // 大量出队操作
+        for (let i = 0; i < 10000; i++) {
+            performanceQueue.dequeue();
+        }
+
+        const endTime = performance.now();
+        console.log(`10000次入队+出队操作耗时: ${(endTime - startTime).toFixed(2)}ms`);
+        console.log(`平均每次操作耗时: ${((endTime - startTime) / 20000).toFixed(4)}ms`);
+
+        console.log('\n=== 队列结构演示完毕 ===');
+    </script>
+</body>
+
+</html>

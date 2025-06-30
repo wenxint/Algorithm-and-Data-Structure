@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双端队列数据结构详解</title>
+</head>
+<body>
+    <script>
+        /**
+         * 双端队列（Deque - Double-ended Queue）数据结构详解
+         *
+         * 核心思想：
+         * 双端队列是一种允许在两端进行插入和删除操作的数据结构
+         * 结合了栈和队列的特点，既可以LIFO也可以FIFO
+         *
+         * 主要特点：
+         * - 双端操作：前端和后端都可以插入和删除
+         * - 灵活性强：可以实现栈、队列、以及更复杂的数据结构
+         * - 高效操作：所有基本操作都是O(1)时间复杂度
+         * - 内存友好：使用对象存储避免数组频繁移动
+         *
+         * 应用场景：
+         * - 滑动窗口：维护窗口内的最值
+         * - 撤销重做：编辑器的操作历史
+         * - 工作窃取：多线程任务调度
+         * - 回文检查：从两端同时比较
+         * - 浏览器历史：前进后退功能
+         *
+         * @namespace DequeOperations
+         */
+
+        console.log('=== 双端队列数据结构详解 ===\n');
+
+        /**
+         * 双端队列类
+         * 使用对象存储和双指针技术实现高效的双端操作
+         */
+        class DeQueue {
+            #items = {}      // 使用对象存储元素，避免数组操作的性能问题
+            #lowCount = 0    // 前端指针，指向第一个元素
+            #count = 0       // 后端指针，指向下一个插入位置
+
+            /**
+             * 从前端移除元素
+             *
+             * 核心思想：
+             * 移除并返回双端队列前端的元素
+             * 类似于队列的dequeue操作
+             *
+             * @returns {*} 前端元素，如果为空则返回undefined
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            removeFront() {
+                if (this.isEmpty()) {
+                    return undefined
+                }
+
+                // 获取前端元素
+                let res = this.#items[this.#lowCount]
+
+                // 删除元素并移动前端指针
+                delete this.#items[this.#lowCount]
+                this.#lowCount++
+
+                return res
+            }
+
+            /**
+             * 向后端添加元素
+             *
+             * 核心思想：
+             * 在双端队列后端添加元素
+             * 类似于队列的enqueue操作
+             *
+             * @param {*} data - 要添加的元素
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            addBack(data) {
+                this.#items[this.#count] = data
+                this.#count++
+            }
+
+            /**
+             * 向前端添加元素
+             *
+             * 核心思想：
+             * 在双端队列前端添加元素，这是双端队列的特有操作
+             * 需要处理两种情况：
+             * 1. 如果lowCount > 0，直接在前面插入
+             * 2. 如果lowCount = 0，需要移动所有元素
+             *
+             * @param {*} data - 要添加的元素
+             * @time O(1) 平均情况，O(n) 最坏情况（需要移动元素时）
+             * @space O(1) - 常数空间复杂度
+             */
+            addFront(data) {
+                // 情况1: 如果队列为空，直接调用addBack
+                if (this.isEmpty()) {
+                    this.addBack(data)
+                } else {
+                    // 情况2: lowCount > 0，可以直接在前面插入
+                    if (this.#lowCount > 0) {
+                        this.#lowCount--
+                        this.#items[this.#lowCount] = data
+                    } else {
+                        // 情况3: lowCount === 0，需要移动所有元素
+                        // 将所有元素向后移动一位
+                        for (let i = this.#count; i > 0; i--) {
+                            this.#items[i] = this.#items[i - 1]
+                        }
+
+                        // 在位置0插入新元素
+                        this.#items[0] = data
+                        this.#count++
+                    }
+                }
+            }
+
+            /**
+             * 从后端移除元素
+             *
+             * 核心思想：
+             * 移除并返回双端队列后端的元素
+             * 类似于栈的pop操作
+             *
+             * @returns {*} 后端元素，如果为空则返回undefined
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            removeBack() {
+                if (this.isEmpty()) {
+                    return undefined
+                }
+
+                // 移动后端指针并获取元素
+                this.#count--
+                const res = this.#items[this.#count]
+
+                // 删除元素
+                delete this.#items[this.#count]
+                return res
+            }
+
+            /**
+             * 查看前端元素
+             *
+             * @returns {*} 前端元素
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            peekFront() {
+                return this.#items[this.#lowCount]
+            }
+
+            /**
+             * 查看后端元素
+             *
+             * @returns {*} 后端元素
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            peekBack() {
+                if (this.isEmpty()) {
+                    return undefined
+                }
+                return this.#items[this.#count - 1]
+            }
+
+            /**
+             * 检查双端队列是否为空
+             *
+             * @returns {boolean} 是否为空
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            isEmpty() {
+                return this.size() === 0
+            }
+
+            /**
+             * 获取双端队列的大小
+             *
+             * @returns {number} 元素数量
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            size() {
+                return this.#count - this.#lowCount
+            }
+
+            /**
+             * 清空双端队列
+             *
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            clear() {
+                this.#items = {}
+                this.#count = 0
+                this.#lowCount = 0
+            }
+
+            /**
+             * 将双端队列转换为字符串
+             *
+             * @returns {string} 字符串表示
+             * @time O(n) - 线性时间复杂度
+             * @space O(n) - 线性空间复杂度
+             */
+            toString() {
+                let str = ""
+                for (let i = this.#lowCount; i < this.#count; i++) {
+                    str += `${this.#items[i]} `
+                }
+                return str.trim()
+            }
+
+            /**
+             * 获取双端队列的数组表示
+             *
+             * @returns {Array} 数组表示
+             * @time O(n) - 线性时间复杂度
+             * @space O(n) - 线性空间复杂度
+             */
+            toArray() {
+                let arr = []
+                for (let i = this.#lowCount; i < this.#count; i++) {
+                    arr.push(this.#items[i])
+                }
+                return arr
+            }
+        }
+
+        // ==================== 1. 基础操作演示 ====================
+        console.log('1. 双端队列基础操作演示');
+
+        /**
+         * 演示双端队列的基础操作
+         */
+        function demonstrateBasicOperations() {
+            console.log('\n--- 基础操作演示 ---');
+
+            let dequeue = new DeQueue()
+            console.log('创建空的双端队列');
+            console.log(`初始状态: [${dequeue.toArray().join(', ')}], 大小: ${dequeue.size()}`);
+
+            // 后端添加元素
+            console.log('\n后端添加操作:');
+            dequeue.addBack('A');
+            console.log(`addBack('A'): [${dequeue.toArray().join(', ')}]`);
+
+            dequeue.addBack('B');
+            console.log(`addBack('B'): [${dequeue.toArray().join(', ')}]`);
+
+            dequeue.addBack('C');
+            console.log(`addBack('C'): [${dequeue.toArray().join(', ')}]`);
+
+            // 前端添加元素
+            console.log('\n前端添加操作:');
+            dequeue.addFront('0');
+            console.log(`addFront('0'): [${dequeue.toArray().join(', ')}]`);
+
+            dequeue.addFront('-1');
+            console.log(`addFront('-1'): [${dequeue.toArray().join(', ')}]`);
+
+            // 查看两端元素
+            console.log('\n查看两端元素:');
+            console.log(`前端元素 peekFront(): ${dequeue.peekFront()}`);
+            console.log(`后端元素 peekBack(): ${dequeue.peekBack()}`);
+
+            // 前端移除元素
+            console.log('\n前端移除操作:');
+            let frontRemoved = dequeue.removeFront();
+            console.log(`removeFront(): 移除了 '${frontRemoved}', 剩余: [${dequeue.toArray().join(', ')}]`);
+
+            // 后端移除元素
+            console.log('\n后端移除操作:');
+            let backRemoved = dequeue.removeBack();
+            console.log(`removeBack(): 移除了 '${backRemoved}', 剩余: [${dequeue.toArray().join(', ')}]`);
+
+            console.log(`\n最终状态: [${dequeue.toArray().join(', ')}], 大小: ${dequeue.size()}`);
+        }
+
+        demonstrateBasicOperations();
+
+        // ==================== 2. 双端队列模拟栈和队列 ====================
+        console.log('\n\n2. 双端队列模拟栈和队列');
+
+        /**
+         * 使用双端队列模拟栈的行为
+         */
+        function simulateStack() {
+            console.log('\n--- 使用双端队列模拟栈 ---');
+            console.log('栈操作：只使用后端进行push和pop');
+
+            let stack = new DeQueue();
+
+            // 模拟栈的push操作
+            console.log('\n模拟栈的push操作:');
+            stack.addBack(1);
+            console.log(`push(1): [${stack.toArray().join(', ')}]`);
+
+            stack.addBack(2);
+            console.log(`push(2): [${stack.toArray().join(', ')}]`);
+
+            stack.addBack(3);
+            console.log(`push(3): [${stack.toArray().join(', ')}]`);
+
+            // 模拟栈的pop操作
+            console.log('\n模拟栈的pop操作:');
+            console.log(`pop(): ${stack.removeBack()}, 剩余: [${stack.toArray().join(', ')}]`);
+            console.log(`pop(): ${stack.removeBack()}, 剩余: [${stack.toArray().join(', ')}]`);
+
+            // 模拟栈的peek操作
+            console.log(`\n栈顶元素 peek(): ${stack.peekBack()}`);
+        }
+
+        /**
+         * 使用双端队列模拟队列的行为
+         */
+        function simulateQueue() {
+            console.log('\n--- 使用双端队列模拟队列 ---');
+            console.log('队列操作：后端enqueue，前端dequeue');
+
+            let queue = new DeQueue();
+
+            // 模拟队列的enqueue操作
+            console.log('\n模拟队列的enqueue操作:');
+            queue.addBack('first');
+            console.log(`enqueue('first'): [${queue.toArray().join(', ')}]`);
+
+            queue.addBack('second');
+            console.log(`enqueue('second'): [${queue.toArray().join(', ')}]`);
+
+            queue.addBack('third');
+            console.log(`enqueue('third'): [${queue.toArray().join(', ')}]`);
+
+            // 模拟队列的dequeue操作
+            console.log('\n模拟队列的dequeue操作:');
+            console.log(`dequeue(): ${queue.removeFront()}, 剩余: [${queue.toArray().join(', ')}]`);
+            console.log(`dequeue(): ${queue.removeFront()}, 剩余: [${queue.toArray().join(', ')}]`);
+
+            // 模拟队列的front操作
+            console.log(`\n队首元素 front(): ${queue.peekFront()}`);
+        }
+
+        simulateStack();
+        simulateQueue();
+
+        // ==================== 3. 回文检查器 ====================
+        console.log('\n\n3. 回文检查器应用');
+
+        /**
+         * 使用双端队列检查回文
+         *
+         * 核心思想：
+         * 将字符串的字符依次加入双端队列
+         * 然后同时从两端取出字符进行比较
+         * 如果所有字符都匹配，则是回文
+         *
+         * @param {string} str - 要检查的字符串
+         * @returns {boolean} 是否为回文
+         */
+        function isPalindrome(str) {
+            console.log(`\n--- 检查回文: "${str}" ---`);
+
+            // 预处理：转换为小写并移除非字母数字字符
+            let cleanStr = str.toLowerCase().replace(/[^a-z0-9]/g, '');
+            console.log(`清理后的字符串: "${cleanStr}"`);
+
+            if (cleanStr.length <= 1) {
+                console.log('字符串长度小于等于1，是回文');
+                return true;
+            }
+
+            // 将字符加入双端队列
+            let deque = new DeQueue();
+            for (let char of cleanStr) {
+                deque.addBack(char);
+            }
+
+            console.log(`双端队列: [${deque.toArray().join(', ')}]`);
+
+            // 从两端同时比较
+            let isEqual = true;
+            console.log('\n比较过程:');
+
+            while (deque.size() > 1 && isEqual) {
+                let front = deque.removeFront();
+                let back = deque.removeBack();
+
+                console.log(`比较: '${front}' vs '${back}'`);
+
+                if (front !== back) {
+                    isEqual = false;
+                    console.log('❌ 不匹配，不是回文');
+                } else {
+                    console.log('✅ 匹配');
+                }
+            }
+
+            if (isEqual) {
+                console.log(`\n✅ "${str}" 是回文`);
+            } else {
+                console.log(`\n❌ "${str}" 不是回文`);
+            }
+
+            return isEqual;
+        }
+
+        // 测试回文检查
+        isPalindrome("racecar");
+        isPalindrome("A man a plan a canal Panama");
+        isPalindrome("race a car");
+        isPalindrome("hello");
+
+        // ==================== 4. 滑动窗口最大值 ====================
+        console.log('\n\n4. 滑动窗口最大值应用');
+
+        /**
+         * 滑动窗口最大值问题
+         *
+         * 核心思想：
+         * 使用双端队列维护一个递减的索引序列
+         * 队列前端始终是当前窗口的最大值索引
+         *
+         * @param {number[]} nums - 数组
+         * @param {number} k - 窗口大小
+         * @returns {number[]} 每个窗口的最大值
+         */
+        function maxSlidingWindow(nums, k) {
+            console.log(`\n--- 滑动窗口最大值 ---`);
+            console.log(`数组: [${nums.join(', ')}]`);
+            console.log(`窗口大小: ${k}`);
+
+            if (nums.length === 0 || k === 0) return [];
+
+            let deque = new DeQueue();  // 存储数组索引
+            let result = [];
+
+            for (let i = 0; i < nums.length; i++) {
+                console.log(`\n处理索引 ${i}, 值 ${nums[i]}:`);
+
+                // 移除超出窗口范围的索引
+                while (!deque.isEmpty() && deque.peekFront() < i - k + 1) {
+                    let removed = deque.removeFront();
+                    console.log(`  移除超出窗口的索引: ${removed}`);
+                }
+
+                // 移除所有小于当前元素的索引
+                while (!deque.isEmpty() && nums[deque.peekBack()] < nums[i]) {
+                    let removed = deque.removeBack();
+                    console.log(`  移除较小元素的索引: ${removed} (值: ${nums[removed]})`);
+                }
+
+                // 添加当前索引
+                deque.addBack(i);
+                console.log(`  添加当前索引: ${i}`);
+                console.log(`  双端队列索引: [${deque.toArray().join(', ')}]`);
+                console.log(`  双端队列值: [${deque.toArray().map(idx => nums[idx]).join(', ')}]`);
+
+                // 如果窗口已形成，记录最大值
+                if (i >= k - 1) {
+                    let maxIndex = deque.peekFront();
+                    let maxValue = nums[maxIndex];
+                    result.push(maxValue);
+                    console.log(`  窗口 [${i - k + 1}, ${i}] 的最大值: ${maxValue} (索引: ${maxIndex})`);
+                }
+            }
+
+            console.log(`\n最终结果: [${result.join(', ')}]`);
+            return result;
+        }
+
+        // 测试滑动窗口最大值
+        maxSlidingWindow([1, 3, -1, -3, 5, 3, 6, 7], 3);
+        maxSlidingWindow([1, -1], 1);
+
+        // ==================== 5. 工作窃取调度器 ====================
+        console.log('\n\n5. 工作窃取调度器应用');
+
+        /**
+         * 工作窃取调度器
+         * 模拟多线程环境下的任务调度
+         */
+        class WorkStealingScheduler {
+            constructor() {
+                this.taskQueues = new Map();  // 每个工作线程的任务队列
+                this.workers = [];
+                this.taskIdCounter = 1;
+            }
+
+            /**
+             * 添加工作线程
+             * @param {string} workerId - 工作线程ID
+             */
+            addWorker(workerId) {
+                this.workers.push(workerId);
+                this.taskQueues.set(workerId, new DeQueue());
+                console.log(`添加工作线程: ${workerId}`);
+            }
+
+            /**
+             * 提交任务到指定工作线程
+             * @param {string} workerId - 工作线程ID
+             * @param {string} taskName - 任务名称
+             */
+            submitTask(workerId, taskName) {
+                if (!this.taskQueues.has(workerId)) {
+                    console.log(`❌ 工作线程 ${workerId} 不存在`);
+                    return;
+                }
+
+                let task = {
+                    id: this.taskIdCounter++,
+                    name: taskName,
+                    workerId: workerId
+                };
+
+                this.taskQueues.get(workerId).addBack(task);
+                console.log(`提交任务 "${taskName}" 到工作线程 ${workerId}`);
+            }
+
+            /**
+             * 工作线程执行任务（从自己队列的前端取）
+             * @param {string} workerId - 工作线程ID
+             */
+            executeOwnTask(workerId) {
+                let queue = this.taskQueues.get(workerId);
+                if (!queue || queue.isEmpty()) {
+                    console.log(`工作线程 ${workerId} 没有任务可执行`);
+                    return null;
+                }
+
+                let task = queue.removeFront();
+                console.log(`工作线程 ${workerId} 执行自己的任务: ${task.name}`);
+                return task;
+            }
+
+            /**
+             * 工作窃取（从其他线程队列的后端偷任务）
+             * @param {string} thiefId - 偷任务的工作线程ID
+             */
+            stealTask(thiefId) {
+                console.log(`工作线程 ${thiefId} 尝试窃取任务...`);
+
+                // 查找有任务的其他工作线程
+                for (let workerId of this.workers) {
+                    if (workerId !== thiefId) {
+                        let queue = this.taskQueues.get(workerId);
+                        if (!queue.isEmpty()) {
+                            // 从后端窃取任务
+                            let stolenTask = queue.removeBack();
+                            console.log(`✅ 工作线程 ${thiefId} 从 ${workerId} 窃取任务: ${stolenTask.name}`);
+                            return stolenTask;
+                        }
+                    }
+                }
+
+                console.log(`❌ 工作线程 ${thiefId} 没有找到可窃取的任务`);
+                return null;
+            }
+
+            /**
+             * 显示所有队列状态
+             */
+            showStatus() {
+                console.log('\n--- 调度器状态 ---');
+                for (let workerId of this.workers) {
+                    let queue = this.taskQueues.get(workerId);
+                    let tasks = queue.toArray().map(task => task.name);
+                    console.log(`工作线程 ${workerId}: [${tasks.join(', ')}] (${queue.size()} 个任务)`);
+                }
+            }
+        }
+
+        // 演示工作窃取调度器
+        console.log('\n--- 工作窃取调度器演示 ---');
+        let scheduler = new WorkStealingScheduler();
+
+        // 添加工作线程
+        scheduler.addWorker('Worker-1');
+        scheduler.addWorker('Worker-2');
+        scheduler.addWorker('Worker-3');
+
+        // 提交任务
+        scheduler.submitTask('Worker-1', '计算任务A');
+        scheduler.submitTask('Worker-1', '计算任务B');
+        scheduler.submitTask('Worker-1', '计算任务C');
+        scheduler.submitTask('Worker-2', '网络任务D');
+        scheduler.submitTask('Worker-3', '文件任务E');
+        scheduler.submitTask('Worker-3', '文件任务F');
+
+        scheduler.showStatus();
+
+        // 模拟任务执行和窃取
+        console.log('\n--- 任务执行过程 ---');
+        scheduler.executeOwnTask('Worker-1');
+        scheduler.executeOwnTask('Worker-2');
+        scheduler.executeOwnTask('Worker-2');  // Worker-2 没有更多任务
+        scheduler.stealTask('Worker-2');       // Worker-2 尝试窃取
+        scheduler.showStatus();
+
+        // ==================== 6. 性能测试 ====================
+        console.log('\n\n6. 双端队列性能测试');
+
+        /**
+         * 双端队列性能测试
+         */
+        function performanceTest() {
+            console.log('\n--- 双端队列性能测试 ---');
+
+            let deque = new DeQueue();
+            let testSize = 50000;
+
+            // 测试后端添加性能
+            console.log(`\n测试 ${testSize} 次后端添加操作...`);
+            let startTime = performance.now();
+
+            for (let i = 0; i < testSize; i++) {
+                deque.addBack(i);
+            }
+
+            let endTime = performance.now();
+            console.log(`后端添加完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+            console.log(`双端队列大小: ${deque.size()}`);
+
+            // 测试前端添加性能
+            console.log(`\n测试 ${testSize / 10} 次前端添加操作...`);
+            startTime = performance.now();
+
+            for (let i = 0; i < testSize / 10; i++) {
+                deque.addFront(-i);
+            }
+
+            endTime = performance.now();
+            console.log(`前端添加完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+            console.log(`双端队列大小: ${deque.size()}`);
+
+            // 测试混合操作
+            console.log(`\n测试混合操作...`);
+            startTime = performance.now();
+
+            for (let i = 0; i < testSize / 4; i++) {
+                if (i % 4 === 0) {
+                    deque.removeFront();
+                } else if (i % 4 === 1) {
+                    deque.removeBack();
+                } else if (i % 4 === 2) {
+                    deque.addFront(i);
+                } else {
+                    deque.addBack(i);
+                }
+            }
+
+            endTime = performance.now();
+            console.log(`混合操作完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+            console.log(`最终双端队列大小: ${deque.size()}`);
+        }
+
+        performanceTest();
+
+        // ==================== 7. 算法分析总结 ====================
+        console.log('\n\n7. 双端队列算法分析总结');
+
+        console.log('\n时间复杂度分析:');
+        console.log('- 后端添加 addBack(): O(1) - 常数时间');
+        console.log('- 前端添加 addFront(): O(1) 平均，O(n) 最坏情况');
+        console.log('- 前端移除 removeFront(): O(1) - 常数时间');
+        console.log('- 后端移除 removeBack(): O(1) - 常数时间');
+        console.log('- 查看两端元素: O(1) - 常数时间');
+        console.log('- 获取大小: O(1) - 常数时间');
+
+        console.log('\n空间复杂度: O(n) - 需要存储n个元素');
+
+        console.log('\n双端队列的优势:');
+        console.log('- 灵活性：可以模拟栈、队列等数据结构');
+        console.log('- 高效性：大部分操作都是O(1)');
+        console.log('- 实用性：适合需要两端操作的场景');
+        console.log('- 对称性：两端操作对称，使用直观');
+
+        console.log('\n双端队列的应用场景:');
+        console.log('- 滑动窗口问题：维护窗口内的最值');
+        console.log('- 回文检查：从两端同时比较');
+        console.log('- 撤销重做：编辑器操作历史');
+        console.log('- 工作窃取：多线程任务调度');
+        console.log('- 浏览器历史：前进后退功能');
+        console.log('- 数据流处理：需要双向访问的场景');
+
+        console.log('\n与其他数据结构的比较:');
+        console.log('- vs 数组：双端操作更高效，但随机访问较慢');
+        console.log('- vs 栈：增加了前端操作能力');
+        console.log('- vs 队列：增加了后端移除和前端添加能力');
+        console.log('- vs 链表：操作更受限但性能更可预测');
+
+        console.log('\n实现要点:');
+        console.log('- 使用对象存储避免数组移动开销');
+        console.log('- 双指针技术管理前后端');
+        console.log('- 前端添加需要特殊处理边界情况');
+        console.log('- 合理的内存管理和垃圾回收');
+
+        console.log('\n=== 双端队列演示完毕 ===');
+    </script>
+</body>
+</html>

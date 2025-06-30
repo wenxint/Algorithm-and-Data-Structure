@@ -1,0 +1,442 @@
+<!--
+ * @作者: kerwin
+ * @文件: 队列数据结构优化实现
+ * @描述: 使用对象存储的高性能队列实现，避免数组shift操作的性能问题
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>队列数据结构优化实现</title>
+</head>
+
+<body>
+    <script>
+        /**
+         * 高性能队列数据结构实现
+         *
+         * 核心思想：
+         * 使用对象作为底层存储结构，通过双指针技术实现高效的队列操作
+         * 避免了数组shift操作的O(n)时间复杂度问题
+         *
+         * 设计原理：
+         * 1. 使用对象{}而不是数组[]作为存储容器
+         * 2. lowCount指针指向队列头部（下一个要出队的元素）
+         * 3. count指针指向队列尾部（下一个入队位置）
+         * 4. 通过delete操作和指针移动实现O(1)的出队操作
+         *
+         * 主要特点：
+         * - 所有基本操作都是O(1)时间复杂度
+         * - 内存使用更高效，避免数组频繁重排
+         * - 支持大量元素的高频入队出队操作
+         *
+         * 应用场景：
+         * - 高并发任务队列
+         * - 消息队列系统
+         * - 事件处理队列
+         * - 缓冲区管理
+         * - 广度优先搜索算法
+         *
+         * @class Queue
+         */
+        class Queue {
+            /**
+             * 构造函数 - 初始化空队列
+             */
+            constructor() {
+                this.#items = {};        // 使用对象存储队列元素
+                this.#lowCount = 0;      // 队列头部指针（下一个出队位置）
+                this.#count = 0;         // 队列尾部指针（下一个入队位置）
+            }
+
+            // 私有属性：使用对象存储元素，提供O(1)的访问性能
+            #items = {}
+            #lowCount = 0    // 队列前端指针
+            #count = 0       // 队列后端指针
+
+            /**
+             * 出队操作 - 移除并返回队列前端元素
+             *
+             * 核心思想：
+             * 1. 检查队列是否为空
+             * 2. 获取lowCount位置的元素
+             * 3. 删除该位置的元素并移动lowCount指针
+             * 4. 返回出队的元素
+             *
+             * 优势：使用delete + 指针移动，避免数组shift的O(n)复杂度
+             *
+             * @returns {*} 队列前端元素，如果队列为空则返回undefined
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            dequeue() {
+                // 检查队列是否为空
+                if (this.isEmpty()) {
+                    console.log('队列为空，无法执行出队操作');
+                    return undefined;
+                }
+
+                // 获取前端元素
+                let res = this.#items[this.#lowCount];
+                console.log(`出队元素: ${res}`);
+
+                // 删除前端元素并移动指针
+                delete this.#items[this.#lowCount];
+                this.#lowCount++;
+
+                return res;
+            }
+
+            /**
+             * 入队操作 - 向队列后端添加元素
+             *
+             * 核心思想：
+             * 1. 在count位置添加新元素
+             * 2. 移动count指针到下一个位置
+             *
+             * @param {*} data - 要添加到队列的元素
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            enqueue(data) {
+                this.#items[this.#count] = data;
+                this.#count++;
+                console.log(`入队元素: ${data}`);
+            }
+
+            /**
+             * 查看队列前端元素 - 返回但不移除前端元素
+             *
+             * 核心思想：
+             * 直接访问lowCount位置的元素，不改变队列状态
+             *
+             * @returns {*} 队列前端元素
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            front() {
+                if (this.isEmpty()) {
+                    console.log('队列为空，没有前端元素');
+                    return undefined;
+                }
+                const frontElement = this.#items[this.#lowCount];
+                console.log(`队列前端元素: ${frontElement}`);
+                return frontElement;
+            }
+
+            /**
+             * 检查队列是否为空
+             *
+             * @returns {boolean} 队列是否为空
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            isEmpty() {
+                return this.size() === 0;
+            }
+
+            /**
+             * 获取队列的大小
+             *
+             * 核心思想：
+             * 队列大小 = 后端指针位置 - 前端指针位置
+             *
+             * @returns {number} 队列中元素的数量
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            size() {
+                return this.#count - this.#lowCount;
+            }
+
+            /**
+             * 清空队列
+             *
+             * 核心思想：
+             * 重置所有内部状态到初始值
+             *
+             * @time O(1) - 常数时间复杂度
+             * @space O(1) - 常数空间复杂度
+             */
+            clear() {
+                this.#items = {};
+                this.#count = 0;
+                this.#lowCount = 0;
+                console.log('队列已清空');
+            }
+
+            /**
+             * 将队列转换为字符串表示
+             *
+             * 核心思想：
+             * 遍历从lowCount到count-1的所有有效元素
+             *
+             * @returns {string} 队列的字符串表示
+             * @time O(n) - 线性时间复杂度，n为队列中元素个数
+             * @space O(n) - 需要创建字符串
+             */
+            toString() {
+                if (this.isEmpty()) {
+                    return '空队列';
+                }
+
+                let str = "";
+                for (let i = this.#lowCount; i < this.#count; i++) {
+                    str += `${this.#items[i]} `;
+                }
+                return `队列内容（队头->队尾）: ${str.trim()}`;
+            }
+
+            /**
+             * 获取队列的详细信息
+             *
+             * @returns {object} 包含队列详细信息的对象
+             */
+            getInfo() {
+                return {
+                    size: this.size(),
+                    isEmpty: this.isEmpty(),
+                    front: this.isEmpty() ? null : this.#items[this.#lowCount],
+                    rear: this.isEmpty() ? null : this.#items[this.#count - 1],
+                    lowCount: this.#lowCount,
+                    count: this.#count,
+                    content: this.toString()
+                };
+            }
+
+            /**
+             * 获取队列的数组表示（用于调试）
+             *
+             * @returns {Array} 队列元素的数组
+             * @time O(n) - 线性时间复杂度
+             * @space O(n) - 需要创建新数组
+             */
+            toArray() {
+                const arr = [];
+                for (let i = this.#lowCount; i < this.#count; i++) {
+                    arr.push(this.#items[i]);
+                }
+                return arr;
+            }
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 高性能队列数据结构 - 完整示例 ===\n');
+
+        // 1. 创建队列实例
+        console.log('1. 创建队列实例');
+        let queue = new Queue();
+        console.log('初始队列信息:', queue.getInfo());
+        console.log();
+
+        // 2. 测试基本入队出队操作
+        console.log('2. 测试基本入队出队操作');
+        const elements = ['任务A', '任务B', '任务C', '任务D', '任务E'];
+
+        console.log('入队操作:');
+        elements.forEach(element => {
+            queue.enqueue(element);
+        });
+        console.log('入队完成后:', queue.toString());
+        console.log();
+
+        console.log('出队操作:');
+        while (!queue.isEmpty()) {
+            const element = queue.dequeue();
+            console.log(`当前队列状态: ${queue.toString()}`);
+            console.log(`队列大小: ${queue.size()}`);
+        }
+        console.log();
+
+        // 3. 测试边界情况
+        console.log('3. 测试边界情况');
+        console.log('尝试从空队列出队:', queue.dequeue());
+        console.log('尝试查看空队列前端:', queue.front());
+        console.log();
+
+        // 4. 测试混合操作
+        console.log('4. 测试混合操作（模拟实际使用场景）');
+        queue.enqueue('客户1');
+        queue.enqueue('客户2');
+        console.log('当前队列:', queue.toString());
+
+        queue.dequeue(); // 服务客户1
+        queue.enqueue('客户3');
+        console.log('服务一个客户后又来一个:', queue.toString());
+
+        queue.dequeue(); // 服务客户2
+        queue.dequeue(); // 服务客户3
+        console.log('服务完所有客户:', queue.toString());
+        console.log();
+
+        // 5. 性能测试
+        console.log('5. 性能测试');
+        console.log('测试大量元素的入队出队性能...');
+
+        const testSize = 100000;
+        const performanceQueue = new Queue();
+
+        // 测试入队性能
+        console.log(`开始 ${testSize} 次入队操作...`);
+        const startTime1 = performance.now();
+
+        for (let i = 0; i < testSize; i++) {
+            performanceQueue.enqueue(i);
+        }
+
+        const endTime1 = performance.now();
+        console.log(`入队完成，耗时: ${(endTime1 - startTime1).toFixed(2)}ms`);
+        console.log(`队列大小: ${performanceQueue.size()}`);
+
+        // 测试出队性能
+        console.log(`开始 ${testSize} 次出队操作...`);
+        const startTime2 = performance.now();
+
+        while (!performanceQueue.isEmpty()) {
+            performanceQueue.dequeue();
+        }
+
+        const endTime2 = performance.now();
+        console.log(`出队完成，耗时: ${(endTime2 - startTime2).toFixed(2)}ms`);
+        console.log(`队列大小: ${performanceQueue.size()}`);
+        console.log();
+
+        // 6. 实际应用示例 - 任务调度器
+        console.log('6. 实际应用示例 - 任务调度器');
+
+        /**
+         * 任务调度器类
+         * 使用队列实现简单的任务调度系统
+         */
+        class TaskScheduler {
+            constructor() {
+                this.taskQueue = new Queue();
+                this.isProcessing = false;
+                this.completedTasks = [];
+            }
+
+            /**
+             * 添加任务到队列
+             * @param {Object} task - 任务对象
+             */
+            addTask(task) {
+                this.taskQueue.enqueue(task);
+                console.log(`任务已添加: ${task.name}`);
+
+                // 如果当前没有在处理任务，立即开始处理
+                if (!this.isProcessing) {
+                    this.processNext();
+                }
+            }
+
+            /**
+             * 处理下一个任务
+             */
+            processNext() {
+                if (this.taskQueue.isEmpty()) {
+                    this.isProcessing = false;
+                    console.log('所有任务处理完成');
+                    return;
+                }
+
+                this.isProcessing = true;
+                const task = this.taskQueue.dequeue();
+
+                console.log(`开始处理任务: ${task.name}`);
+
+                // 模拟任务处理时间
+                setTimeout(() => {
+                    console.log(`任务完成: ${task.name}`);
+                    this.completedTasks.push({
+                        ...task,
+                        completedAt: new Date().toLocaleTimeString()
+                    });
+
+                    // 处理下一个任务
+                    this.processNext();
+                }, task.duration);
+            }
+
+            /**
+             * 获取调度器状态
+             */
+            getStatus() {
+                return {
+                    pendingTasks: this.taskQueue.size(),
+                    completedTasks: this.completedTasks.length,
+                    isProcessing: this.isProcessing,
+                    nextTask: this.taskQueue.isEmpty() ? null : this.taskQueue.toArray()[0]
+                };
+            }
+        }
+
+        // 演示任务调度器
+        console.log('\n--- 任务调度器演示 ---');
+        const scheduler = new TaskScheduler();
+
+        // 添加多个任务
+        scheduler.addTask({ name: '发送邮件', duration: 1000 });
+        scheduler.addTask({ name: '生成报表', duration: 2000 });
+        scheduler.addTask({ name: '数据备份', duration: 1500 });
+        scheduler.addTask({ name: '清理缓存', duration: 800 });
+
+        console.log('初始状态:', scheduler.getStatus());
+
+        // 3秒后查看状态
+        setTimeout(() => {
+            console.log('3秒后状态:', scheduler.getStatus());
+        }, 3000);
+
+        // 6秒后查看最终状态
+        setTimeout(() => {
+            console.log('6秒后最终状态:', scheduler.getStatus());
+        }, 6000);
+
+        // 7. 算法分析总结
+        setTimeout(() => {
+            console.log('\n\n7. 算法分析总结');
+            console.log('='.repeat(50));
+
+            console.log('\n时间复杂度分析:');
+            console.log('- 入队 enqueue(): O(1) - 直接在count位置添加');
+            console.log('- 出队 dequeue(): O(1) - 删除lowCount位置元素');
+            console.log('- 查看前端 front(): O(1) - 直接访问lowCount位置');
+            console.log('- 检查空队列 isEmpty(): O(1) - 简单计算');
+            console.log('- 获取大小 size(): O(1) - 指针相减');
+            console.log('- 清空队列 clear(): O(1) - 重置变量');
+
+            console.log('\n空间复杂度: O(n) - n为队列中元素数量');
+
+            console.log('\n对象存储 vs 数组存储:');
+            console.log('对象存储优势:');
+            console.log('- 出队操作O(1)，避免数组shift的O(n)');
+            console.log('- 内存使用更高效，不需要移动元素');
+            console.log('- 适合高频入队出队场景');
+
+            console.log('\n数组存储劣势:');
+            console.log('- shift操作需要移动所有元素，O(n)复杂度');
+            console.log('- 大量元素时性能显著下降');
+            console.log('- 内存碎片化问题');
+
+            console.log('\n适用场景:');
+            console.log('- 高并发任务队列系统');
+            console.log('- 消息队列中间件');
+            console.log('- 事件处理系统');
+            console.log('- 广度优先搜索算法');
+            console.log('- 缓冲区管理');
+            console.log('- 打印队列管理');
+
+            console.log('\n设计原则:');
+            console.log('- 选择合适的底层数据结构');
+            console.log('- 优化高频操作的时间复杂度');
+            console.log('- 考虑内存使用效率');
+            console.log('- 提供清晰的API接口');
+
+            console.log('\n=== 高性能队列演示完毕 ===');
+        }, 7000);
+    </script>
+</body>
+
+</html>

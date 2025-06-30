@@ -1,0 +1,36 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+       //ES6 Set
+       var myset = new Set()
+
+       myset.add(100)
+       myset.add(200)
+       myset.add(300)
+
+       var myiter = myset.values()
+    //    console.log(myiter.next())
+    //    console.log(myiter.next())
+    //    console.log(myiter.next())
+    //    console.log(myiter.next())
+
+        // for(let i of myiter){
+        //     console.log(i)
+        // }
+
+        console.log([...myiter])
+    </script>
+</body>
+
+</html>

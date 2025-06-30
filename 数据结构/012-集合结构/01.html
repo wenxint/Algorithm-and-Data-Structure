@@ -1,0 +1,68 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+       // N = {1,5,6}
+
+       class KerwinSet{
+
+        //    constructor(){
+        //        this.items = {} 
+        //    }
+           items = {}
+           
+           add(element){
+            if(!this.has(element)){
+                this.items[element] = element
+                return true
+            }
+            return false
+           }
+           delete(element){
+            if(this.has(element)){
+                delete this.items[element]
+                return true
+            }
+            return false
+           }
+
+           has(element){
+            return element in this.items
+           }
+
+           clear(){
+            this.items = {}
+           }
+           size(){
+            return Object.keys(this.items).length
+           }
+
+           values(){
+            return Object.values(this.items)
+           }
+       }
+
+       var myset = new KerwinSet()
+
+
+       var arr = [1,2,3,2,3,4,5,6]
+
+       arr.forEach(item=>{
+           myset.add(item)
+       })
+
+       console.log(myset.values())
+    </script>
+</body>
+
+</html>

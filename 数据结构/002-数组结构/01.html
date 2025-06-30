@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数组数据结构详解</title>
+</head>
+<body>
+    <script>
+        /**
+         * 数组数据结构详解和应用示例
+         *
+         * 核心思想：
+         * 数组是最基础的数据结构，具有以下特点：
+         * 1. 线性存储：元素在内存中连续存储
+         * 2. 随机访问：可以通过索引直接访问任意元素，时间复杂度O(1)
+         * 3. 动态大小：JavaScript数组可以动态增长和缩减
+         * 4. 多类型支持：可以存储不同类型的数据
+         *
+         * 主要特点：
+         * - 索引访问：通过数字索引快速访问元素
+         * - 顺序存储：元素按照插入顺序存储
+         * - 动态调整：可以动态添加和删除元素
+         * - 丰富的内置方法：提供了大量操作方法
+         *
+         * 应用场景：
+         * - 存储和操作序列数据
+         * - 实现其他数据结构的底层存储
+         * - 算法中的临时存储
+         * - 数据处理和转换
+         *
+         * @namespace ArrayOperations
+         */
+
+        console.log('=== JavaScript 数组数据结构详解 ===\n');
+
+        // ==================== 1. 数组创建方式 ====================
+        console.log('1. 数组创建方式演示');
+
+        /**
+         * 演示数组的不同创建方式
+         */
+        function demonstrateArrayCreation() {
+            console.log('\n--- 数组创建方式 ---');
+
+            // 方式1：使用Array构造函数
+            let arr1 = new Array(1, 2, 3);
+            console.log('Array构造函数创建:', arr1);
+
+            // 方式2：使用数组字面量（推荐）
+            let arr2 = [3, 4, 5];
+            console.log('数组字面量创建:', arr2);
+
+            // 方式3：创建指定长度的空数组
+            let arr3 = new Array(5);
+            console.log('创建长度为5的空数组:', arr3);
+            console.log('空数组长度:', arr3.length);
+
+            // 方式4：使用Array.from创建数组
+            let arr4 = Array.from({length: 3}, (_, index) => index * 2);
+            console.log('Array.from创建:', arr4);
+
+            // 方式5：使用Array.of创建数组
+            let arr5 = Array.of(1, 2, 3, 4, 5);
+            console.log('Array.of创建:', arr5);
+        }
+
+        demonstrateArrayCreation();
+
+        // ==================== 2. 数组基本操作 ====================
+        console.log('\n2. 数组基本操作演示');
+
+        /**
+         * 演示数组的基本操作方法
+         */
+        function demonstrateBasicOperations() {
+            console.log('\n--- 数组基本操作 ---');
+
+            let arr = [1, 2, 3];
+            console.log('初始数组:', arr);
+
+            // push - 在末尾添加元素
+            console.log('\n尾部添加操作:');
+            arr.push(4);
+            console.log('push(4)后:', arr);
+            arr.push(5, 6);
+            console.log('push(5, 6)后:', arr);
+
+            // pop - 删除末尾元素
+            console.log('\n尾部删除操作:');
+            let popped = arr.pop();
+            console.log(`pop()删除的元素: ${popped}, 数组变为:`, arr);
+
+            // unshift - 在开头添加元素
+            console.log('\n头部添加操作:');
+            arr.unshift(0);
+            console.log('unshift(0)后:', arr);
+
+            // shift - 删除开头元素
+            console.log('\n头部删除操作:');
+            let shifted = arr.shift();
+            console.log(`shift()删除的元素: ${shifted}, 数组变为:`, arr);
+
+            // splice - 万能的增删改方法
+            console.log('\n splice万能操作:');
+            console.log('原数组:', arr);
+
+            // 删除操作：splice(起始位置, 删除数量)
+            let deleted = arr.splice(1, 2);
+            console.log('splice(1, 2)删除的元素:', deleted);
+            console.log('删除后数组:', arr);
+
+            // 插入操作：splice(位置, 0, 要插入的元素...)
+            arr.splice(1, 0, 'a', 'b');
+            console.log('splice(1, 0, "a", "b")插入后:', arr);
+
+            // 替换操作：splice(位置, 删除数量, 新元素...)
+            arr.splice(1, 2, 'x', 'y', 'z');
+            console.log('splice(1, 2, "x", "y", "z")替换后:', arr);
+        }
+
+        demonstrateBasicOperations();
+
+        // ==================== 3. 数组排序操作 ====================
+        console.log('\n3. 数组排序操作演示');
+
+        /**
+         * 演示数组排序的各种方式
+         */
+        function demonstrateSorting() {
+            console.log('\n--- 数组排序操作 ---');
+
+            // 数字排序
+            console.log('\n数字排序:');
+            let numbers = [3, 1, 4, 1, 5, 9, 2, 6, 5];
+            console.log('原数组:', numbers);
+
+            // 升序排序
+            let ascending = [...numbers].sort((a, b) => a - b);
+            console.log('升序排序:', ascending);
+
+            // 降序排序
+            let descending = [...numbers].sort((a, b) => b - a);
+            console.log('降序排序:', descending);
+
+            // 对象数组排序
+            console.log('\n对象数组排序:');
+            let students = [
+                { name: "张三", age: 20, score: 85 },
+                { name: "李四", age: 18, score: 92 },
+                { name: "王五", age: 22, score: 78 },
+                { name: "赵六", age: 19, score: 88 }
+            ];
+
+            console.log('原学生数组:', students);
+
+            // 按年龄排序
+            let sortedByAge = [...students].sort((a, b) => a.age - b.age);
+            console.log('按年龄升序:', sortedByAge.map(s => `${s.name}(${s.age}岁)`));
+
+            // 按成绩排序
+            let sortedByScore = [...students].sort((a, b) => b.score - a.score);
+            console.log('按成绩降序:', sortedByScore.map(s => `${s.name}(${s.score}分)`));
+        }
+
+        demonstrateSorting();
+
+        // ==================== 4. 数组合并操作 ====================
+        console.log('\n4. 数组合并操作演示');
+
+        /**
+         * 演示数组合并的不同方式
+         */
+        function demonstrateConcatenation() {
+            console.log('\n--- 数组合并操作 ---');
+
+            let arr1 = [1, 2, 3];
+            let arr2 = [4, 5, 6];
+
+            console.log('数组1:', arr1);
+            console.log('数组2:', arr2);
+
+            // 使用concat方法
+            let concatResult = arr1.concat(arr2, 7, 8, 9);
+            console.log('concat合并结果:', concatResult);
+
+            // 使用展开运算符（推荐）
+            let spreadResult = [...arr1, ...arr2, 7, 8, 9];
+            console.log('展开运算符合并:', spreadResult);
+
+            // 验证原数组未被修改
+            console.log('原数组1未变:', arr1);
+            console.log('原数组2未变:', arr2);
+        }
+
+        demonstrateConcatenation();
+
+        // ==================== 5. 数组迭代方法 ====================
+        console.log('\n5. 数组迭代方法演示');
+
+        /**
+         * 演示数组的各种迭代方法
+         */
+        function demonstrateIterationMethods() {
+            console.log('\n--- 数组迭代方法 ---');
+
+            let numbers = [10, 11, 12, 13, 14, 15];
+            console.log('测试数组:', numbers);
+
+            // every - 检查所有元素是否都满足条件
+            console.log('\nevery方法（检查所有元素）:');
+            let allGreaterThan9 = numbers.every(item => item > 9);
+            let allGreaterThan10 = numbers.every(item => item > 10);
+            console.log('所有元素都大于9:', allGreaterThan9);
+            console.log('所有元素都大于10:', allGreaterThan10);
+
+            // some - 检查是否有元素满足条件
+            console.log('\nsome方法（检查部分元素）:');
+            let someGreaterThan12 = numbers.some(item => item > 12);
+            let someGreaterThan20 = numbers.some(item => item > 20);
+            console.log('有元素大于12:', someGreaterThan12);
+            console.log('有元素大于20:', someGreaterThan20);
+
+            // filter - 过滤符合条件的元素
+            console.log('\nfilter方法（过滤元素）:');
+            let filtered = numbers.filter(item => item > 12);
+            console.log('大于12的元素:', filtered);
+
+            // map - 对每个元素进行转换
+            console.log('\nmap方法（转换元素）:');
+            let mapped = numbers.map(item => item + " -> " + (item * 2));
+            console.log('每个元素乘以2:', mapped);
+
+            // reduce - 将数组归约为单个值
+            console.log('\nreduce方法（归约元素）:');
+            let sum = numbers.reduce((acc, current) => acc + current, 0);
+            let product = numbers.reduce((acc, current) => acc * current, 1);
+            console.log('数组元素求和:', sum);
+            console.log('数组元素求积:', product);
+
+            // forEach - 遍历每个元素
+            console.log('\nforEach方法（遍历元素）:');
+            numbers.forEach((item, index) => {
+                console.log(`  索引${index}: ${item}`);
+            });
+        }
+
+        demonstrateIterationMethods();
+
+        // ==================== 6. 数组搜索方法 ====================
+        console.log('\n6. 数组搜索方法演示');
+
+        /**
+         * 演示数组的搜索方法
+         */
+        function demonstrateSearchMethods() {
+            console.log('\n--- 数组搜索方法 ---');
+
+            let numbers = [10, 11, 12, 13, 12, 9];
+            console.log('测试数组:', numbers);
+
+            // indexOf - 查找元素第一次出现的位置
+            console.log('\nindexOf方法:');
+            console.log('12第一次出现的位置:', numbers.indexOf(12));
+            console.log('15的位置（不存在）:', numbers.indexOf(15));
+
+            // lastIndexOf - 查找元素最后一次出现的位置
+            console.log('\nlastIndexOf方法:');
+            console.log('12最后一次出现的位置:', numbers.lastIndexOf(12));
+
+            // includes - 检查是否包含某个元素
+            console.log('\nincludes方法:');
+            console.log('是否包含12:', numbers.includes(12));
+            console.log('是否包含15:', numbers.includes(15));
+
+            // find - 查找第一个满足条件的元素
+            console.log('\nfind方法:');
+            let found = numbers.find(item => item > 11);
+            console.log('第一个大于11的元素:', found);
+
+            // findIndex - 查找第一个满足条件的元素的索引
+            console.log('\nfindIndex方法:');
+            let foundIndex = numbers.findIndex(item => item > 11);
+            console.log('第一个大于11的元素的索引:', foundIndex);
+
+            // findLast - 查找最后一个满足条件的元素
+            console.log('\nfindLast方法:');
+            let foundLast = numbers.findLast(item => item > 11);
+            console.log('最后一个大于11的元素:', foundLast);
+
+            // findLastIndex - 查找最后一个满足条件的元素的索引
+            console.log('\nfindLastIndex方法:');
+            let foundLastIndex = numbers.findLastIndex(item => item > 11);
+            console.log('最后一个大于11的元素的索引:', foundLastIndex);
+        }
+
+        demonstrateSearchMethods();
+
+        // ==================== 7. 数组迭代器 ====================
+        console.log('\n7. 数组迭代器演示');
+
+        /**
+         * 演示数组迭代器的使用
+         */
+        function demonstrateIterators() {
+            console.log('\n--- 数组迭代器 ---');
+
+            let arr = ['a', 'b', 'c'];
+            console.log('测试数组:', arr);
+
+            // Symbol.iterator - 获取数组的迭代器
+            console.log('\n使用Symbol.iterator:');
+            let iterator = arr[Symbol.iterator]();
+            console.log('第1次调用next():', iterator.next());
+            console.log('第2次调用next():', iterator.next());
+            console.log('第3次调用next():', iterator.next());
+            console.log('第4次调用next():', iterator.next());
+
+            // for...of 循环
+            console.log('\n使用for...of循环:');
+            for (let item of arr) {
+                console.log('  元素:', item);
+            }
+
+            // entries() - 获取索引和值的迭代器
+            console.log('\n使用entries()迭代器:');
+            for (let [index, value] of arr.entries()) {
+                console.log(`  索引${index}: ${value}`);
+            }
+
+            // keys() - 获取索引的迭代器
+            console.log('\n使用keys()迭代器:');
+            for (let index of arr.keys()) {
+                console.log('  索引:', index);
+            }
+
+            // values() - 获取值的迭代器
+            console.log('\n使用values()迭代器:');
+            for (let value of arr.values()) {
+                console.log('  值:', value);
+            }
+        }
+
+        demonstrateIterators();
+
+        // ==================== 8. Array.from的高级用法 ====================
+        console.log('\n8. Array.from高级用法演示');
+
+        /**
+         * 演示Array.from的各种用法
+         */
+        function demonstrateArrayFrom() {
+            console.log('\n--- Array.from高级用法 ---');
+
+            // 从类数组对象创建数组
+            console.log('\n从arguments对象创建数组:');
+            function testArguments() {
+                let argsArray = Array.from(arguments);
+                console.log('arguments转换为数组:', argsArray);
+                console.log('数组类型检查:', Array.isArray(argsArray));
+            }
+            testArguments(1, 2, 3, 'hello', true);
+
+            // 从字符串创建数组
+            console.log('\n从字符串创建数组:');
+            let stringArray = Array.from('hello');
+            console.log('字符串"hello"转换为数组:', stringArray);
+
+            // 从Set创建数组
+            console.log('\n从Set创建数组:');
+            let set = new Set([1, 2, 3, 3, 4, 4, 5]);
+            let setArray = Array.from(set);
+            console.log('Set转换为数组（自动去重）:', setArray);
+
+            // 使用映射函数
+            console.log('\n使用映射函数:');
+            let mappedArray = Array.from({length: 5}, (_, index) => index * index);
+            console.log('生成平方数数组:', mappedArray);
+
+            // 生成序列
+            console.log('\n生成数字序列:');
+            let sequence = Array.from({length: 10}, (_, i) => i + 1);
+            console.log('1-10的序列:', sequence);
+        }
+
+        demonstrateArrayFrom();
+
+        // ==================== 9. 多维数组操作 ====================
+        console.log('\n9. 多维数组操作演示');
+
+        /**
+         * 演示多维数组的操作
+         */
+        function demonstrateMultiDimensionalArrays() {
+            console.log('\n--- 多维数组操作 ---');
+
+            // 二维数组示例：学生成绩表
+            let scores = [
+                [98, 99, 100],  // 第1个学生的3门课成绩
+                [100, 100, 99], // 第2个学生的3门课成绩
+                [80, 80, 69]    // 第3个学生的3门课成绩
+            ];
+
+            console.log('学生成绩二维数组:', scores);
+
+            // 遍历二维数组
+            console.log('\n遍历学生成绩:');
+            for (let i = 0; i < scores.length; i++) {
+                console.log(`第${i + 1}个学生的成绩:`);
+                for (let j = 0; j < scores[i].length; j++) {
+                    console.log(`  第${j + 1}门课: ${scores[i][j]}分`);
+                }
+
+                // 计算平均分
+                let average = scores[i].reduce((sum, score) => sum + score, 0) / scores[i].length;
+                console.log(`  平均分: ${average.toFixed(2)}分`);
+            }
+
+            // 计算每门课的平均分
+            console.log('\n每门课的平均分:');
+            for (let j = 0; j < scores[0].length; j++) {
+                let courseSum = 0;
+                for (let i = 0; i < scores.length; i++) {
+                    courseSum += scores[i][j];
+                }
+                let courseAverage = courseSum / scores.length;
+                console.log(`第${j + 1}门课平均分: ${courseAverage.toFixed(2)}分`);
+            }
+        }
+
+        demonstrateMultiDimensionalArrays();
+
+        // ==================== 10. 实际应用示例 ====================
+        console.log('\n10. 实际应用示例');
+
+        /**
+         * 学生成绩管理系统
+         * 使用数组实现完整的学生成绩管理功能
+         */
+        class StudentGradeManager {
+            constructor() {
+                this.students = [];
+            }
+
+            /**
+             * 添加学生
+             * @param {string} name - 学生姓名
+             * @param {number[]} scores - 各科成绩
+             */
+            addStudent(name, scores) {
+                const student = {
+                    id: this.students.length + 1,
+                    name: name,
+                    scores: [...scores],
+                    average: this.calculateAverage(scores)
+                };
+
+                this.students.push(student);
+                console.log(`添加学生: ${name}, 成绩: [${scores.join(', ')}], 平均分: ${student.average.toFixed(2)}`);
+            }
+
+            /**
+             * 计算平均分
+             * @param {number[]} scores - 成绩数组
+             * @returns {number} 平均分
+             */
+            calculateAverage(scores) {
+                return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+            }
+
+            /**
+             * 按平均分排序
+             * @param {boolean} ascending - 是否升序
+             */
+            sortByAverage(ascending = false) {
+                this.students.sort((a, b) => {
+                    return ascending ? a.average - b.average : b.average - a.average;
+                });
+                console.log(`按平均分${ascending ? '升序' : '降序'}排序完成`);
+            }
+
+            /**
+             * 查找学生
+             * @param {string} name - 学生姓名
+             * @returns {object|null} 学生信息
+             */
+            findStudent(name) {
+                return this.students.find(student => student.name === name) || null;
+            }
+
+            /**
+             * 获取成绩统计
+             */
+            getStatistics() {
+                if (this.students.length === 0) {
+                    return { message: '暂无学生数据' };
+                }
+
+                const allAverages = this.students.map(s => s.average);
+                const totalStudents = this.students.length;
+                const classAverage = allAverages.reduce((sum, avg) => sum + avg, 0) / totalStudents;
+                const highestAverage = Math.max(...allAverages);
+                const lowestAverage = Math.min(...allAverages);
+
+                // 计算及格率（假设60分及格）
+                const passCount = this.students.filter(s => s.average >= 60).length;
+                const passRate = (passCount / totalStudents * 100).toFixed(2);
+
+                return {
+                    totalStudents,
+                    classAverage: classAverage.toFixed(2),
+                    highestAverage: highestAverage.toFixed(2),
+                    lowestAverage: lowestAverage.toFixed(2),
+                    passRate: passRate + '%'
+                };
+            }
+
+            /**
+             * 显示所有学生信息
+             */
+            displayAllStudents() {
+                console.log('\n所有学生信息:');
+                this.students.forEach((student, index) => {
+                    console.log(`${index + 1}. ${student.name} - 成绩: [${student.scores.join(', ')}] - 平均分: ${student.average.toFixed(2)}`);
+                });
+            }
+
+            /**
+             * 获取优秀学生（平均分>=90）
+             */
+            getExcellentStudents() {
+                return this.students.filter(student => student.average >= 90);
+            }
+
+            /**
+             * 删除学生
+             * @param {string} name - 学生姓名
+             */
+            removeStudent(name) {
+                const index = this.students.findIndex(student => student.name === name);
+                if (index !== -1) {
+                    const removed = this.students.splice(index, 1)[0];
+                    console.log(`删除学生: ${removed.name}`);
+                    return true;
+                } else {
+                    console.log(`未找到学生: ${name}`);
+                    return false;
+                }
+            }
+        }
+
+        // 使用学生成绩管理系统
+        console.log('\n--- 学生成绩管理系统演示 ---');
+        const manager = new StudentGradeManager();
+
+        // 添加学生
+        manager.addStudent('张三', [85, 92, 78]);
+        manager.addStudent('李四', [95, 88, 92]);
+        manager.addStudent('王五', [76, 84, 80]);
+        manager.addStudent('赵六', [98, 95, 97]);
+        manager.addStudent('孙七', [65, 70, 68]);
+
+        // 显示所有学生
+        manager.displayAllStudents();
+
+        // 按平均分排序
+        manager.sortByAverage();
+        console.log('\n排序后:');
+        manager.displayAllStudents();
+
+        // 查找学生
+        console.log('\n查找学生:');
+        const foundStudent = manager.findStudent('李四');
+        if (foundStudent) {
+            console.log(`找到学生: ${foundStudent.name}, 平均分: ${foundStudent.average.toFixed(2)}`);
+        }
+
+        // 获取统计信息
+        console.log('\n班级统计信息:');
+        const stats = manager.getStatistics();
+        Object.entries(stats).forEach(([key, value]) => {
+            const keyMap = {
+                totalStudents: '总学生数',
+                classAverage: '班级平均分',
+                highestAverage: '最高平均分',
+                lowestAverage: '最低平均分',
+                passRate: '及格率'
+            };
+            console.log(`${keyMap[key]}: ${value}`);
+        });
+
+        // 获取优秀学生
+        console.log('\n优秀学生（平均分>=90）:');
+        const excellentStudents = manager.getExcellentStudents();
+        excellentStudents.forEach(student => {
+            console.log(`${student.name}: ${student.average.toFixed(2)}分`);
+        });
+
+        // ==================== 11. 算法分析总结 ====================
+        console.log('\n11. 数组算法分析总结');
+        console.log('时间复杂度分析:');
+        console.log('- 随机访问: O(1) - 通过索引直接访问');
+        console.log('- 顺序查找: O(n) - 需要遍历数组');
+        console.log('- 在末尾插入/删除: O(1) - push/pop操作');
+        console.log('- 在开头插入/删除: O(n) - unshift/shift需要移动所有元素');
+        console.log('- 在中间插入/删除: O(n) - splice需要移动部分元素');
+        console.log('- 排序: O(n log n) - 使用高效排序算法');
+
+        console.log('\n空间复杂度: O(n) - 需要存储n个元素');
+
+        console.log('\n数组的优势:');
+        console.log('- 随机访问效率高');
+        console.log('- 内存利用率高（连续存储）');
+        console.log('- 实现简单，使用方便');
+        console.log('- 支持丰富的内置方法');
+        console.log('- 缓存友好性好');
+
+        console.log('\n数组的劣势:');
+        console.log('- 大小固定（某些语言中）');
+        console.log('- 插入删除效率低（需要移动元素）');
+        console.log('- 内存浪费（预分配空间）');
+
+        console.log('\n适用场景:');
+        console.log('- 需要频繁随机访问的场景');
+        console.log('- 数据大小相对固定');
+        console.log('- 需要进行数学运算和统计');
+        console.log('- 实现其他数据结构的底层存储');
+        console.log('- 算法中的临时存储');
+
+        console.log('\n=== 数组数据结构演示完毕 ===');
+    </script>
+</body>
+</html>

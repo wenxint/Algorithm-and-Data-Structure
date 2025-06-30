@@ -1,0 +1,64 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        function quickSort(arr) {
+            const {
+                length
+            } = arr
+            if (length < 2) {
+                return arr
+            }
+            //基准
+            let base = arr[0]
+            let minArr = arr.slice(1).filter(item => item <= base)
+            let maxArr = arr.slice(1).filter(item => item > base)
+
+            return quickSort(minArr).concat(base).concat(quickSort(maxArr))
+        }
+
+        function binarySearch(find, arr, start, end) {
+            start = start || 0
+            end = end || arr.length - 1
+
+            arr = quickSort(arr)
+
+            console.log(arr)
+            // [2, 4, 5, 7, 9]
+
+            if(start<=end && find>=arr[start] && find<=arr[end]){
+                if(arr[start]===find){
+                    return start
+                }
+                if(arr[end]===find){
+                    return end
+                }
+                // let mid = (end-start)/2 +start
+                let mid = Math.ceil((end+start)/2)
+                if(arr[mid]===find){
+                    return mid
+                }else if(arr[mid]>find){
+                    return binarySearch(find,arr,start,mid-1)
+                }else{
+                    return binarySearch(find,arr,mid+1,end)
+                }
+            }
+
+            return -1
+        }
+
+        binarySearch(0, [5, 7, 4, 2, 9])
+    </script>
+</body>
+
+</html>

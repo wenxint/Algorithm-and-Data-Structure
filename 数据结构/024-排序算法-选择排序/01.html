@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择排序算法详解</title>
+</head>
+<body>
+    <script>
+        /**
+         * 选择排序算法（基础版本）
+         *
+         * 核心思想：
+         * 选择排序的基本思想是"每次选择最小的元素"：
+         * 1. 从未排序部分中找到最小（或最大）元素
+         * 2. 将其放到已排序部分的末尾
+         * 3. 重复这个过程直到所有元素都被排序
+         *
+         * 算法步骤：
+         * 1. 在未排序序列中找到最小元素，存放到排序序列的起始位置
+         * 2. 再从剩余未排序元素中继续寻找最小元素，然后放到已排序序列的末尾
+         * 3. 重复第二步，直到所有元素均排序完毕
+         *
+         * 特点：
+         * - 不稳定排序：相同元素的相对位置可能会改变
+         * - 原地排序：只需要O(1)的额外空间
+         * - 时间复杂度固定：无论什么数据都是O(n²)
+         *
+         * @param {number[]} arr - 待排序数组
+         * @returns {number[]} 排序后的数组
+         * @time O(n²) - 无论最好、平均、最坏情况都是O(n²)
+         * @space O(1) - 原地排序，只需要常数级额外空间
+         */
+        function selectionSort(arr) {
+            console.log('开始选择排序，原数组:', [...arr]);
+            const { length } = arr;
+            let comparisons = 0; // 比较次数统计
+            let swaps = 0;       // 交换次数统计
+
+            let indexMin; // 记录最小元素的索引
+
+            // 外层循环：需要进行n-1轮选择
+            for (let i = 0; i < length - 1; i++) {
+                console.log(`\n第${i + 1}轮选择：`);
+
+                // 假设当前位置i就是最小值的位置
+                indexMin = i;
+                console.log(`  初始假设最小值位置: ${i}, 值: ${arr[i]}`);
+
+                // 内层循环：在未排序部分[i+1, length-1]中找最小值
+                for (let j = i + 1; j < length; j++) {
+                    comparisons++;
+                    console.log(`    比较 arr[${indexMin}]=${arr[indexMin]} 与 arr[${j}]=${arr[j]}`);
+
+                    if (arr[indexMin] > arr[j]) {
+                        indexMin = j; // 更新最小值索引
+                        console.log(`      找到更小值，更新最小值位置为: ${j}`);
+                    }
+                }
+
+                // 如果最小值不在当前位置，则交换
+                if (i !== indexMin) {
+                    console.log(`  交换 arr[${i}]=${arr[i]} 与 arr[${indexMin}]=${arr[indexMin]}`);
+                    swap(arr, i, indexMin);
+                    swaps++;
+                } else {
+                    console.log(`  最小值已在正确位置，无需交换`);
+                }
+
+                console.log(`  第${i + 1}轮结果: [${arr.join(', ')}]`);
+                console.log(`  已排序部分: [${arr.slice(0, i + 1).join(', ')}]`);
+            }
+
+            console.log(`\n排序完成！`);
+            console.log(`最终结果: [${arr.join(', ')}]`);
+            console.log(`统计信息: 比较${comparisons}次，交换${swaps}次`);
+
+            return arr;
+        }
+
+        /**
+         * 交换数组中两个位置的元素
+         *
+         * 核心思想：
+         * 使用临时变量交换两个元素的位置
+         *
+         * @param {Array} array - 数组
+         * @param {number} a - 第一个位置的索引
+         * @param {number} b - 第二个位置的索引
+         */
+        function swap(array, a, b) {
+            const temp = array[a];
+            array[a] = array[b];
+            array[b] = temp;
+            // ES6解构赋值方式（性能稍差）：
+            // [array[a], array[b]] = [array[b], array[a]];
+        }
+
+        /**
+         * 选择排序优化版本 - 双向选择排序
+         *
+         * 核心思想：
+         * 每次同时选择最小值和最大值，分别放到数组的两端
+         * 这样可以减少一半的遍历次数
+         *
+         * @param {number[]} arr - 待排序数组
+         * @returns {number[]} 排序后的数组
+         * @time O(n²) - 时间复杂度仍然是O(n²)，但实际运行时间约为原来的一半
+         * @space O(1) - 原地排序
+         */
+        function selectionSortOptimized(arr) {
+            console.log('\n=== 双向选择排序 ===');
+            console.log('原数组:', [...arr]);
+
+            let left = 0;
+            let right = arr.length - 1;
+            let round = 1;
+
+            while (left < right) {
+                console.log(`\n第${round}轮双向选择 (范围: ${left}-${right}):`);
+
+                let minIndex = left;
+                let maxIndex = left;
+
+                // 一次遍历找到最小值和最大值
+                for (let i = left; i <= right; i++) {
+                    if (arr[i] < arr[minIndex]) {
+                        minIndex = i;
+                    }
+                    if (arr[i] > arr[maxIndex]) {
+                        maxIndex = i;
+                    }
+                }
+
+                console.log(`  找到最小值 ${arr[minIndex]} 在位置 ${minIndex}`);
+                console.log(`  找到最大值 ${arr[maxIndex]} 在位置 ${maxIndex}`);
+
+                // 将最小值交换到左端
+                if (minIndex !== left) {
+                    swap(arr, left, minIndex);
+                    console.log(`  交换最小值到位置 ${left}`);
+                }
+
+                // 如果最大值在left位置，需要更新maxIndex
+                if (maxIndex === left) {
+                    maxIndex = minIndex;
+                }
+
+                // 将最大值交换到右端
+                if (maxIndex !== right) {
+                    swap(arr, right, maxIndex);
+                    console.log(`  交换最大值到位置 ${right}`);
+                }
+
+                console.log(`  第${round}轮结果: [${arr.join(', ')}]`);
+
+                left++;
+                right--;
+                round++;
+            }
+
+            console.log(`双向选择排序完成: [${arr.join(', ')}]`);
+            return arr;
+        }
+
+        /**
+         * 可视化选择排序过程
+         *
+         * 核心思想：
+         * 通过数组的字符串表示来可视化排序过程
+         *
+         * @param {number[]} arr - 待排序数组
+         */
+        function visualSelectionSort(arr) {
+            console.log('\n=== 选择排序可视化 ===');
+            const originalArr = [...arr];
+            const { length } = arr;
+
+            console.log('初始状态:', arr.map((val, idx) => `${idx}:${val}`).join(' '));
+
+            for (let i = 0; i < length - 1; i++) {
+                let minIndex = i;
+
+                // 标记当前正在处理的区域
+                let visualization = arr.map((val, idx) => {
+                    if (idx < i) return `[${val}]`; // 已排序部分
+                    if (idx === i) return `(${val})`; // 当前位置
+                    return `${val}`; // 未排序部分
+                }).join(' ');
+
+                console.log(`\n第${i + 1}轮 - 在位置${i}及之后寻找最小值:`);
+                console.log('状态:', visualization);
+
+                // 寻找最小值
+                for (let j = i + 1; j < length; j++) {
+                    if (arr[j] < arr[minIndex]) {
+                        minIndex = j;
+                    }
+                }
+
+                // 交换
+                if (i !== minIndex) {
+                    console.log(`找到最小值 ${arr[minIndex]} 在位置 ${minIndex}，与位置 ${i} 交换`);
+                    swap(arr, i, minIndex);
+                } else {
+                    console.log(`最小值 ${arr[i]} 已在正确位置 ${i}`);
+                }
+
+                // 显示交换后的状态
+                visualization = arr.map((val, idx) => {
+                    if (idx <= i) return `[${val}]`; // 已排序部分
+                    return `${val}`; // 未排序部分
+                }).join(' ');
+                console.log('结果:', visualization);
+            }
+
+            console.log(`\n最终排序结果: [${arr.join(', ')}]`);
+        }
+
+        // ==================== 完整的调用示例 ====================
+        console.log('=== 选择排序算法 - 完整演示 ===\n');
+
+        // 1. 基础选择排序演示
+        console.log('1. 基础选择排序演示');
+        let testArray1 = [64, 34, 25, 12, 22, 11, 90];
+        selectionSort([...testArray1]);
+
+        // 2. 双向选择排序演示
+        console.log('\n2. 双向选择排序演示');
+        let testArray2 = [64, 34, 25, 12, 22, 11, 90];
+        selectionSortOptimized([...testArray2]);
+
+        // 3. 可视化排序过程
+        console.log('\n3. 可视化排序过程');
+        let testArray3 = [5, 2, 8, 1, 9];
+        visualSelectionSort([...testArray3]);
+
+        // 4. 边界情况测试
+        console.log('\n4. 边界情况测试');
+
+        console.log('空数组:');
+        selectionSort([]);
+
+        console.log('\n单元素数组:');
+        selectionSort([42]);
+
+        console.log('\n两元素数组:');
+        selectionSort([3, 1]);
+
+        console.log('\n已排序数组:');
+        selectionSort([1, 2, 3, 4, 5]);
+
+        console.log('\n逆序数组:');
+        selectionSort([5, 4, 3, 2, 1]);
+
+        console.log('\n重复元素数组:');
+        selectionSort([3, 1, 4, 1, 5, 9, 2, 6, 5]);
+
+        // 5. 实际应用示例：学生成绩选择排序
+        console.log('\n5. 实际应用示例：学生成绩管理系统');
+
+        /**
+         * 学生成绩管理类
+         * 使用选择排序对学生成绩进行排序
+         */
+        class StudentGradeManager {
+            constructor() {
+                this.students = [];
+            }
+
+            /**
+             * 添加学生成绩
+             * @param {string} name - 学生姓名
+             * @param {number} score - 成绩
+             */
+            addStudent(name, score) {
+                this.students.push({ name, score });
+                console.log(`添加学生: ${name}, 成绩: ${score}`);
+            }
+
+            /**
+             * 使用选择排序按成绩排序（降序）
+             */
+            sortByScore() {
+                console.log('\n开始按成绩排序（使用选择排序）:');
+                const students = this.students;
+                const length = students.length;
+
+                for (let i = 0; i < length - 1; i++) {
+                    let maxIndex = i;
+
+                    // 寻找最高分
+                    for (let j = i + 1; j < length; j++) {
+                        if (students[j].score > students[maxIndex].score) {
+                            maxIndex = j;
+                        }
+                    }
+
+                    // 交换学生记录
+                    if (i !== maxIndex) {
+                        const temp = students[i];
+                        students[i] = students[maxIndex];
+                        students[maxIndex] = temp;
+
+                        console.log(`交换: ${students[maxIndex].name}(${students[maxIndex].score}) <-> ${students[i].name}(${students[i].score})`);
+                    }
+                }
+            }
+
+            /**
+             * 显示排序结果
+             */
+            displayRanking() {
+                console.log('\n成绩排名:');
+                this.students.forEach((student, index) => {
+                    console.log(`第${index + 1}名: ${student.name} - ${student.score}分`);
+                });
+            }
+
+            /**
+             * 获取成绩统计信息
+             */
+            getStatistics() {
+                if (this.students.length === 0) return null;
+
+                const scores = this.students.map(s => s.score);
+                const total = scores.reduce((sum, score) => sum + score, 0);
+                const average = total / scores.length;
+                const highest = Math.max(...scores);
+                const lowest = Math.min(...scores);
+
+                return {
+                    total: this.students.length,
+                    average: average.toFixed(2),
+                    highest,
+                    lowest
+                };
+            }
+        }
+
+        // 创建成绩管理系统实例
+        const gradeManager = new StudentGradeManager();
+
+        // 添加学生成绩
+        gradeManager.addStudent('张三', 85);
+        gradeManager.addStudent('李四', 92);
+        gradeManager.addStudent('王五', 78);
+        gradeManager.addStudent('赵六', 96);
+        gradeManager.addStudent('孙七', 88);
+        gradeManager.addStudent('周八', 82);
+        gradeManager.addStudent('吴九', 90);
+
+        // 排序并显示结果
+        gradeManager.sortByScore();
+        gradeManager.displayRanking();
+
+        // 显示统计信息
+        const stats = gradeManager.getStatistics();
+        console.log('\n成绩统计:');
+        console.log(`总人数: ${stats.total}`);
+        console.log(`平均分: ${stats.average}`);
+        console.log(`最高分: ${stats.highest}`);
+        console.log(`最低分: ${stats.lowest}`);
+
+        // 6. 性能测试
+        console.log('\n6. 性能测试');
+
+        function performanceTest() {
+            const sizes = [100, 1000, 5000];
+
+            sizes.forEach(size => {
+                console.log(`\n测试数组大小: ${size}`);
+
+                // 生成随机数组
+                const randomArray = Array.from({ length: size }, () =>
+                    Math.floor(Math.random() * size * 10)
+                );
+
+                // 测试基础选择排序
+                const basicArray = [...randomArray];
+                const basicStart = performance.now();
+
+                // 简化版选择排序（不输出日志）
+                for (let i = 0; i < basicArray.length - 1; i++) {
+                    let minIndex = i;
+                    for (let j = i + 1; j < basicArray.length; j++) {
+                        if (basicArray[j] < basicArray[minIndex]) {
+                            minIndex = j;
+                        }
+                    }
+                    if (i !== minIndex) {
+                        [basicArray[i], basicArray[minIndex]] = [basicArray[minIndex], basicArray[i]];
+                    }
+                }
+
+                const basicEnd = performance.now();
+                console.log(`  基础选择排序耗时: ${(basicEnd - basicStart).toFixed(2)}ms`);
+
+                // 测试双向选择排序
+                const optimizedArray = [...randomArray];
+                const optimizedStart = performance.now();
+
+                let left = 0, right = optimizedArray.length - 1;
+                while (left < right) {
+                    let minIndex = left, maxIndex = left;
+                    for (let i = left; i <= right; i++) {
+                        if (optimizedArray[i] < optimizedArray[minIndex]) minIndex = i;
+                        if (optimizedArray[i] > optimizedArray[maxIndex]) maxIndex = i;
+                    }
+                    if (minIndex !== left) [optimizedArray[left], optimizedArray[minIndex]] = [optimizedArray[minIndex], optimizedArray[left]];
+                    if (maxIndex === left) maxIndex = minIndex;
+                    if (maxIndex !== right) [optimizedArray[right], optimizedArray[maxIndex]] = [optimizedArray[maxIndex], optimizedArray[right]];
+                    left++; right--;
+                }
+
+                const optimizedEnd = performance.now();
+                console.log(`  双向选择排序耗时: ${(optimizedEnd - optimizedStart).toFixed(2)}ms`);
+
+                // 与原生sort比较
+                const nativeArray = [...randomArray];
+                const nativeStart = performance.now();
+                nativeArray.sort((a, b) => a - b);
+                const nativeEnd = performance.now();
+                console.log(`  原生sort排序耗时: ${(nativeEnd - nativeStart).toFixed(2)}ms`);
+
+                // 验证排序正确性
+                const isBasicCorrect = basicArray.every((val, i) => i === 0 || val >= basicArray[i - 1]);
+                const isOptimizedCorrect = optimizedArray.every((val, i) => i === 0 || val >= optimizedArray[i - 1]);
+                console.log(`  排序正确性: 基础版${isBasicCorrect ? '✓' : '✗'}, 优化版${isOptimizedCorrect ? '✓' : '✗'}`);
+            });
+        }
+
+        performanceTest();
+
+        // 7. 算法分析总结
+        console.log('\n7. 选择排序算法分析总结');
+        console.log('时间复杂度分析:');
+        console.log('- 最好情况: O(n²) - 即使数组已排序，仍需要进行所有比较');
+        console.log('- 平均情况: O(n²) - 需要进行 n(n-1)/2 次比较');
+        console.log('- 最坏情况: O(n²) - 逆序数组也是 n(n-1)/2 次比较');
+        console.log('- 比较次数: 固定为 n(n-1)/2 次，与数据分布无关');
+        console.log('- 交换次数: 最多 n-1 次（每轮最多一次交换）');
+
+        console.log('\n空间复杂度: O(1) - 原地排序，只需要常数级额外空间');
+
+        console.log('\n选择排序的特点:');
+        console.log('优势:');
+        console.log('- 实现简单，代码量少');
+        console.log('- 原地排序，空间复杂度低');
+        console.log('- 交换次数少，最多n-1次');
+        console.log('- 运行时间与输入无关，性能稳定');
+
+        console.log('\n劣势:');
+        console.log('- 时间复杂度高，不适合大数据集');
+        console.log('- 不稳定排序，相同元素位置可能改变');
+        console.log('- 无法提前终止，必须完成所有比较');
+
+        console.log('\n适用场景:');
+        console.log('- 数据量较小（n < 50）');
+        console.log('- 内存空间受限的环境');
+        console.log('- 交换成本高于比较成本的场景');
+        console.log('- 简单的教学演示');
+
+        console.log('\n与其他排序算法比较:');
+        console.log('- vs 冒泡排序: 交换次数更少，但时间复杂度相同');
+        console.log('- vs 插入排序: 在最好情况下性能更差');
+        console.log('- vs 快速排序: 时间复杂度差距很大');
+        console.log('- vs 归并排序: 空间复杂度更优，但时间复杂度更差');
+
+        console.log('\n=== 选择排序算法演示完毕 ===');
+    </script>
+</body>
+</html>
