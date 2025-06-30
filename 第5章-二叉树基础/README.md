@@ -4,6 +4,343 @@
 
 二叉树是一种重要的非线性数据结构，在计算机科学中应用广泛。本章将深入探讨二叉树的基础概念、常用操作，以及基于二叉树的核心算法思想。
 
+## 二叉树基础概念 🌳
+
+### 定义与特性
+
+**二叉树定义**：
+二叉树是每个节点最多有两个子节点的树结构，这两个子节点分别称为左子节点和右子节点。
+
+**基本特性**：
+- 每个节点最多有两个子节点
+- 子节点有左右之分，不能颠倒
+- 二叉树可以为空（空树也是二叉树）
+- 左子树和右子树也都是二叉树（递归定义）
+
+```javascript
+/**
+ * 二叉树节点定义
+ */
+class TreeNode {
+    constructor(val = 0, left = null, right = null) {
+        this.val = val;      // 节点值
+        this.left = left;    // 左子节点
+        this.right = right;  // 右子节点
+    }
+}
+```
+
+### 二叉树的重要术语
+
+```javascript
+/**
+ * 二叉树术语示例
+ *        A (根节点)
+ *       / \
+ *      B   C (A的子节点，B和C是兄弟节点)
+ *     / \   \
+ *    D   E   F (叶子节点：D、E、F)
+ *
+ * 术语说明：
+ * - 根节点：A（没有父节点的节点）
+ * - 叶子节点：D、E、F（没有子节点的节点）
+ * - 内部节点：A、B、C（有子节点的节点）
+ * - 深度：节点到根节点的距离（A:0, B:1, D:2）
+ * - 高度：节点到最远叶子节点的距离（A:2, B:1, D:0）
+ * - 层数：深度+1（A:1, B:2, D:3）
+ */
+
+// 计算节点深度
+function getDepth(root, target, depth = 0) {
+    if (!root) return -1;
+    if (root.val === target) return depth;
+
+    const leftDepth = getDepth(root.left, target, depth + 1);
+    if (leftDepth !== -1) return leftDepth;
+
+    return getDepth(root.right, target, depth + 1);
+}
+
+// 计算节点高度
+function getHeight(root) {
+    if (!root) return -1;
+    return Math.max(getHeight(root.left), getHeight(root.right)) + 1;
+}
+```
+
+### 二叉树的分类
+
+#### 1. 满二叉树（Full Binary Tree）
+
+**定义**：除了叶子节点，每个节点都有两个子节点的二叉树。
+
+```javascript
+/**
+ * 判断是否为满二叉树
+ */
+function isFullBinaryTree(root) {
+    if (!root) return true;
+
+    // 叶子节点
+    if (!root.left && !root.right) return true;
+
+    // 有两个子节点，递归检查
+    if (root.left && root.right) {
+        return isFullBinaryTree(root.left) && isFullBinaryTree(root.right);
+    }
+
+    // 只有一个子节点，不是满二叉树
+    return false;
+}
+
+/**
+ * 满二叉树示例：
+ *       1
+ *      / \
+ *     2   3
+ *    / \ / \
+ *   4  5 6  7
+ */
+```
+
+#### 2. 完全二叉树（Complete Binary Tree）
+
+**定义**：除了最后一层，所有层都被完全填满，且最后一层的节点都靠左排列。
+
+```javascript
+/**
+ * 判断是否为完全二叉树
+ */
+function isCompleteBinaryTree(root) {
+    if (!root) return true;
+
+    const queue = [root];
+    let foundNull = false;
+
+    while (queue.length > 0) {
+        const node = queue.shift();
+
+        if (node === null) {
+            foundNull = true;
+        } else {
+            // 如果之前遇到过null，现在又遇到非null节点，不是完全二叉树
+            if (foundNull) return false;
+
+            queue.push(node.left);
+            queue.push(node.right);
+        }
+    }
+
+    return true;
+}
+
+/**
+ * 完全二叉树示例：
+ *       1
+ *      / \
+ *     2   3
+ *    / \ /
+ *   4  5 6
+ */
+```
+
+#### 3. 平衡二叉树（Balanced Binary Tree）
+
+**定义**：任意节点的左右子树高度差不超过1的二叉树。
+
+```javascript
+/**
+ * 判断是否为平衡二叉树
+ */
+function isBalanced(root) {
+    function getHeightAndCheck(node) {
+        if (!node) return 0;
+
+        const leftHeight = getHeightAndCheck(node.left);
+        if (leftHeight === -1) return -1; // 左子树不平衡
+
+        const rightHeight = getHeightAndCheck(node.right);
+        if (rightHeight === -1) return -1; // 右子树不平衡
+
+        // 检查当前节点是否平衡
+        if (Math.abs(leftHeight - rightHeight) > 1) return -1;
+
+        return Math.max(leftHeight, rightHeight) + 1;
+    }
+
+    return getHeightAndCheck(root) !== -1;
+}
+```
+
+#### 4. 二叉搜索树（Binary Search Tree）
+
+**定义**：对于任意节点，左子树的所有值小于节点值，右子树的所有值大于节点值。
+
+```javascript
+/**
+ * 验证二叉搜索树
+ */
+function isValidBST(root, min = -Infinity, max = Infinity) {
+    if (!root) return true;
+
+    // 检查当前节点值是否在有效范围内
+    if (root.val <= min || root.val >= max) return false;
+
+    // 递归检查左右子树
+    return isValidBST(root.left, min, root.val) &&
+           isValidBST(root.right, root.val, max);
+}
+
+/**
+ * 二叉搜索树示例：
+ *       5
+ *      / \
+ *     3   8
+ *    / \ / \
+ *   2  4 7  9
+ */
+```
+
+### 二叉树的性质
+
+```javascript
+/**
+ * 二叉树的重要性质
+ */
+class BinaryTreeProperties {
+    /**
+     * 性质1：二叉树第i层最多有 2^(i-1) 个节点（i>=1）
+     */
+    static maxNodesAtLevel(level) {
+        return Math.pow(2, level - 1);
+    }
+
+    /**
+     * 性质2：深度为k的二叉树最多有 2^k - 1 个节点
+     */
+    static maxNodesAtDepth(depth) {
+        return Math.pow(2, depth) - 1;
+    }
+
+    /**
+     * 性质3：对于任意二叉树，叶子节点数 = 度为2的节点数 + 1
+     */
+    static verifyLeafProperty(root) {
+        const counts = { leaf: 0, degree2: 0 };
+
+        function traverse(node) {
+            if (!node) return;
+
+            const children = (node.left ? 1 : 0) + (node.right ? 1 : 0);
+            if (children === 0) counts.leaf++;
+            if (children === 2) counts.degree2++;
+
+            traverse(node.left);
+            traverse(node.right);
+        }
+
+        traverse(root);
+        return counts.leaf === counts.degree2 + 1;
+    }
+
+    /**
+     * 性质4：完全二叉树的数组表示
+     * 节点i的左子节点：2i+1，右子节点：2i+2，父节点：floor((i-1)/2)
+     */
+    static arrayRepresentation() {
+        return {
+            getLeftChild: (i) => 2 * i + 1,
+            getRightChild: (i) => 2 * i + 2,
+            getParent: (i) => Math.floor((i - 1) / 2)
+        };
+    }
+}
+```
+
+### 二叉树的存储方式
+
+#### 1. 链式存储（推荐）
+
+```javascript
+/**
+ * 链式存储结构
+ * 优点：灵活，节省空间，便于插入删除
+ * 缺点：需要额外指针空间
+ */
+class TreeNode {
+    constructor(val = 0, left = null, right = null) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+    }
+}
+
+// 带父指针的节点
+class TreeNodeWithParent {
+    constructor(val = 0, left = null, right = null, parent = null) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+        this.parent = parent;
+    }
+}
+```
+
+#### 2. 顺序存储（数组表示）
+
+```javascript
+/**
+ * 数组存储结构
+ * 优点：节省指针空间，便于计算父子关系
+ * 缺点：对非完全二叉树空间浪费大
+ */
+class ArrayBinaryTree {
+    constructor(capacity = 100) {
+        this.tree = new Array(capacity).fill(null);
+        this.size = 0;
+    }
+
+    // 获取父节点索引
+    getParentIndex(i) {
+        return i === 0 ? -1 : Math.floor((i - 1) / 2);
+    }
+
+    // 获取左子节点索引
+    getLeftChildIndex(i) {
+        return 2 * i + 1;
+    }
+
+    // 获取右子节点索引
+    getRightChildIndex(i) {
+        return 2 * i + 2;
+    }
+
+    // 插入节点（层序插入）
+    insert(val) {
+        if (this.size >= this.tree.length) return false;
+        this.tree[this.size] = val;
+        this.size++;
+        return true;
+    }
+
+    // 获取树的高度
+    getHeight() {
+        if (this.size === 0) return 0;
+        return Math.floor(Math.log2(this.size)) + 1;
+    }
+}
+```
+
+### 二叉树的基本操作复杂度
+
+| 操作 | 链式存储 | 数组存储 | 说明 |
+|------|---------|---------|------|
+| 访问根节点 | O(1) | O(1) | 直接访问 |
+| 插入节点 | O(1) | O(1) | 在已知位置插入 |
+| 删除节点 | O(1) | O(n) | 删除后可能需要移动元素 |
+| 查找节点 | O(n) | O(n) | 最坏情况需要遍历整棵树 |
+| 空间复杂度 | O(n) | O(2^h) | h为树的高度 |
+
 ## 二叉树基础操作 🔧
 
 ### 节点访问方法

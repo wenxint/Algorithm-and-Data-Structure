@@ -164,6 +164,7 @@
              * 核心思想：
              * 左子树 -> 根节点 -> 右子树的顺序遍历
              * 对于二叉搜索树，中序遍历会得到有序序列
+             * 对于二叉搜索树（BST），中序遍历的结果是一个 升序排列 的序列，这是其最重要的特性
              *
              * @param {Node} node - 当前节点
              * @param {Function} callback - 访问节点时的回调函数
@@ -331,6 +332,303 @@
                     isEmpty: this.root === null
                 };
             }
+
+            /**
+             * 获取树的深度（高度）
+             *
+             * 核心思想：
+             * 树的深度是从根节点到最深叶子节点的最长路径上的节点数
+             * 使用递归方法：深度 = max(左子树深度, 右子树深度) + 1
+             *
+             * @param {Node} node - 当前节点（默认为根节点）
+             * @returns {number} 树的深度
+             * @time O(n) - 需要访问每个节点
+             * @space O(h) - 递归栈深度为树的高度h
+             */
+            getDepth(node = this.root) {
+                if (node === null) return 0;
+
+                const leftDepth = this.getDepth(node.left);
+                const rightDepth = this.getDepth(node.right);
+
+                return Math.max(leftDepth, rightDepth) + 1;
+            }
+
+            /**
+             * 获取指定节点的深度（从根节点到该节点的距离）
+             *
+             * 核心思想：
+             * 从根节点开始查找目标节点，记录经过的路径长度
+             * 根节点的深度为0，每向下一层深度加1
+             *
+             * @param {*} key - 要查找的节点键值
+             * @returns {number} 节点深度，如果节点不存在返回-1
+             */
+            // getNodeDepth(key) {
+            //     return this.findNodeDepth(this.root, key, 0);
+            // }
+
+            // /**
+            //  * 递归查找节点深度的辅助方法
+            //  *
+            //  * @param {Node} node - 当前节点
+            //  * @param {*} key - 要查找的键值
+            //  * @param {number} currentDepth - 当前深度
+            //  * @returns {number} 节点深度或-1
+            //  */
+            // findNodeDepth(node, key, currentDepth) {
+            //     if (node === null) return -1; // 节点不存在
+
+            //     if (key === node.key) {
+            //         return currentDepth; // 找到目标节点
+            //     }
+
+            //     // 根据BST性质继续查找
+            //     if (key < node.key) {
+            //         return this.findNodeDepth(node.left, key, currentDepth + 1);
+            //     } else {
+            //         return this.findNodeDepth(node.right, key, currentDepth + 1);
+            //     }
+            // }
+
+            // /**
+            //  * 获取树的所有深度信息
+            //  *
+            //  * 核心思想：
+            //  * 提供树的完整深度分析，包括：
+            //  * - 总深度/高度
+            //  * - 最小深度（到最近叶子节点）
+            //  * - 平均深度
+            //  * - 各层节点数量分布
+            //  *
+            //  * @returns {object} 包含各种深度信息的对象
+            //  */
+            // getDepthInfo() {
+            //     if (this.root === null) {
+            //         return {
+            //             maxDepth: 0,
+            //             minDepth: 0,
+            //             averageDepth: 0,
+            //             levelCounts: [],
+            //             isBalanced: true,
+            //             leafNodes: []
+            //         };
+            //     }
+
+            //     const depthInfo = {
+            //         maxDepth: this.getDepth(),
+            //         minDepth: this.getMinDepth(),
+            //         averageDepth: 0,
+            //         levelCounts: this.getLevelCounts(),
+            //         leafNodes: this.getLeafNodes(),
+            //         isBalanced: this.isBalanced()
+            //     };
+
+            //     // 计算平均深度
+            //     const totalNodes = this.getNodeCount();
+            //     if (totalNodes > 0) {
+            //         let totalDepth = 0;
+            //         this.calculateTotalDepth(this.root, 0, (depth) => {
+            //             totalDepth += depth;
+            //         });
+            //         depthInfo.averageDepth = (totalDepth / totalNodes).toFixed(2);
+            //     }
+
+            //     return depthInfo;
+            // }
+
+            // /**
+            //  * 获取树的最小深度（到最近叶子节点的距离）
+            //  *
+            //  * 核心思想：
+            //  * 找到从根节点到最近叶子节点的最短路径
+            //  *
+            //  * @param {Node} node - 当前节点
+            //  * @returns {number} 最小深度
+            //  */
+            // getMinDepth(node = this.root) {
+            //     if (node === null) return 0;
+
+            //     // 如果是叶子节点，返回1
+            //     if (node.left === null && node.right === null) {
+            //         return 1;
+            //     }
+
+            //     // 如果只有右子树，递归计算右子树的最小深度
+            //     if (node.left === null) {
+            //         return this.getMinDepth(node.right) + 1;
+            //     }
+
+            //     // 如果只有左子树，递归计算左子树的最小深度
+            //     if (node.right === null) {
+            //         return this.getMinDepth(node.left) + 1;
+            //     }
+
+            //     // 两个子树都存在，取较小值
+            //     return Math.min(
+            //         this.getMinDepth(node.left),
+            //         this.getMinDepth(node.right)
+            //     ) + 1;
+            // }
+
+            // /**
+            //  * 获取每一层的节点数量
+            //  *
+            //  * @returns {number[]} 每层节点数量的数组
+            //  */
+            // getLevelCounts() {
+            //     const levelCounts = [];
+            //     this.countNodesAtLevel(this.root, 0, levelCounts);
+            //     return levelCounts;
+            // }
+
+            // /**
+            //  * 递归统计每层节点数量的辅助方法
+            //  *
+            //  * @param {Node} node - 当前节点
+            //  * @param {number} level - 当前层级
+            //  * @param {number[]} levelCounts - 各层节点数量数组
+            //  */
+            // countNodesAtLevel(node, level, levelCounts) {
+            //     if (node === null) return;
+
+            //     // 初始化当前层级的计数
+            //     if (levelCounts[level] === undefined) {
+            //         levelCounts[level] = 0;
+            //     }
+
+            //     levelCounts[level]++;
+
+            //     // 递归处理子节点
+            //     this.countNodesAtLevel(node.left, level + 1, levelCounts);
+            //     this.countNodesAtLevel(node.right, level + 1, levelCounts);
+            // }
+
+            // /**
+            //  * 获取所有叶子节点
+            //  *
+            //  * @returns {Array} 叶子节点键值数组
+            //  */
+            // getLeafNodes() {
+            //     const leafNodes = [];
+            //     this.findLeafNodes(this.root, leafNodes);
+            //     return leafNodes;
+            // }
+
+            // /**
+            //  * 递归查找叶子节点的辅助方法
+            //  *
+            //  * @param {Node} node - 当前节点
+            //  * @param {Array} leafNodes - 叶子节点数组
+            //  */
+            // findLeafNodes(node, leafNodes) {
+            //     if (node === null) return;
+
+            //     // 如果是叶子节点，添加到结果中
+            //     if (node.left === null && node.right === null) {
+            //         leafNodes.push(node.key);
+            //         return;
+            //     }
+
+            //     // 递归查找子树中的叶子节点
+            //     this.findLeafNodes(node.left, leafNodes);
+            //     this.findLeafNodes(node.right, leafNodes);
+            // }
+
+            // /**
+            //  * 判断树是否平衡
+            //  *
+            //  * 核心思想：
+            //  * 平衡二叉树的定义：任意节点的左右子树高度差不超过1
+            //  *
+            //  * @param {Node} node - 当前节点
+            //  * @returns {boolean} 是否平衡
+            //  */
+            // isBalanced(node = this.root) {
+            //     if (node === null) return true;
+
+            //     const leftHeight = this.getDepth(node.left);
+            //     const rightHeight = this.getDepth(node.right);
+
+            //     // 检查当前节点是否平衡，以及左右子树是否平衡
+            //     return Math.abs(leftHeight - rightHeight) <= 1 &&
+            //            this.isBalanced(node.left) &&
+            //            this.isBalanced(node.right);
+            // }
+
+            // /**
+            //  * 获取树中节点的总数
+            //  *
+            //  * @returns {number} 节点总数
+            //  */
+            // getNodeCount() {
+            //     return this.countNodes(this.root);
+            // }
+
+            // /**
+            //  * 递归计算节点数量的辅助方法
+            //  *
+            //  * @param {Node} node - 当前节点
+            //  * @returns {number} 节点数量
+            //  */
+            // countNodes(node) {
+            //     if (node === null) return 0;
+            //     return 1 + this.countNodes(node.left) + this.countNodes(node.right);
+            // }
+
+            // /**
+            //  * 计算总深度的辅助方法（用于计算平均深度）
+            //  *
+            //  * @param {Node} node - 当前节点
+            //  * @param {number} currentDepth - 当前深度
+            //  * @param {Function} callback - 处理深度的回调函数
+            //  */
+            // calculateTotalDepth(node, currentDepth, callback) {
+            //     if (node === null) return;
+
+            //     callback(currentDepth);
+            //     this.calculateTotalDepth(node.left, currentDepth + 1, callback);
+            //     this.calculateTotalDepth(node.right, currentDepth + 1, callback);
+            // }
+
+            // /**
+            //  * 打印树的详细深度分析
+            //  */
+            // printDepthAnalysis() {
+            //     console.log('=== 树的深度分析 ===');
+
+            //     if (this.root === null) {
+            //         console.log('空树，没有深度信息');
+            //         return;
+            //     }
+
+            //     const depthInfo = this.getDepthInfo();
+
+            //     console.log(`最大深度（高度）: ${depthInfo.maxDepth}`);
+            //     console.log(`最小深度: ${depthInfo.minDepth}`);
+            //     console.log(`平均深度: ${depthInfo.averageDepth}`);
+            //     console.log(`总节点数: ${this.getNodeCount()}`);
+            //     console.log(`是否平衡: ${depthInfo.isBalanced ? '是' : '否'}`);
+
+            //     console.log('\n各层节点分布:');
+            //     depthInfo.levelCounts.forEach((count, level) => {
+            //         console.log(`  第${level}层: ${count}个节点`);
+            //     });
+
+            //     console.log(`\n叶子节点: [${depthInfo.leafNodes.join(', ')}]`);
+
+            //     // 计算理想平衡树的高度
+            //     const idealHeight = Math.ceil(Math.log2(this.getNodeCount() + 1));
+            //     console.log(`\n理想平衡高度: ${idealHeight}`);
+            //     console.log(`当前高度与理想高度差: ${depthInfo.maxDepth - idealHeight}`);
+
+            //     // 平衡性分析
+            //     if (depthInfo.isBalanced) {
+            //         console.log('✅ 树结构较为平衡，查找效率良好');
+            //     } else {
+            //         console.log('⚠️ 树结构不平衡，可能影响查找效率');
+            //     }
+            // }
         }
 
         // ==================== 完整的调用示例 ====================
@@ -394,6 +692,48 @@
         console.log(`最大值: ${mytree.max()}`);
         console.log(`树的高度: ${mytree.getHeight()}`);
         console.log();
+
+        // 6.5. 测试深度分析功能
+        console.log('6.5. 测试深度分析功能');
+
+        // 测试单个节点深度查询
+        console.log('\n单个节点深度查询:');
+        const testKeys = [15, 10, 20, 8, 27];
+        testKeys.forEach(key => {
+            const depth = mytree.getNodeDepth(key);
+            console.log(`  节点 ${key} 的深度: ${depth >= 0 ? depth : '不存在'}`);
+        });
+
+        // 详细深度分析
+        console.log('\n');
+        mytree.printDepthAnalysis();
+
+        // 测试不同结构的树的深度特性
+        console.log('\n=== 对比不同树结构的深度特性 ===');
+
+        // // 创建一个相对平衡的树
+        // console.log('\n1. 相对平衡的树:');
+        // const balancedTree = new BST();
+        // const balancedValues = [50, 25, 75, 15, 35, 65, 85, 10, 20, 30, 40];
+        // balancedValues.forEach(value => balancedTree.insert(value));
+        // balancedTree.printDepthAnalysis();
+
+        // // 创建一个不平衡的树（类似链表）
+        // console.log('\n2. 不平衡的树（类似链表）:');
+        // const unbalancedTree = new BST();
+        // const unbalancedValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        // unbalancedValues.forEach(value => unbalancedTree.insert(value));
+        // unbalancedTree.printDepthAnalysis();
+
+        console.log('\n=== 深度分析对比总结 ===');
+        console.log('平衡树的优势:');
+        console.log('- 较小的树高度，查找效率高');
+        console.log('- 各层节点分布相对均匀');
+        console.log('- 最大深度接近理想平衡高度');
+        console.log('\n不平衡树的劣势:');
+        console.log('- 树高度过大，查找效率低');
+        console.log('- 节点分布不均，某些路径过长');
+        console.log('- 可能退化为链表结构');
 
         // 7. 实际应用示例：学生成绩管理系统
         console.log('7. 实际应用示例：学生成绩管理系统');
