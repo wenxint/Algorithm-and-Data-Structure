@@ -383,6 +383,7 @@ class BinaryTree {
         const result = [];
         const queue = [this.root];
         let leftToRight = true;
+        let level = 0;
 
         while (queue.length > 0) {
             const levelSize = queue.length;
@@ -403,6 +404,7 @@ class BinaryTree {
             }
 
             result.push(currentLevel);
+            level++;
             leftToRight = !leftToRight;
         }
 
