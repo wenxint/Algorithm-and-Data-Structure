@@ -7,29 +7,46 @@
   </head>
   <body>
     <script>
-   var NumArray = function (nums) {
-        let length = nums.length;
-        let arr = new Array(length+1).fill(0);
-        for (let i = 1; i <= nums.length; i++) {
-          arr[i] = arr[i - 1] + nums[i - 1];
+    let root = [3, 9, 20, null, null, 15, 7, 1,8];
+      let BooleanRoot = root.filter((item) => Boolean(item));
+      console.log(length);
+
+      function TreeNode(val, left, right) {
+        this.val = val === undefined ? 0 : val;
+        this.left = left === undefined ? null : left;
+        this.right = right === undefined ? null : right;
+      }
+      let count = 0;
+      function getTree(list, num = 0) {
+        // if (num >= Math.floor(list.length / 2)) {
+        //   return;
+        // }
+        count = count + 1;
+        console.log(num, "num");
+
+        if (num > BooleanRoot.length) {
+          return;
         }
-        this.arr = arr;
-        return this;
-      };
-      let a = new NumArray(nums);
-      console.log(a);
-
-      // console.log();
-
-      /**
-       * @param {number} left
-       * @param {number} right
-       * @return {number}
-       */
-      NumArray.prototype.sumRange = function (left, right) {
-        return this.arr[right+1] - this.arr[left];
-      };
-      console.log(a.sumRange(2, 3));
+        let node;
+        // for (let index = 0; index < list.length; index++) {
+        //   const element = list[index];
+        //   if (element) {
+        //     let left = list[index + 1];
+        //     let right = list[index + 2];
+        //     node = new TreeNode(element, left, right);
+        //   }
+        // }
+        // return node;
+        if (list[num]) {
+          let left = getTree(list, 2 * num + 1);
+          let right = getTree(list, 2 * num + 2);
+          node = new TreeNode(list[num], left, right);
+        }
+        return node;
+      }
+      let tree = getTree(root);
+      console.log(tree);
+      console.log(count);
     </script>
   </body>
 </html>
