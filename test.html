@@ -7,46 +7,42 @@
   </head>
   <body>
     <script>
-    let root = [3, 9, 20, null, null, 15, 7, 1,8];
-      let BooleanRoot = root.filter((item) => Boolean(item));
-      console.log(length);
+      function lengthOfLongestSubstring(s) {
+    const charSet = new Set();
+    let left = 0;
+    let maxLength = 0;
+    let maxStr = ""; // 新增：记录最长子串
 
-      function TreeNode(val, left, right) {
-        this.val = val === undefined ? 0 : val;
-        this.left = left === undefined ? null : left;
-        this.right = right === undefined ? null : right;
-      }
-      let count = 0;
-      function getTree(list, num = 0) {
-        // if (num >= Math.floor(list.length / 2)) {
-        //   return;
-        // }
-        count = count + 1;
-        console.log(num, "num");
+    for (let right = 0; right < s.length; right++) {
+        const currentChar = s[right];
 
-        if (num > BooleanRoot.length) {
-          return;
+        // 移除重复字符，直到窗口内无重复
+        while (charSet.has(currentChar)) {
+            charSet.delete(s[left]);
+            left++;
         }
-        let node;
-        // for (let index = 0; index < list.length; index++) {
-        //   const element = list[index];
-        //   if (element) {
-        //     let left = list[index + 1];
-        //     let right = list[index + 2];
-        //     node = new TreeNode(element, left, right);
-        //   }
-        // }
-        // return node;
-        if (list[num]) {
-          let left = getTree(list, 2 * num + 1);
-          let right = getTree(list, 2 * num + 2);
-          node = new TreeNode(list[num], left, right);
+
+        // 将当前字符加入窗口
+        charSet.add(currentChar);
+
+        // 计算当前窗口长度
+        const currentLength = right - left + 1;
+
+        // 更新最大长度和对应的子串（仅当当前窗口更长时）
+        if (currentLength > maxLength) {
+            maxLength = currentLength;
+            maxStr = s.slice(left, right + 1); // 记录当前子串
         }
-        return node;
-      }
-      let tree = getTree(root);
-      console.log(tree);
-      console.log(count);
+    }
+
+    return { maxLength, maxStr };
+}
+
+// 测试用例
+
+
+      // 测试用例
+      console.log(lengthOfLongestSubstring("abcabcbb")); // 输出: 3 ("abc")
     </script>
   </body>
 </html>
