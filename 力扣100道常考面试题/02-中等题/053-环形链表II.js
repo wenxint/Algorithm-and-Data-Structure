@@ -61,7 +61,7 @@ function detectCycle(head) {
     }
 
     // 第二阶段：找到环的入口
-    // 将一个指针重新指向头部，两个指针以相同速度移动
+    // 将慢指针重新指向头部，两个指针以相同速度移动
     slow = head;
     while (slow !== fast) {
         slow = slow.next;
