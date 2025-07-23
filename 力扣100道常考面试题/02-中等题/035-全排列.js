@@ -68,7 +68,7 @@ function permute(nums) {
             console.log(`    选择元素: ${nums[i]} (位置${i})`);
 
             // 递归生成剩余排列
-            backtrack();
+            backtrack();  
 
             // 回溯：撤销选择
             path.pop();
