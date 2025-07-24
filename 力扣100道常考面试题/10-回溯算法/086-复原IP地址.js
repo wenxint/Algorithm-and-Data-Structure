@@ -293,10 +293,10 @@ runAllTests();
 /**
  * 模块导出
  */
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        restoreIpAddresses,
-        restoreIpAddressesIterative,
-        isValidIpSegment
-    };
-}
+// if (typeof module !== 'undefined' && module.exports) {
+//     module.exports = {
+//         restoreIpAddresses,
+//         restoreIpAddressesIterative,
+//         isValidIpSegment
+//     };
+// }
