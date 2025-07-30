@@ -1,4 +1,4 @@
-﻿/**
+/**
  * LeetCode 091: 滑动窗口最大值 (Sliding Window Maximum)
  *
  * 题目描述：

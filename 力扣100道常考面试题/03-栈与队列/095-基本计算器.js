@@ -1,4 +1,4 @@
-﻿/**
+/**
  * LeetCode 095: 基本计算器 (Basic Calculator)
  *
  * 题目描述：

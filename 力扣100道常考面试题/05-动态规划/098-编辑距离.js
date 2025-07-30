@@ -1,4 +1,4 @@
-﻿/**
+/**
  * LeetCode 098: 编辑距离 (Edit Distance)
  *
  * 题目描述：

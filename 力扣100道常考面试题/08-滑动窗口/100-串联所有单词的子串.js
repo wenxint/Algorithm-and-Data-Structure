@@ -1,4 +1,4 @@
-﻿/**
+/**
  * LeetCode 100: 串联所有单词的子串 (Substring with Concatenation of All Words)
  *
  * 题目描述：

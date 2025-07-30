@@ -1,4 +1,4 @@
-﻿/**
+/**
  * LeetCode 096: 最大矩形 (Maximal Rectangle)
  *
  * 题目描述：
