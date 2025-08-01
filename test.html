@@ -7,42 +7,36 @@
   </head>
   <body>
     <script>
-      function lengthOfLongestSubstring(s) {
-    const charSet = new Set();
-    let left = 0;
-    let maxLength = 0;
-    let maxStr = ""; // 新增：记录最长子串
+      async function async1() {
+        console.log("async1 start");
+        await async2();
+        console.log("async1 end");
+      }
 
-    for (let right = 0; right < s.length; right++) {
-        const currentChar = s[right];
+      async function async2() {
+        console.log("async2");
+      }
 
-        // 移除重复字符，直到窗口内无重复
-        while (charSet.has(currentChar)) {
-            charSet.delete(s[left]);
-            left++;
-        }
+      console.log("script start");
 
-        // 将当前字符加入窗口
-        charSet.add(currentChar);
+      setTimeout(function () {
+        console.log("setTimeout");
+      }, 0);
 
-        // 计算当前窗口长度
-        const currentLength = right - left + 1;
+      async1();
 
-        // 更新最大长度和对应的子串（仅当当前窗口更长时）
-        if (currentLength > maxLength) {
-            maxLength = currentLength;
-            maxStr = s.slice(left, right + 1); // 记录当前子串
-        }
-    }
+      new Promise(function (resolve) {
+        console.log("promise1");
+        resolve();
+      }).then(function () {
+        console.log("promise2");
+      });
 
-    return { maxLength, maxStr };
-}
-
-// 测试用例
-
+      console.log("script end");
+      // 测试用例
 
       // 测试用例
-      console.log(lengthOfLongestSubstring("abcabcbb")); // 输出: 3 ("abc")
+    
     </script>
   </body>
 </html>
